@@ -3,6 +3,7 @@ from collections import defaultdict
 
 def ej1(st):
     r = {}
+    # Contamos cuantas ocurrencias hay de cada categoria y almacenamos en un diccionario
     for subst in st.split(" "):
         word, category = subst.split("/")
         r[category] = r.get(category, 0) + 1
@@ -13,6 +14,7 @@ def ej2(st):
     r = {}
     cat_f = {}
     words_cats = defaultdict(dict)
+    # Hacemos splits en substring de "{PALABRA} {CATEGORIA}"" y procesamos la substring para almacenar la informacion necesaria para generar el resultado en O(N)
     for subst in st.split(" "):
         word, category = subst.split("/")
         word = word.lower()
@@ -21,14 +23,14 @@ def ej2(st):
         cat_f[(word, category)] = cat_f.get((word, category), 0) + 1
     for word in r.keys():
         r[word] = (
-            f"{r[word]}  "
-            + "".join([f"{category} {cat_f[(word,category)]}  " for category in words_cats[word]]).strip()
+            f"{r[word]}  " + "".join([f"{category} {cat_f[(word,category)]} " for category in words_cats[word]]).strip()
         )
     return r
 
 
 def ej3(st):
-    cats = [subst.split("/")[1] for subst in st.split(" ")]
+    # Hacemos splits en substrings de "{PALABRA} {CATEGORIA}"" y nos quedamos con una lista SOLO de categorias. Con esta calculamos los bigramas y su frecuencia
+    cats = ["<S>"] + [subst.split("/")[1] for subst in st.split(" ")] + ["</S>"]
     r = {}
     prev_cat = cats[0]
     for i in range(1, len(cats)):
@@ -37,26 +39,33 @@ def ej3(st):
     return r
 
 
-def ej4(st, w, c):
+def ej4(st, w):
+    # Ejecutamos el ej1 y ej2 para usar los resultados en el calculo de probabilidades
     r1 = ej1(st)
     r2 = ej2(st)
+    # Checkeamos que la palabra este contenida en la cadena
     if w not in r2.keys():
         print("Palabra desconocida")
         return
+    # Calculamos las probabilidades de emision de la palabra para todas sus categorias
     # P(W|c)
     c_count = r2[w][0]
-    info = r2[w][3:].split("  ")
+    info = r2[w].split(" ")[2:]  # Nos saltamos los 2 primeros ya que no corresponden a informacion de categorias
+    info = zip(info[::2], info[1::2])  # Juntamos categoria y frecuencia en tuplas
     tmp = {}
-    print(info)
     for ocurrence in info:
-        c_tmp, n_tmp = ocurrence.split(" ")
+        c_tmp, n_tmp = ocurrence
         tmp[c_tmp] = n_tmp
-    p_w_c = int(tmp[c]) / int(c_count)
 
+    for c in tmp.keys():
+        p_w_c = int(tmp[c]) / int(c_count)
+        print(f"P( {c} | {w} )= {p_w_c}")
+
+    # Calculamos las probabilidades lexicas de la palabra para todas sus categorias
     # P(C|W)
-    p_c_w = int(tmp[c]) / int(r1[c])
-
-    return p_w_c, p_c_w
+    for c in tmp.keys():
+        p_c_w = int(tmp[c]) / int(r1[c])
+        print(f"P( {c} | {w} )= {p_c_w}")
 
 
 def main():
@@ -75,8 +84,8 @@ def main():
     r = ej3(st)
     for key in r:
         print(f"{key} {r[key]}")
-
-    print(ej4(st, "la", "DT"))
+    print("Ej 4 \n------------------")
+    ej4(st, "la")
 
 
 if __name__ == "__main__":
