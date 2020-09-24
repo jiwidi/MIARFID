@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[1]:
-
-
 from tqdm import tqdm
 from joblib import Parallel, delayed
 import multiprocessing
@@ -24,16 +20,87 @@ num_cores = multiprocessing.cpu_count()
 enviorment = "CartPole-v1"
 game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
-num_agents = 50000  # initialize N number of agents
+num_agents = 500  # initialize N number of agents
 top_limit = 200
 generations = 1000
 
 
+def normalized_columns_initializer(weights, std=1.0):
+    out = torch.randn(weights.size())
+    out *= std / torch.sqrt(out.pow(2).sum(1, keepdim=True))
+    return out
+
+
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find("Conv") != -1:
+        weight_shape = list(m.weight.data.size())
+        fan_in = np.prod(weight_shape[1:4])
+        fan_out = np.prod(weight_shape[2:4]) * weight_shape[0]
+        w_bound = np.sqrt(6.0 / (fan_in + fan_out))
+        m.weight.data.uniform_(-w_bound, w_bound)
+        m.bias.data.fill_(0)
+    elif classname.find("Linear") != -1:
+        weight_shape = list(m.weight.data.size())
+        fan_in = weight_shape[1]
+        fan_out = weight_shape[0]
+        w_bound = np.sqrt(6.0 / (fan_in + fan_out))
+        m.weight.data.uniform_(-w_bound, w_bound)
+        m.bias.data.fill_(0)
+
+
+class ActorCritic(torch.nn.Module):
+    def __init__(self, num_inputs, num_actions):
+        super(ActorCritic, self).__init__()
+        self.conv1 = nn.Conv2d(num_inputs, 32, 3, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
+        self.conv3 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
+        self.conv4 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
+
+        self.lstm = nn.LSTMCell(32 * 6 * 6, 512)
+
+        self.critic_linear = nn.Linear(512, 1)
+        self.actor_linear = nn.Linear(512, num_actions)
+
+        self.apply(weights_init)
+        self.actor_linear.weight.data = normalized_columns_initializer(self.actor_linear.weight.data, 0.01)
+        self.actor_linear.bias.data.fill_(0)
+        self.critic_linear.weight.data = normalized_columns_initializer(self.critic_linear.weight.data, 1.0)
+        self.critic_linear.bias.data.fill_(0)
+
+        self.lstm.bias_ih.data.fill_(0)
+        self.lstm.bias_hh.data.fill_(0)
+
+        self.train()
+
+    def forward(self, inputs):
+        inputs, (hx, cx) = inputs
+        x = F.elu(self.conv1(inputs))
+        x = F.elu(self.conv2(x))
+        x = F.elu(self.conv3(x))
+        x = F.elu(self.conv4(x))
+
+        x = x.view(-1, 32 * 6 * 6)
+        hx, cx = self.lstm(x, (hx, cx))
+        x = hx
+
+        return self.critic_linear(x), self.actor_linear(x), (hx, cx)
+
+
 class CartPoleAI(nn.Module):
-    def __init__(self):
+    def __init__(self, num_inputs, num_actions):
         super().__init__()
+        # self.fc = nn.Sequential(
+        #     nn.Linear(4, 128, bias=True), nn.ReLU(), nn.Linear(128, 2, bias=True), nn.Softmax(dim=1)
+        # )
         self.fc = nn.Sequential(
-            nn.Linear(4, 128, bias=True), nn.ReLU(), nn.Linear(128, 2, bias=True), nn.Softmax(dim=1)
+            nn.Linear(num_inputs, 128, bias=True),
+            nn.ReLU(),
+            nn.Linear(128, 128, bias=True),
+            nn.ReLU(),
+            nn.Linear(128, num_actions, bias=True),
+            nn.Softmax(dim=1)
+            # )
         )
 
     def forward(self, inputs):
@@ -42,10 +109,6 @@ class CartPoleAI(nn.Module):
 
 
 def init_weights(m):
-    # nn.Conv2d weights are of shape [16, 1, 3, 3] i.e. # number of filters, 1, stride, stride
-    # nn.Conv2d bias is of shape [16] i.e. # number of filters
-    # nn.Linear weights are of shape [32, 24336] i.e. # number of input features, number of output features
-    # nn.Linear bias is of shape [32] i.e. # number of output features
     if (isinstance(m, nn.Linear)) | (isinstance(m, nn.Conv2d)):
         torch.nn.init.xavier_uniform(m.weight)
         m.bias.data.fill_(0.00)
@@ -54,7 +117,7 @@ def init_weights(m):
 def return_random_agents(num_agents):
     agents = []
     for _ in range(num_agents):
-        agent = CartPoleAI()
+        agent = CartPoleAI(4, 2)
         for param in agent.parameters():
             param.requires_grad = False
         init_weights(agent)
@@ -94,7 +157,12 @@ def return_average_score(agent, runs):
 
 
 def run_agents_n_times(agents, runs):
-    agents_avg_scores = Parallel(n_jobs=num_cores)(delayed(return_average_score)(i, runs) for i in agents)
+    agents_avg_scores = Parallel(n_jobs=num_cores)(
+        delayed(return_average_score)(i, runs) for i in tqdm(agents, leave=False)
+    )
+    # agents_avg_scores = []
+    # for agent in tqdm(agents):
+    #     agents_avg_scores = agents_avg_scores + [return_average_score(agent, runs)]
     return agents_avg_scores
 
 
@@ -102,32 +170,12 @@ def mutate(agent):
     child_agent = copy.deepcopy(agent)
     mutation_power = 0.02  # hyper-parameter, set from https://arxiv.org/pdf/1712.06567.pdf
     for param in child_agent.parameters():
-        if len(param.shape) == 4:  # weights of Conv2D
-            for i0 in range(param.shape[0]):
-                for i1 in range(param.shape[1]):
-                    for i2 in range(param.shape[2]):
-                        for i3 in range(param.shape[3]):
-                            param[i0][i1][i2][i3] += mutation_power * np.random.randn()
-        elif len(param.shape) == 2:  # weights of linear layer
-            for i0 in range(param.shape[0]):
-                for i1 in range(param.shape[1]):
-                    param[i0][i1] += mutation_power * np.random.randn()
-        elif len(param.shape) == 1:  # biases of linear layer or conv layer
-            for i0 in range(param.shape[0]):
-                param[i0] += mutation_power * np.random.randn()
+        param.data += mutation_power * torch.randn_like(param)
     return child_agent
 
 
 def return_children(agents, sorted_parent_indexes, elite_index):
-
     children_agents = []
-
-    # first take selected parents from sorted_parent_indexes and generate N-1
-    # children
-    # for i in range(len(agents) - 1):
-    #     selected_agent_index = sorted_parent_indexes[np.random.randint(len(sorted_parent_indexes))]
-    #     children_agents.append(mutate(agents[selected_agent_index]))
-    # agents = tqdm(agents)
     children_agents = Parallel(n_jobs=num_cores)(
         delayed(mutate)(agents[sorted_parent_indexes[np.random.randint(len(sorted_parent_indexes))]]) for i in agents
     )
@@ -140,7 +188,6 @@ def return_children(agents, sorted_parent_indexes, elite_index):
 
 
 def add_elite(agents, sorted_parent_indexes, elite_index=None, only_consider_top_n=10):
-
     candidate_elite_index = sorted_parent_indexes[:only_consider_top_n]
     if elite_index is not None:
         candidate_elite_index = np.append(candidate_elite_index, [elite_index])
@@ -156,18 +203,12 @@ def add_elite(agents, sorted_parent_indexes, elite_index=None, only_consider_top
         elif score > top_score:
             top_score = score
             top_elite_index = i
-
-    print("Elite selected with index ", top_elite_index, " and score", top_score)
     child_agent = copy.deepcopy(agents[top_elite_index])
     return child_agent
 
 
-def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
-
-
 def play_agent(agent):
+    print("er")
     try:  # try and exception block because, render hangs if an erorr occurs, we must do env.close to continue working
         env = gym.make(enviorment)
         env_record = Monitor(env, "./video", force=True)
@@ -177,7 +218,6 @@ def play_agent(agent):
         for _ in range(250):
             env_record.render()
             inp = torch.tensor(observation).type("torch.FloatTensor").view(1, -1)
-            print(inp.shape)
             output_probabilities = agent(inp).detach().numpy()[0]
             action = np.random.choice(range(game_actions), 1, p=output_probabilities).item()
             new_observation, reward, done, info = env_record.step(action)
@@ -191,12 +231,10 @@ def play_agent(agent):
 
     except Exception as e:
         env_record.close()
-        print(e.__doc__)
-        print(e.message)
 
 
 def main():
-    agents = return_random_agents(num_agents)  # How many top agents to consider as parents
+    agents = return_random_agents(num_agents)
     elite_index = None
     for generation in range(generations):
         rewards = run_agents_n_times(agents, 3)
@@ -204,12 +242,11 @@ def main():
         top_rewards = [rewards[best_parent] for best_parent in sorted_parent_indexes]
 
         print(
-            "Generation ",
-            generation,
-            " | Mean rewards: ",
-            np.mean(rewards),
-            " | Mean of top 5: ",
-            np.mean(top_rewards[:5]),
+            "Generation {0:.3g} | Mean rewards: {1:.3g} | Mean reward of top 5: {2:.4g}".format(
+                generation,
+                np.mean(rewards),
+                np.mean(top_rewards[:5]),
+            )
         )
 
         # setup an empty list for containing children agents
