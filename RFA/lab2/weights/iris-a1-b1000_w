@@ -1,0 +1,12 @@
+# Created by Octave 5.2.0, Thu Sep 24 16:42:40 2020 CEST <jiwidi@land>
+# name: w
+# type: matrix
+# rows: 5
+# columns: 3
+ -66 -166 -290
+ -745.5 -1070 -1061
+ -213.3 -475.8 -769.2
+ -1231 -399.1 -197.9
+ -458 -308.6 207.8
+
+

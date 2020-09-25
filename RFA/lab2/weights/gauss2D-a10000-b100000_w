@@ -1,0 +1,10 @@
+# Created by Octave 5.2.0, Thu Sep 24 16:34:38 2020 CEST <jiwidi@land>
+# name: w
+# type: matrix
+# rows: 3
+# columns: 2
+ 1.9e+05 -1.9e+05
+ -1.322e+04 1.322e+04
+ -1.382e+05 1.382e+05
+
+
