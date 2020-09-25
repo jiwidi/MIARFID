@@ -208,7 +208,6 @@ def add_elite(agents, sorted_parent_indexes, elite_index=None, only_consider_top
 
 
 def play_agent(agent):
-    print("er")
     try:  # try and exception block because, render hangs if an erorr occurs, we must do env.close to continue working
         env = gym.make(enviorment)
         env_record = Monitor(env, "./video", force=True)
