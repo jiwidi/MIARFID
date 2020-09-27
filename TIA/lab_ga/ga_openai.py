@@ -14,7 +14,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 import math
 import copy
+import random
 from tqdm import tqdm
+import pdb
+
 
 num_cores = multiprocessing.cpu_count()
 enviorment = "CartPole-v1"
@@ -22,69 +25,7 @@ game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
 num_agents = 500  # initialize N number of agents
 top_limit = 200
-generations = 1000
-
-
-def normalized_columns_initializer(weights, std=1.0):
-    out = torch.randn(weights.size())
-    out *= std / torch.sqrt(out.pow(2).sum(1, keepdim=True))
-    return out
-
-
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        weight_shape = list(m.weight.data.size())
-        fan_in = np.prod(weight_shape[1:4])
-        fan_out = np.prod(weight_shape[2:4]) * weight_shape[0]
-        w_bound = np.sqrt(6.0 / (fan_in + fan_out))
-        m.weight.data.uniform_(-w_bound, w_bound)
-        m.bias.data.fill_(0)
-    elif classname.find("Linear") != -1:
-        weight_shape = list(m.weight.data.size())
-        fan_in = weight_shape[1]
-        fan_out = weight_shape[0]
-        w_bound = np.sqrt(6.0 / (fan_in + fan_out))
-        m.weight.data.uniform_(-w_bound, w_bound)
-        m.bias.data.fill_(0)
-
-
-class ActorCritic(torch.nn.Module):
-    def __init__(self, num_inputs, num_actions):
-        super(ActorCritic, self).__init__()
-        self.conv1 = nn.Conv2d(num_inputs, 32, 3, stride=2, padding=1)
-        self.conv2 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
-        self.conv3 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
-        self.conv4 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
-
-        self.lstm = nn.LSTMCell(32 * 6 * 6, 512)
-
-        self.critic_linear = nn.Linear(512, 1)
-        self.actor_linear = nn.Linear(512, num_actions)
-
-        self.apply(weights_init)
-        self.actor_linear.weight.data = normalized_columns_initializer(self.actor_linear.weight.data, 0.01)
-        self.actor_linear.bias.data.fill_(0)
-        self.critic_linear.weight.data = normalized_columns_initializer(self.critic_linear.weight.data, 1.0)
-        self.critic_linear.bias.data.fill_(0)
-
-        self.lstm.bias_ih.data.fill_(0)
-        self.lstm.bias_hh.data.fill_(0)
-
-        self.train()
-
-    def forward(self, inputs):
-        inputs, (hx, cx) = inputs
-        x = F.elu(self.conv1(inputs))
-        x = F.elu(self.conv2(x))
-        x = F.elu(self.conv3(x))
-        x = F.elu(self.conv4(x))
-
-        x = x.view(-1, 32 * 6 * 6)
-        hx, cx = self.lstm(x, (hx, cx))
-        x = hx
-
-        return self.critic_linear(x), self.actor_linear(x), (hx, cx)
+generations = 1000000
 
 
 class CartPoleAI(nn.Module):
@@ -95,8 +36,6 @@ class CartPoleAI(nn.Module):
         # )
         self.fc = nn.Sequential(
             nn.Linear(num_inputs, 128, bias=True),
-            nn.ReLU(),
-            nn.Linear(128, 128, bias=True),
             nn.ReLU(),
             nn.Linear(128, num_actions, bias=True),
             nn.Softmax(dim=1)
@@ -174,17 +113,63 @@ def mutate(agent):
     return child_agent
 
 
-def return_children(agents, sorted_parent_indexes, elite_index):
-    children_agents = []
-    children_agents = Parallel(n_jobs=num_cores)(
-        delayed(mutate)(agents[sorted_parent_indexes[np.random.randint(len(sorted_parent_indexes))]]) for i in agents
-    )
-    # now add one elite
-    elite_child = add_elite(agents, sorted_parent_indexes, elite_index)
-    children_agents.append(elite_child)
-    elite_index = len(children_agents) - 1  # it is the last one
+def join_parents(parent1):
+    import pdb
 
-    return children_agents, elite_index
+    pdb.set_trace()
+
+
+def selection_ruleta(agents, fitness_list):
+    normalized_fitness = [float(i) / sum(fitness_list) for i in fitness_list]
+    return random.choices(population=agents, weights=normalized_fitness, k=len(agents))
+
+
+def selection_top(agents, fitness_list):
+    sorted_parent_indexes = np.argsort(fitness_list)[::-1][:top_limit]
+    top_agents = [agents[best_parent] for best_parent in sorted_parent_indexes]
+    return random.choices(population=top_agents, k=len(agents))
+
+
+def join_cross(parents):
+    children = []
+    for parent1, parent2 in zip(parents[0::2], parents[1::2]):
+        copy_parent1 = copy.deepcopy(parent1)
+        copy_parent2 = copy.deepcopy(parent2)
+        total = len(list(copy_parent1.parameters()))
+        i = 0
+        for param1, param2 in zip(copy_parent1.parameters(), copy_parent2.parameters()):
+            if i < total / 2:
+                param1.data = param1.data * 1
+                param2.data = param2.data * 1
+            else:
+                param1.data = param2.data * 1
+                param2.data = param1.data * 1
+            i += 1
+        children.append(copy_parent1)
+        children.append(copy_parent2)
+    return children
+
+
+def not_join(parents):
+    return parents
+
+
+def return_children(
+    agents,
+    fitness_list,
+    elite_index,
+    selection_function,
+    join_function,
+):
+    children_agents = []
+    # Select parents
+    selected_parents = selection_function(agents, fitness_list)
+    # Cuzamos los padres dado el metodo que hayamos elegido
+    children_agents = join_function(selected_parents)
+    # Mutamos los hijos
+    children_agents = Parallel(n_jobs=num_cores)(delayed(mutate)(i) for i in children_agents)
+
+    return children_agents  # , elite_index
 
 
 def add_elite(agents, sorted_parent_indexes, elite_index=None, only_consider_top_n=10):
@@ -236,20 +221,20 @@ def main():
     agents = return_random_agents(num_agents)
     elite_index = None
     for generation in range(generations):
-        rewards = run_agents_n_times(agents, 3)
-        sorted_parent_indexes = np.argsort(rewards)[::-1][:top_limit]
-        top_rewards = [rewards[best_parent] for best_parent in sorted_parent_indexes]
+        fitness = run_agents_n_times(agents, 3)
+        sorted_parent_indexes = np.argsort(fitness)[::-1][:top_limit]
+        top_fitness = [fitness[best_parent] for best_parent in sorted_parent_indexes]
 
         print(
-            "Generation {0:.3g} | Mean rewards: {1:.3g} | Mean reward of top 5: {2:.4g}".format(
+            "Generation {0:.3g} | Mean fitness: {1:.3g} | Mean reward of top 5: {2:.4g}".format(
                 generation,
-                np.mean(rewards),
-                np.mean(top_rewards[:5]),
+                np.mean(fitness),
+                np.mean(top_fitness[:5]),
             )
         )
 
         # setup an empty list for containing children agents
-        children_agents, elite_index = return_children(agents, sorted_parent_indexes, elite_index)
+        children_agents = return_children(agents, fitness, elite_index, selection_ruleta, join_cross)
 
         # kill all agents, and replace them with their children
         agents = children_agents

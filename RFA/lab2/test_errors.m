@@ -37,13 +37,13 @@ endfunction
 
 
 for dataset = 7:7 %length(datasets)
-    list_a=[.1 1 10 100 1000 10000 100000];
+    list_a=[10 10 10 10 10 10 10];
     list_b=[.1 1 10 100 1000 10000 100000];
     V=zeros(7,7);
     V
     i_a = 1;
     i_b = 1;
-    for a=[.1 1 10 100 1000 10000 100000]
+    for a=[10 10 10 10 10 10 10]
         i_b = 1;
         for b=[.1 1 10 100 1000 10000 100000]
             E=test_dataset_parameters(datasets{dataset},a,b);
