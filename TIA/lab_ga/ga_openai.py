@@ -23,8 +23,8 @@ num_cores = multiprocessing.cpu_count()
 enviorment = "CartPole-v1"
 game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
-num_agents = 500  # initialize N number of agents
-top_limit = 200
+num_agents = 100  # initialize N number of agents
+top_limit = 20
 generations = 1000000
 
 
@@ -226,7 +226,7 @@ def main():
         top_fitness = [fitness[best_parent] for best_parent in sorted_parent_indexes]
 
         print(
-            "Generation {0:.3g} | Mean fitness: {1:.3g} | Mean reward of top 5: {2:.4g}".format(
+            "Generation {0:.3g} | Mean fitness: {1:.3g} | Mean fitness of top 5: {2:.4g}".format(
                 generation,
                 np.mean(fitness),
                 np.mean(top_fitness[:5]),

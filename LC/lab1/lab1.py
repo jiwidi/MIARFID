@@ -69,22 +69,22 @@ def ej4(st, w):
 
 
 def main():
-    st = "El/DT perro/N come/V carne/N de/P la/DT carnicería/N y/C de/P la/DT nevera/N y/C canta/V el/DT la/N la/N la/N ./Fp"
+    st = "La/DT mamá/N de/P Pedro/N tiene/V tres/DNC tristes/Adj tigres/N que/C comen/V trigo/N en/P un/Pr triste/Adj trigal/N ./Fp ./Fp ./Fp Son/V tres/Pr que/C cantan/V en/P clave/N de/P la/N ./Fp La/DT mamá/N vino/V a/P beber/V vino/N ./Fp"
     print("Ej 1 \n------------------")
     r = ej1(st)
     rs = sorted(r.keys(), key=lambda x: x.lower())
     for key in rs:
         print(f"{key} {r[key]}")
-    print("Ej 2 \n------------------")
+    print("\nEj 2 \n------------------")
     r = ej2(st)
     rs = sorted(r.keys(), key=lambda x: x.lower())
     for key in rs:
         print(f"{key} {r[key]}")
-    print("Ej 3 \n------------------")
+    print("\nEj 3 \n------------------")
     r = ej3(st)
     for key in r:
         print(f"{key} {r[key]}")
-    print("Ej 4 \n------------------")
+    print("\nEj 4 \n------------------")
     ej4(st, "la")
 
 

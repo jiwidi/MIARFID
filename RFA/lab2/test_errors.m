@@ -36,14 +36,14 @@ endfunction
 % endfor
 
 
-for dataset = 7:7 %length(datasets)
-    list_a=[10 10 10 10 10 10 10];
+for dataset = 1:1 %length(datasets)
+    list_a=[.1 1 10 100 1000 10000 100000];
     list_b=[.1 1 10 100 1000 10000 100000];
     V=zeros(7,7);
     V
     i_a = 1;
     i_b = 1;
-    for a=[10 10 10 10 10 10 10]
+    for a=[.1 1 10 100 1000 10000 100000]
         i_b = 1;
         for b=[.1 1 10 100 1000 10000 100000]
             E=test_dataset_parameters(datasets{dataset},a,b);
@@ -57,8 +57,8 @@ for dataset = 7:7 %length(datasets)
     SurfObj = surf(list_a,list_b,V) % use logarithmic axes
     Axes = get( SurfObj, 'parent' );
     set( Axes, 'xscale', 'log', 'yscale', 'log' )   % use logarithmic axes
-    xlabel("Alpha");
-    ylabel("Beta")
-    title ("Test error for videos dataset across diferent A&B values")
-    print -djpg errorplot/videos.jpg
+    xlabel("Beta");
+    ylabel("Alpha")
+    title ("Test error for expressions across diferent A&B values")
+    print -djpg errorplot/expressions.jpg
 endfor
