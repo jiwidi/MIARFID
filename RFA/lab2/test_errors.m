@@ -1,6 +1,6 @@
-datasets = {'expressions','gauss2D','gender','iris','news','OCR_14x14','videos'};
+datasets = {'expressions','gauss2D','gender','iris','news','videos'};
 
-function [E] = test_dataset_parameters(dataset,a,b)
+function [E] = test_dataset_parameters(dataset)
     % dataset="expressions";
     printf("Testing dataset %s \n",dataset)
     data_path = strcat("data/", dataset,".gz");
@@ -12,7 +12,7 @@ function [E] = test_dataset_parameters(dataset,a,b)
     rand("seed",23); data=data(randperm(N),:);
     M=N-round(.7*N);
     te=data(N-M+1:N,:);
-    weights_path = strcat("weights/", dataset,"-a",num2str(a),"-b",num2str(b),"_w");
+    weights_path = strcat("deliverable/", dataset,"_w");
     load(weights_path); rl=zeros(M,1);
     for m=1:M
         tem=[1 te(m,1:D)]';
@@ -36,29 +36,20 @@ endfunction
 % endfor
 
 
-for dataset = 1:1 %length(datasets)
+for dataset = 1:length(datasets)
     list_a=[.1 1 10 100 1000 10000 100000];
     list_b=[.1 1 10 100 1000 10000 100000];
     V=zeros(7,7);
     V
     i_a = 1;
     i_b = 1;
-    for a=[.1 1 10 100 1000 10000 100000]
-        i_b = 1;
-        for b=[.1 1 10 100 1000 10000 100000]
-            E=test_dataset_parameters(datasets{dataset},a,b);
-            V(i_a,i_b) = E;
-            i_a
-            i_b
-            i_b = i_b +1;
-        endfor
-        i_a = i_a +1;
-    endfor
-    SurfObj = surf(list_a,list_b,V) % use logarithmic axes
-    Axes = get( SurfObj, 'parent' );
-    set( Axes, 'xscale', 'log', 'yscale', 'log' )   % use logarithmic axes
-    xlabel("Beta");
-    ylabel("Alpha")
-    title ("Test error for expressions across diferent A&B values")
-    print -djpg errorplot/expressions.jpg
+    E=test_dataset_parameters(datasets{dataset});
+    % V(i_a,i_b) = E;
+    % SurfObj = surf(list_a,list_b,V) % use logarithmic axes
+    % Axes = get( SurfObj, 'parent' );
+    % set( Axes, 'xscale', 'log', 'yscale', 'log' )   % use logarithmic axes
+    % xlabel("Beta");
+    % ylabel("Alpha")
+    % title ("Test error for expressions across diferent A&B values")
+    % % print -djpg errorplot/expressions.jpg
 endfor
