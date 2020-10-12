@@ -25,7 +25,7 @@ game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
 num_agents = 100  # initialize N number of agents
 top_limit = 20
-generations = 1000000
+generations = 10000
 
 
 class CartPoleAI(nn.Module):
@@ -121,27 +121,39 @@ def join_parents(parent1):
     pdb.set_trace()
 
 
-def selection_ruleta(agents, fitness_list):
+def selection_ruleta(agents, fitness_list, num_randoms=0):
     normalized_fitness = [float(i) / sum(fitness_list) for i in fitness_list]
-    return random.choices(population=agents, weights=normalized_fitness, k=len(agents))
+    selection = random.choices(
+        population=agents, weights=normalized_fitness, k=len(agents)
+    )
+    selection = selection[: (num_agents - num_randoms)] + return_random_agents(
+        num_randoms
+    )
+    return selection
 
 
-def selection_top(agents, fitness_list, top_limit):
+def selection_top(agents, fitness_list, top_limit, num_randoms=0):
     sorted_parent_indexes = np.argsort(fitness_list)[::-1][:top_limit]
     top_agents = [agents[best_parent] for best_parent in sorted_parent_indexes]
-    return random.choices(population=top_agents, k=len(agents))
+    selection = random.choices(population=top_agents, k=len(agents))
+    selection = selection[: (num_agents - num_randoms)] + return_random_agents(
+        num_randoms
+    )
+    return selection
 
 
-def select_agents(agents, fitness_list, mode="top", top_limit=top_limit):
+def select_agents(agents, fitness_list, mode="top", top_limit=top_limit, num_randoms=0):
     if mode == "top":
-        return selection_top(agents, fitness_list, top_limit=top_limit)
+        return selection_top(
+            agents, fitness_list, top_limit=top_limit, num_randoms=num_randoms
+        )
     elif mode == "ruleta":
-        return selection_ruleta(agents, fitness_list)
+        return selection_ruleta(agents, fitness_list, num_randoms)
     else:
         assert 1 == 0, "Mode not supported"
 
 
-def join_cross_new(parents, num_randoms):
+def join_cross_new(parents):
     children = []
     for parent1, parent2 in zip(parents[0::2], parents[1::2]):
         copy_parent1 = copy.deepcopy(parent1)
@@ -158,14 +170,10 @@ def join_cross_new(parents, num_randoms):
             i += 1
         children.append(copy_parent1)
         children.append(copy_parent2)
-
-    children = children[: (num_agents - num_randoms)] + return_random_agents(
-        num_randoms
-    )
     return children
 
 
-def join_cross_old(parents, num_randoms):
+def join_cross_old(parents):
     children = []
     for parent1, parent2 in zip(parents[0::2], parents[1::2]):
         copy_parent1 = copy.deepcopy(parent1)
@@ -180,25 +188,21 @@ def join_cross_old(parents, num_randoms):
             i += 1
         children.append(copy_parent1)
         children.append(copy_parent2)
-
-    children = children[: (num_agents - num_randoms)] + return_random_agents(
-        num_randoms
-    )
     return children
 
 
-def not_join(parents, num_randoms):
-    children = parents[: (num_agents - num_randoms)] + return_random_agents(num_randoms)
+def not_join(parents):
+    children = parents
     return children
 
 
-def join(parents, mode="cross", num_randoms=0):
+def join(parents, mode="cross"):
     if mode == "cross":
-        return join_cross_new(parents, num_randoms)
+        return join_cross_new(parents)
     elif mode == "none":
-        return not_join(parents, num_randoms)
+        return not_join(parents)
     elif mode == "cross-old":
-        return join_cross_old(parents, num_randoms)
+        return join_cross_old(parents)
     else:
         assert 1 == 0, "Mode not supported"
 
@@ -212,9 +216,11 @@ def return_children(
 ):
     children_agents = []
     # Select parents
-    selected_parents = select_agents(agents, fitness_list, selection_mode)
+    selected_parents = select_agents(
+        agents, fitness_list, selection_mode, num_agent_randoms
+    )
     # Cuzamos los padres dado el metodo que hayamos elegido
-    children_agents = join(selected_parents, join_mode, num_agent_randoms)
+    children_agents = join(selected_parents, join_mode)
     # Add extra random agents
 
     # Mutamos los hijos
