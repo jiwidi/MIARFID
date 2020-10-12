@@ -275,7 +275,7 @@ def main():
                         print(
                             f"Selection {selection_mode} join {join_mode} num_random_agents {num_random_agent} converged at generation {generation}"
                         )
-                        print("-----------------------------------------")
+                        print()
                         break
                     pbar.set_description(
                         f"Selection {selection_mode} join {join_mode} num_random_agents {num_random_agent} | Generation {generation} - Top5 fitness {np.mean(np.mean(top_fitness[:5])):.2f} - Mean fitness {np.mean(fitness):.2f}"
@@ -291,7 +291,9 @@ def main():
 
                     # kill all agents, and replace them with their children
                     agents = children_agents
-                results[(selection_mode, join_mode)] = mean_fitness_history
+                results[
+                    (selection_mode, join_mode, num_random_agent)
+                ] = mean_fitness_history
         with open(f"results_ga_numagents{num_random_agent}.pickle", "wb") as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
