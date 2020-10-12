@@ -1,0 +1,33 @@
+Training knn for dataset expressions 
+../data/expressionsTr ../data/expressionsTe 2 48 4.2
+m =
+
+   15    0    0    2    0
+    0    8    0    0    0
+    0    0    8    0    0
+    0    0    0    6    0
+    0    0    0    0    9
+
+Training knn for dataset gauss2D 
+../data/gauss2DTr ../data/gauss2DTe 876 10000 8.8
+m =
+
+   4541    443
+    433   4583
+
+Training knn for dataset gender 
+../data/genderTr ../data/genderTe 24 474 5.1
+m =
+
+   231    15
+     9   219
+
+Training knn for dataset iris 
+../data/irisTr ../data/irisTe 9 132 6.8
+m =
+
+   44    0    0
+    0   37    7
+    0    2   42
+
+Training knn for dataset news 
