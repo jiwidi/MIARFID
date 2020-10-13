@@ -23,7 +23,7 @@ num_cores = multiprocessing.cpu_count()
 enviorment = "CartPole-v1"
 game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
-num_agents = 100  # initialize N number of agents
+num_agents = 1000  # initialize N number of agents
 top_limit = 20
 generations = 10000
 
@@ -124,21 +124,19 @@ def join_parents(parent1):
 def selection_ruleta(agents, fitness_list, num_randoms=0):
     normalized_fitness = [float(i) / sum(fitness_list) for i in fitness_list]
     selection = random.choices(
-        population=agents, weights=normalized_fitness, k=len(agents)
+        population=agents, weights=normalized_fitness, k=num_agents - num_randoms
     )
-    selection = selection[: (num_agents - num_randoms)] + return_random_agents(
-        num_randoms
-    )
+
+    # Replace the worst ones with random agents
+    selection = selection + return_random_agents(num_randoms)
     return selection
 
 
 def selection_top(agents, fitness_list, top_limit, num_randoms=0):
     sorted_parent_indexes = np.argsort(fitness_list)[::-1][:top_limit]
     top_agents = [agents[best_parent] for best_parent in sorted_parent_indexes]
-    selection = random.choices(population=top_agents, k=len(agents))
-    selection = selection[: (num_agents - num_randoms)] + return_random_agents(
-        num_randoms
-    )
+    selection = random.choices(population=top_agents, k=num_agents - num_randoms)
+    selection = selection + return_random_agents(num_randoms)
     return selection
 
 
@@ -217,7 +215,7 @@ def return_children(
     children_agents = []
     # Select parents
     selected_parents = select_agents(
-        agents, fitness_list, selection_mode, num_agent_randoms
+        agents, fitness_list, selection_mode, top_limit, num_agent_randoms
     )
     # Cuzamos los padres dado el metodo que hayamos elegido
     children_agents = join(selected_parents, join_mode)
@@ -262,7 +260,7 @@ def main():
     agents = return_random_agents(num_agents)
     selection_modes = ["ruleta", "top"]
     join_modes = ["cross", "none", "cross-old"]
-    num_random_agents = [0, 20, 40, 60, 80]
+    num_random_agents = [5, 20, 40, 60, 80]
     results = {}
     for num_random_agent in num_random_agents:
         for selection_mode in selection_modes:
@@ -279,12 +277,16 @@ def main():
                     ]
                     if (top_fitness[0]) == 250:
                         print(
-                            f"Selection {selection_mode} join {join_mode} num_random_agents {num_random_agent} converged at generation {generation}"
+                            f"Selec-{selection_mode} join {join_mode} random_agents {num_random_agent} converged at generation {generation}"
                         )
                         print()
                         break
+                    elif generation == 1000 and np.mean(fitness) < 25:
+                        print("Not converging, aborting")
+                        print()
+                        break
                     pbar.set_description(
-                        f"Selection {selection_mode} join {join_mode} num_random_agents {num_random_agent} | Generation {generation} - Top5 fitness {np.mean(np.mean(top_fitness[:5])):.2f} - Mean fitness {np.mean(fitness):.2f}"
+                        f"Selec-{selection_mode} join {join_mode} random_agents {num_random_agent} | Gen {generation} - Top5fitness:{np.mean(np.mean(top_fitness[:5])):.2f} - Mean fitness:{np.mean(fitness):.2f}"
                     )
                     # setup an empty list for containing children agents
                     children_agents = return_children(
