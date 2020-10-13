@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Trabajo final LC. Curso 2020-2021\n",
+    "# Trabajo final LC POS-Tagging. Curso 2020-2021\n",
     "### Jaime Ferrando Huertas\n",
     "### Javier Martínez Bernia"
    ]
@@ -467,7 +467,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 69,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -483,9 +483,20 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 70,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9302602307413731"
+      ]
+     },
+     "execution_count": 70,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
    "source": [
     "# Brill with hmmtagger\n",
     "tagger_brill.evaluate(test)"
