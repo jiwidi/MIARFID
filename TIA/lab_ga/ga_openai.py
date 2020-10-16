@@ -25,7 +25,7 @@ game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
 num_agents = 200  # initialize N number of agents
 top_limit = 20
-generations = 10000
+generations = 1000
 
 
 class CartPoleAI(nn.Module):
