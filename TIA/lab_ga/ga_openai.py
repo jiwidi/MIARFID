@@ -115,7 +115,7 @@ def mutate(agent):
     return child_agent
 
 
-def selection_ruleta(agents, fitness_list, k=0.6 * num_agents):
+def selection_ruleta(agents, fitness_list, k=0.8 * num_agents):
     if k < 0:
         k = len(agents)  # return a full population
     normalized_fitness = [float(i) / sum(fitness_list) for i in fitness_list]
@@ -124,7 +124,7 @@ def selection_ruleta(agents, fitness_list, k=0.6 * num_agents):
     return selection
 
 
-def selection_top(agents, fitness_list, k=0.2 * num_agents):
+def selection_top(agents, fitness_list, k=0.6 * num_agents):
     if k < 0:
         k = len(agents)  # return a full population
     sorted_parent_indexes = np.argsort(fitness_list)[::-1][:k]
@@ -181,9 +181,9 @@ def replace_generational(agents, fitness_list, children_agents):
 
 
 def replace_state_stationary(agents, fitness_list, children_agents):
-    sorted_parents_indexes = np.argsort(fitness_list)[::-1][:top_limit]
+    sorted_parents_indexes = np.argsort(fitness_list)[::-1]
     sorted_parents = [agents[best_parent] for best_parent in sorted_parents_indexes]
-    selection = sorted_parents[: len(agents) - len(agents)] + children_agents
+    selection = sorted_parents[: len(agents) - len(children_agents)] + children_agents
     return selection
 
 
@@ -326,7 +326,7 @@ def main():
 
                         # kill all agents, and replace them with their children
                         agents = children_agents
-                    results[(selection_mode, join_mode)] = mean_fitness_history
+                    results[(selection_mode, join_mode,replace_mode)] = mean_fitness_history
         with open(
             f"results/results_ga_agentsperpop{num_agents}.pickle", "wb"
         ) as handle:
