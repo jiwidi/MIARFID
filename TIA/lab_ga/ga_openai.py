@@ -23,7 +23,7 @@ num_cores = multiprocessing.cpu_count()
 enviorment = "CartPole-v1"
 game_actions = 2  # 2 actions possible: left or right
 torch.set_grad_enabled(False)  # disable gradients as we will not use them
-num_agents = 200  # initialize N number of agents
+num_agents = 200
 top_limit = 20
 generations = 1000
 
@@ -76,9 +76,7 @@ def run_agents(agents):
         for _ in range(250):
             inp = torch.tensor(observation).type("torch.FloatTensor").view(1, -1)
             output_probabilities = agent(inp).detach().numpy()[0]
-            action = np.random.choice(
-                range(game_actions), 1, p=output_probabilities
-            ).item()
+            action = np.random.choice(range(game_actions), 1, p=output_probabilities).item()
             new_observation, reward, done, info = env.step(action)
             r = r + reward
             s = s + 1
@@ -99,34 +97,32 @@ def return_average_score(agent, runs):
 
 def run_agents_n_times(agents, runs):
     agents_avg_scores = Parallel(n_jobs=num_cores)(
-        delayed(return_average_score)(i, runs)
-        for i in agents  # tqdm(agents, leave=False)
+        delayed(return_average_score)(i, runs) for i in agents  # tqdm(agents, leave=False)
     )
     return agents_avg_scores
 
 
 def mutate(agent):
     child_agent = copy.deepcopy(agent)
-    mutation_power = (
-        0.02  # hyper-parameter, set from https://arxiv.org/pdf/1712.06567.pdf
-    )
+    mutation_power = 0.02  # hyper-parameter, set from https://arxiv.org/pdf/1712.06567.pdf
     for param in child_agent.parameters():
         param.data += mutation_power * torch.randn_like(param)
     return child_agent
 
 
-def selection_ruleta(agents, fitness_list, k=0.8 * num_agents):
+def selection_ruleta(agents, fitness_list, k=-1):
     if k < 0:
-        k = len(agents)  # return a full population
+        k = int(0.8 * len(agents))
     normalized_fitness = [float(i) / sum(fitness_list) for i in fitness_list]
     selection = random.choices(population=agents, weights=normalized_fitness, k=k)
 
     return selection
 
 
-def selection_top(agents, fitness_list, k=0.6 * num_agents):
+def selection_top(agents, fitness_list, k=-1):
     if k < 0:
-        k = len(agents)  # return a full population
+        k = int(0.6 * len(agents))  # default
+    # print("K IS", k)
     sorted_parent_indexes = np.argsort(fitness_list)[::-1][:k]
     top_agents = [agents[best_parent] for best_parent in sorted_parent_indexes]
     selection = top_agents
@@ -177,10 +173,12 @@ def not_join(parents):
 
 
 def replace_generational(agents, fitness_list, children_agents):
+    # New generation is made of the new children solutions, we duplicate them until we have same number as previous generation.
     return random.choices(children_agents, k=len(agents))
 
 
 def replace_state_stationary(agents, fitness_list, children_agents):
+    # We pick the best solutions of previous generations to add to our children solutions.
     sorted_parents_indexes = np.argsort(fitness_list)[::-1]
     sorted_parents = [agents[best_parent] for best_parent in sorted_parents_indexes]
     selection = sorted_parents[: len(agents) - len(children_agents)] + children_agents
@@ -188,14 +186,15 @@ def replace_state_stationary(agents, fitness_list, children_agents):
 
 
 def doom_day(agents, fitness_list, children_agents):
+    # Only the best solution of the children solutions stays and we add new fresh random solutions
     fitness = run_agents_n_times(children_agents, 3)
-    sorted_agents_indexes = np.argsort(fitness_list)[::-1]
+    sorted_agents_indexes = np.argsort(fitness)[::-1]
     selection = [children_agents[sorted_agents_indexes[0]]]
     selection = selection + return_random_agents(len(agents) - 1)
     return selection
 
 
-def select_agents(agents, fitness_list, mode="top", k=1):
+def select_agents(agents, fitness_list, mode="top", k=-1):
     if mode == "top":
         return selection_top(agents, fitness_list, k)
     elif mode == "ruleta":
@@ -231,24 +230,20 @@ def return_children(
     selection_mode,
     join_mode,
     replace_mode,
-    num_agent_randoms=0,
     k=-1,
 ):
     children_agents = []
-    # Select parents
+    # Seleccionamos soluciones
     selected_parents = select_agents(agents, fitness_list, selection_mode, k)
     # Cuzamos los padres dado el metodo que hayamos elegido
     children_agents = join(selected_parents, join_mode)
-    # Add extra random agents
     # Mutamos los hijos
-    children_agents = Parallel(n_jobs=num_cores)(
-        delayed(mutate)(i) for i in children_agents
-    )
+    children_agents = Parallel(n_jobs=num_cores)(delayed(mutate)(i) for i in children_agents)
     # Reemplazo
     children_agents = replace(agents, fitness_list, children_agents, replace_mode)
-    assert len(agents) == len(
-        children_agents
-    ), "Error in genetic loop, missmatch in populations length"
+    # Sanity check
+    assert len(agents) == len(children_agents), "Error in genetic loop, missmatch in populations length"
+
     return children_agents
 
 
@@ -263,9 +258,7 @@ def play_agent(agent):
             env_record.render()
             inp = torch.tensor(observation).type("torch.FloatTensor").view(1, -1)
             output_probabilities = agent(inp).detach().numpy()[0]
-            action = np.random.choice(
-                range(game_actions), 1, p=output_probabilities
-            ).item()
+            action = np.random.choice(range(game_actions), 1, p=output_probabilities).item()
             new_observation, reward, done, info = env_record.step(action)
             r = r + reward
             observation = new_observation
@@ -283,7 +276,16 @@ def main():
     selection_modes = ["ruleta", "top"]
     join_modes = ["cross", "none", "cross-old"]
     replace_modes = ["generational", "state", "doom-day"]
-    num_total_agents = [20, 50, 100, 200, 500, 1000]
+    num_total_agents = [
+        500,
+        1000,
+        5000,
+        20,
+        50,
+        100,
+        200,
+    ]
+    # reversed(num_total_agents)
     for num_total_agent in num_total_agents:
         results = {}
         num_agents = num_total_agent
@@ -293,23 +295,22 @@ def main():
                 for join_mode in join_modes:
                     agents = return_random_agents(num_agents)
                     mean_fitness_history = []
-                    pbar = tqdm(range(generations), leave=False)
-                    for generation in pbar:
+                    # pbar = tqdm(range(generations), leave=False)
+                    pbar = tqdm()
+                    for generation in range(generations):
                         fitness = run_agents_n_times(agents, 3)
                         sorted_parent_indexes = np.argsort(fitness)[::-1][:top_limit]
-                        top_fitness = [
-                            fitness[best_parent]
-                            for best_parent in sorted_parent_indexes
-                        ]
+                        top_fitness = [fitness[best_parent] for best_parent in sorted_parent_indexes]
                         mean_fitness_history.append(np.mean(top_fitness[:5]))
                         if (np.mean(top_fitness[:5])) > 249:
-                            print(
-                                f"Selec-{selection_mode} join-{join_mode} replace-{replace_mode} total_agents {num_total_agent} converged at generation {generation}"
+                            pbar.set_description(
+                                f"Selec-{selection_mode} join {join_mode} replace-{replace_mode} total_agents {num_total_agent} | Gen {generation} - Top5fitness:{np.mean(top_fitness[:5]):.2f} - Mean fitness:{np.mean(fitness):.2f} SOLVED"
                             )
+                            pbar.close()
                             break
-                        elif generation == 100 and np.mean(fitness) < 25:
-                            print("Not converging, aborting")
-                            print()
+                        elif generation == 150 and np.mean(fitness) < 25:
+                            print("Not converging, early abort")
+                            pbar.close()
                             break
                         pbar.set_description(
                             f"Selec-{selection_mode} join {join_mode} replace-{replace_mode} total_agents {num_total_agent} | Gen {generation} - Top5fitness:{np.mean(top_fitness[:5]):.2f} - Mean fitness:{np.mean(fitness):.2f}"
@@ -321,15 +322,12 @@ def main():
                             selection_mode=selection_mode,
                             join_mode=join_mode,
                             replace_mode=replace_mode,
-                            num_agent_randoms=0,
                         )
 
                         # kill all agents, and replace them with their children
                         agents = children_agents
-                    results[(selection_mode, join_mode,replace_mode)] = mean_fitness_history
-        with open(
-            f"results/results_ga_agentsperpop{num_agents}.pickle", "wb"
-        ) as handle:
+                    results[(selection_mode, join_mode, replace_mode)] = mean_fitness_history
+        with open(f"results/results_ga_agentsperpop{num_agents}.pickle", "wb") as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
