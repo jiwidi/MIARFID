@@ -139,13 +139,13 @@ def enfriamiento(solucionInicial, temperaturaInicial, k):
 
         fitness_actual = fitness(solucionActual)
         fitness_nueva = fitness(solucionNueva)
-        fitness_mejor = fitness(mejorSolucion)
         incrementoFitness = -(fitness_actual - fitness_nueva)
         if incrementoFitness > 0:
             solucionActual = copy.copy(solucionNueva)
 
             if fitness_nueva > fitness_mejor:
                 mejorSolucion = copy.copy(solucionActual)
+                fitness_mejor = fitness(mejorSolucion)
                 # print("mejor solucion encontrada en ", fitness(mejorSolucion))
 
         else:
@@ -170,15 +170,8 @@ def experimentos():
     datos = {"temperatura": [], "k": [], "iteraciones": [], "fitnessmedia": []}
     for temperature in [1, 10, 100, 1000, 10000]:
         for k in [0.001, 0.01, 0.1, 1, 10]:
-            # sol_fitness = []
-            # iteraciones = []
-            # for i in range(10):
-            #     mejorSolucion, iteracion = enfriamiento(solucionInicial, temperature, k)
-            #     sol_fitness.append(fitness(mejorSolucion))
-            #     iteraciones.append(iteracion)
-
             r = Parallel(n_jobs=num_cores)(
-                delayed(enfriamiento)(solucionInicial, temperature, k) for i in range(10)  # tqdm(agents, leave=False)
+                delayed(enfriamiento)(solucionInicial, temperature, k) for i in range(20)  # tqdm(agents, leave=False)
             )
             sol_fitness = [i[0] for i in r]
             iteraciones = [i[1] for i in r]
