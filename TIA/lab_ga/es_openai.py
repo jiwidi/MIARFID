@@ -131,6 +131,7 @@ def enfriamiento(solucionInicial, temperaturaInicial, k):
     iteraciones = 0
     solucionActual = copy.copy(solucionInicial)
     mejorSolucion = copy.copy(solucionActual)
+    fitness_mejor = fitness(mejorSolucion)
     temperatura = temperaturaInicial
     pbar = tqdm()
     while iteraciones < 10000:
@@ -171,7 +172,7 @@ def experimentos():
     for temperature in [1, 10, 100, 1000, 10000]:
         for k in [0.001, 0.01, 0.1, 1, 10]:
             r = Parallel(n_jobs=num_cores)(
-                delayed(enfriamiento)(solucionInicial, temperature, k) for i in range(20)  # tqdm(agents, leave=False)
+                delayed(enfriamiento)(solucionInicial, temperature, k) for i in range(30)  # tqdm(agents, leave=False)
             )
             sol_fitness = [i[0] for i in r]
             iteraciones = [i[1] for i in r]

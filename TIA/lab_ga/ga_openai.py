@@ -277,13 +277,13 @@ def main():
     join_modes = ["cross", "none", "cross-old"]
     replace_modes = ["generational", "state", "doom-day"]
     num_total_agents = [
-        500,
-        1000,
         5000,
         20,
         50,
         100,
         200,
+        500,
+        1000,
     ]
     # reversed(num_total_agents)
     for num_total_agent in num_total_agents:
@@ -298,6 +298,8 @@ def main():
                     # pbar = tqdm(range(generations), leave=False)
                     pbar = tqdm()
                     for generation in range(generations):
+                        if replace_mode == "doom-day":
+                            break
                         fitness = run_agents_n_times(agents, 3)
                         sorted_parent_indexes = np.argsort(fitness)[::-1][:top_limit]
                         top_fitness = [fitness[best_parent] for best_parent in sorted_parent_indexes]
