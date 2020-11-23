@@ -7,6 +7,9 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -77,15 +80,13 @@ def test(model, device, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-
+    acc = 100.0 * correct / len(test_loader.dataset)
     print(
         "\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n".format(
-            test_loss,
-            correct,
-            len(test_loader.dataset),
-            100.0 * correct / len(test_loader.dataset),
+            test_loss, correct, len(test_loader.dataset), acc,
         )
     )
+    return acc
 
 
 def main():
@@ -101,42 +102,19 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=14,
+        default=200,
         metavar="N",
         help="number of epochs to train (default: 14)",
     )
     parser.add_argument(
         "--lr",
         type=float,
-        default=1.0,
+        default=0.001,
         metavar="LR",
-        help="learning rate (default: 1.0)",
+        help="learning rate (default: 0.001)",
     )
     parser.add_argument(
-        "--gamma",
-        type=float,
-        default=0.7,
-        metavar="M",
-        help="Learning rate step gamma (default: 0.7)",
-    )
-    parser.add_argument(
-        "--no-cuda", action="store_true", default=False, help="disables CUDA training"
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        default=False,
-        help="quickly check a single pass",
-    )
-    parser.add_argument(
-        "--seed", type=int, default=1, metavar="S", help="random seed (default: 1)"
-    )
-    parser.add_argument(
-        "--log-interval",
-        type=int,
-        default=10,
-        metavar="N",
-        help="how many batches to wait before logging training status",
+        "--seed", type=int, default=17, metavar="S", help="random seed (default: 17)"
     )
     parser.add_argument(
         "--save-model",
@@ -145,11 +123,8 @@ def main():
         help="For Saving the current Model",
     )
     args = parser.parse_args()
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
 
     torch.manual_seed(args.seed)
-
-    device = torch.device("cuda" if use_cuda else "cpu")
 
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.batch_size}
@@ -166,12 +141,17 @@ def main():
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     model = Net().to(device)
-    optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr)
 
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=args.epochs
+    )
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader)
+        test_acc = test(model, device, test_loader)
+        if test_acc > 99.2:
+            print("Error < 0.8 achieved, stopped training")
+            break
         scheduler.step()
 
     if args.save_model:

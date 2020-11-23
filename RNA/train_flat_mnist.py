@@ -1,6 +1,7 @@
 from __future__ import print_function
 import argparse
 import torch
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -8,24 +9,88 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 
 
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.linear1 = nn.Linear(784, 1024)
-        self.bn1 = nn.BatchNorm1d(1024)
-        self.relu1 = nn.ReLU()
-        self.linear2 = nn.Linear(1024, 1024)
-        self.bn2 = nn.BatchNorm1d(1024)
-        self.relu2 = nn.ReLU()
-        self.linear3 = nn.Linear(1024, 1024)
-        self.bn3 = nn.BatchNorm1d(1024)
-        self.relu3 = nn.ReLU()
-        self.classifier = nn.Linear(1024, 10)
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
+# class Net(nn.Module):
+#     def __init__(self):
+#         super(Net, self).__init__()
+#         self.fl1 = nn.Linear(784, 2048)
+#         self.bn1 = nn.BatchNorm1d(2048)
+#         self.relu1 = nn.ReLU()
+#         self.fl2 = nn.Linear(2048, 2048)
+#         self.bn2 = nn.BatchNorm1d(2048)
+#         self.relu2 = nn.ReLU()
+#         self.fl3 = nn.Linear(2048, 2048)
+#         self.bn3 = nn.BatchNorm1d(2048)
+#         self.relu3 = nn.ReLU()
+#         self.fl4 = nn.Linear(2048, 10)
+
+#     def forward(self, x):
+#         x = self.relu1(self.bn1(self.fl1(x)))
+#         x = self.relu2(self.bn2(self.fl2(x)))
+#         x = self.relu3(self.bn3(self.fl3(x)))
+#         x = self.fl4(x)
+#         return x
+
+
+class noisylayer(nn.Module):
+    def __init__(self, args):
+        super().__init__()
+        self.linear = nn.Linear(args.d_model, args.d_model)
+        self.bn = nn.BatchNorm1d(args.d_model)
+        self.gn = GaussianNoise(0.1)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
-        out = self.relu1(self.bn1(self.linear1(x)))
-        out = self.relu2(self.bn2(self.linear2(out)))
-        out = self.relu3(self.bn3(self.linear3(out)))
+        out = self.relu(self.gn(self.bn(self.linear(x))))
+        return out
+
+
+class GaussianNoise(nn.Module):
+    """Gaussian noise regularizer.
+    Args:
+        sigma (float, optional): relative standard deviation used to generate the
+            noise. Relative means that it will be multiplied by the magnitude of
+            the value your are adding the noise to. This means that sigma can be
+            the same regardless of the scale of the vector.
+        is_relative_detach (bool, optional): whether to detach the variable before
+            computing the scale of the noise. If `False` then the scale of the noise
+            won't be seen as a constant but something to optimize: this will bias the
+            network to generate vectors with smaller values.
+    """
+
+    def __init__(self, sigma=0.1, is_relative_detach=True):
+        super().__init__()
+        self.sigma = sigma
+        self.is_relative_detach = is_relative_detach
+        self.noise = torch.tensor(0).to(device).float()
+
+    def forward(self, x):
+        if self.training and self.sigma != 0:
+            scale = (
+                self.sigma * x.detach() if self.is_relative_detach else self.sigma * x
+            )
+            sampled_noise = self.noise.repeat(*x.size()).normal_() * scale
+            x = x + sampled_noise
+        return x
+
+
+# Creating our Neural Network - Fully Connected
+class Net(nn.Module):
+    def __init__(self, args):
+        super(Net, self).__init__()
+        self.gn0 = GaussianNoise(0.1)
+        self.linear = nn.Linear(784, args.d_model)
+        self.bn = nn.BatchNorm1d(args.d_model)
+        self.gn = GaussianNoise(0.1)
+        self.relu = nn.ReLU()
+        self.sequential = nn.Sequential(*(noisylayer(args) for i in range(1)))
+        self.classifier = nn.Linear(args.d_model, 10)
+
+    def forward(self, x):
+        out = self.gn0(x)
+        out = self.relu(self.gn(self.bn(self.linear(out))))
+        out = self.sequential(out)
         out = self.classifier(out)
         return out
 
@@ -43,7 +108,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         output = loss(output, target)
         output.backward()
         optimizer.step()
-        if batch_idx % args.log_interval == 0:
+        if batch_idx % 200 == 0:
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
@@ -56,8 +121,6 @@ def train(args, model, device, train_loader, optimizer, epoch):
                 end="\r",
                 flush=True,
             )
-            if args.dry_run:
-                break
 
 
 def test(model, device, test_loader):
@@ -78,15 +141,13 @@ def test(model, device, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-
+    acc = 100.0 * correct / len(test_loader.dataset)
     print(
         "\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n".format(
-            test_loss,
-            correct,
-            len(test_loader.dataset),
-            100.0 * correct / len(test_loader.dataset),
+            test_loss, correct, len(test_loader.dataset), acc,
         )
     )
+    return acc
 
 
 def main():
@@ -95,49 +156,33 @@ def main():
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=64,
+        default=32,
         metavar="N",
         help="input batch size for training (default: 64)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=14,
+        default=200,
         metavar="N",
         help="number of epochs to train (default: 14)",
     )
     parser.add_argument(
+        "--d_model",
+        type=int,
+        default=512,
+        metavar="N",
+        help="Number of neurons per layer",
+    )
+    parser.add_argument(
         "--lr",
         type=float,
-        default=1.0,
+        default=0.001,
         metavar="LR",
-        help="learning rate (default: 1.0)",
-    )
-    parser.add_argument(
-        "--gamma",
-        type=float,
-        default=0.7,
-        metavar="M",
-        help="Learning rate step gamma (default: 0.7)",
-    )
-    parser.add_argument(
-        "--no-cuda", action="store_true", default=False, help="disables CUDA training"
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        default=False,
-        help="quickly check a single pass",
+        help="learning rate (default: 0.001)",
     )
     parser.add_argument(
         "--seed", type=int, default=1, metavar="S", help="random seed (default: 1)"
-    )
-    parser.add_argument(
-        "--log-interval",
-        type=int,
-        default=10,
-        metavar="N",
-        help="how many batches to wait before logging training status",
     )
     parser.add_argument(
         "--save-model",
@@ -146,11 +191,8 @@ def main():
         help="For Saving the current Model",
     )
     args = parser.parse_args()
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
 
     torch.manual_seed(args.seed)
-
-    device = torch.device("cuda" if use_cuda else "cpu")
 
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.batch_size}
@@ -159,20 +201,33 @@ def main():
         train_kwargs.update(cuda_kwargs)
         test_kwargs.update(cuda_kwargs)
 
-    transform = transforms.Compose([transforms.ToTensor()])
-    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=transform)
-    dataset2 = datasets.MNIST("../data", train=False, transform=transform)
+    # transform = transforms.Compose([transforms.ToTensor()])
+    train_transforms = torchvision.transforms.Compose([torchvision.transforms.RandomHorizontalFlip(p=0.0),
+                                                   torchvision.transforms.RandomAffine(degrees=3, translate=(0.1, 0.1)),
+                                                   torchvision.transforms.ToTensor()])
+
+    test_transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
+
+    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=train_transforms)
+    dataset2 = datasets.MNIST("../data", train=False, transform=test_transforms)
 
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    model = Net().to(device)
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr)
+    model = Net(args).to(device)
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    # Learning Rate Annealing (LRA) scheduling
+    # lr = 0.1     if epoch < 25
+    # lr = 0.01    if 30 <= epoch < 50
+    # lr = 0.001   if epoch >= 50
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[75, 125], gamma=0.1)
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader)
+        test_acc = test(model, device, test_loader)
+        if test_acc > 99.2:
+            print("Error < 0.8 achieved, stopped training")
+            break
         scheduler.step()
 
     if args.save_model:
