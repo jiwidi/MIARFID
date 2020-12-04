@@ -11,7 +11,7 @@
 
 (define (domain transporte)
 
-(:requirements :strips :typing)
+(:requirements :strips :typing :equality)
 
 (:types paquete loc vehiculo conductor ciudad - object
         casa estacion aeropuerto - loc
@@ -20,7 +20,7 @@
 
 (:predicates ; Para definir en que ciudad esta cada cosa
              (in ?c - ciudad
-                 ?x - (either paquete loc vehiculo conductor))
+                 ?x - loc)
              
              ; Localizacion dentro de una ciudad
              (at ?x - (either paquete vehiculo conductor) ?l - loc)
@@ -30,6 +30,9 @@
 
              ; Conductor encima de la furgoneta f
              (on ?c - conductor ?f - furgoneta)
+
+             ; Furgoneta sin conductor
+             (empty ?f)
 )
 
 ; ACCIONES
@@ -63,34 +66,28 @@
     :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
     :precondition (and 
         (at ?a ?o)  ; El avion esta en el aeropuerto origen
-        (in ?co ?a) ; El avion esta en la ciudad origen - ¿?¿?
-        (in ?cd ?d) ; Aeropuerto destino en ciudad destino - No se si es necesario
+        (not (= ?co ?cd))
+        (in ?co ?o) ; Aeropuerto origen en ciudad origen
+        (in ?cd ?d) ; Aeropuerto destino en ciudad destino
     )
     :effect (and 
+        (not(at ?a ?o))
         (at ?a ?d)
-        (not (in ?co ?a)) ; El avion ya no esta en la ciudad origen
-        (in ?cd ?a)       ; Ahora esta en la ciudad destino
     )
 )
 
 ; Mover un tren entre dos estaciones
 (:action mover_tren
-    :parameters (?t - tren ?o - estacion ?d - estacion ?co - ciudad ?cd - ciudad)
+    :parameters (?t - tren ?o - estacion ?d - estacion)
     :precondition (and 
         (at ?t ?o)  ; Tren en estacion origen
-        (in ?co ?t) ; Tren en ciudad origen
-        (in ?cd ?d) ; Estacion destino en ciudad destino - No se si es necesario
+        (not (= ?o ?d)) ; Las estaciones son distintas
     )
     :effect (and 
+        (not (at ?t ?o))
         (at ?t ?d)
-        (not (in ?co ?t)) ; El tren ya no esta en la ciudad origen
-        (in ?cd ?t)       ; Ahora esta en la ciudad destino
     )
 )
-
-; No se si así funcionarian bien los trenes o habria que hacer 2 acciones.
-; Una para mover un tren en estaciones de la misma ciudad y otra para distintas ciudades
-; (esto ultimo seguramente funcione bien)
 
 ; Mover una furgoneta
 (:action mover_furgoneta
@@ -104,7 +101,6 @@
     :effect (and 
         (not (at ?f ?o))
         (at ?f ?d) ; Furgoneta en posicion destino
-        
     )
 )
 
@@ -127,12 +123,13 @@
     :parameters (?f - furgoneta ?c - conductor ?l - loc)
     :precondition (and 
         (at ?f ?l)
-        (at ?c ?l) 
-        ; No se si hay que tener en cuenta que la furgoneta no tenga conductor
+        (at ?c ?l)
+        (empty ?f) ; Furgoneta libre (sin conductor)
     )
     :effect (and 
         (not (at ?c ?l)) ; Para que el conductor no pueda desplazarse a pie (si no se baja)
         (on ?c ?f)
+        (not (empty ?f))
     )
 )
 
@@ -146,6 +143,7 @@
     :effect (and 
         (not (on ?c ?f))
         (at ?c ?l)
+        (empty ?f)
     )
 )
 
