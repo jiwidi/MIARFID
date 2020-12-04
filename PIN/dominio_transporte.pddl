@@ -63,7 +63,7 @@
     :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
     :precondition (and 
         (at ?a ?o)  ; El avion esta en el aeropuerto origen
-        (in ?co ?a) ; El avion esta en la ciudad origen 
+        (in ?co ?a) ; El avion esta en la ciudad origen - ¿?¿?
         (in ?cd ?d) ; Aeropuerto destino en ciudad destino - No se si es necesario
     )
     :effect (and 
@@ -90,6 +90,63 @@
 
 ; No se si así funcionarian bien los trenes o habria que hacer 2 acciones.
 ; Una para mover un tren en estaciones de la misma ciudad y otra para distintas ciudades
-; (esto ultimo seguro que funcionaria bien)
+; (esto ultimo seguramente funcione bien)
+
+; Mover una furgoneta
+(:action mover_furgoneta
+    :parameters (?f - furgoneta ?c - conductor ?o - loc ?d - loc ?ci - ciudad)
+    :precondition (and 
+        (on ?c ?f) ; Conductor subido en furgoneta
+        (at ?f ?o) ; Furgoneta en origen
+        (in ?ci ?o) ; Las dos localizaciones son de la misma ciudad
+        (in ?ci ?d)
+    )
+    :effect (and 
+        (not (at ?f ?o))
+        (at ?f ?d) ; Furgoneta en posicion destino
+        
+    )
+)
+
+; Mover un conductor por una ciudad
+(:action mover_conductor
+    :parameters (?c - conductor ?o - loc ?d - loc ?ci - ciudad)
+    :precondition (and 
+        (at ?c ?o) ; Solo existira el predicado at para un conductor cuando esté a pie
+        (in ?ci ?o) ; Las dos localizaciones son de la misma ciudad
+        (in ?ci ?d)
+    )
+    :effect (and 
+        (not (at ?c ?o))
+        (at ?c ?d) ; Conductor en localizacion destino
+    )
+)
+
+; Subir un conductor a una furgoneta
+(:action subir_conductor
+    :parameters (?f - furgoneta ?c - conductor ?l - loc)
+    :precondition (and 
+        (at ?f ?l)
+        (at ?c ?l) 
+        ; No se si hay que tener en cuenta que la furgoneta no tenga conductor
+    )
+    :effect (and 
+        (not (at ?c ?l)) ; Para que el conductor no pueda desplazarse a pie (si no se baja)
+        (on ?c ?f)
+    )
+)
+
+; Bajar un conductor de una furgoneta
+(:action bajar_conductor
+    :parameters (?f - furgoneta ?c - conductor ?l - loc)
+    :precondition (and 
+        (at ?f ?l)
+        (on ?c ?f)
+    )
+    :effect (and 
+        (not (on ?c ?f))
+        (at ?c ?l)
+    )
+)
 
 )
