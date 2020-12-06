@@ -47,7 +47,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-        if batch_idx % args.log_interval == 0:
+        if batch_idx % 10 == 0:
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
@@ -59,8 +59,6 @@ def train(args, model, device, train_loader, optimizer, epoch):
                 end="\r",
                 flush=True,
             )
-            if args.dry_run:
-                break
 
 
 def test(model, device, test_loader):
@@ -95,7 +93,7 @@ def main():
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=64,
+        default=32,
         metavar="N",
         help="input batch size for training (default: 64)",
     )
@@ -129,7 +127,7 @@ def main():
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.batch_size}
     if use_cuda:
-        cuda_kwargs = {"num_workers": 1, "pin_memory": True, "shuffle": True}
+        cuda_kwargs = {"num_workers": 4, "pin_memory": True, "shuffle": True}
         train_kwargs.update(cuda_kwargs)
         test_kwargs.update(cuda_kwargs)
 

@@ -95,9 +95,8 @@ class Net(nn.Module):
         return out
 
 
-def train(args, model, device, train_loader, optimizer, epoch):
+def train(args, model, device, train_loader, optimizer, epoch, loss):
     model.train()
-    loss = nn.CrossEntropyLoss()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         # Flatt the image into 1D tensor
@@ -123,12 +122,11 @@ def train(args, model, device, train_loader, optimizer, epoch):
             )
 
 
-def test(model, device, test_loader):
+def test(model, device, test_loader, loss):
     model.eval()
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        loss = nn.CrossEntropyLoss(size_average=False)
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             # Flatt the image into 1D tensor
@@ -149,6 +147,9 @@ def test(model, device, test_loader):
     )
     return acc
 
+def save_ckp(state, checkpoint_dir):
+    f_path = "mnist-best-checkpoint.pt"
+    torch.save(state, f_path)
 
 def main():
     # Training settings
@@ -185,10 +186,16 @@ def main():
         "--seed", type=int, default=1, metavar="S", help="random seed (default: 1)"
     )
     parser.add_argument(
-        "--save-model",
+        "--save_model",
         action="store_true",
-        default=False,
+        default=True,
         help="For Saving the current Model",
+    )
+    parser.add_argument(
+        "--load_checkpoint",
+        type=str,
+        default=False,
+        help="Path of checkpoint to restore, if none will start training from 0",
     )
     args = parser.parse_args()
 
@@ -197,41 +204,68 @@ def main():
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.batch_size}
     if use_cuda:
-        cuda_kwargs = {"num_workers": 1, "pin_memory": True, "shuffle": True}
+        cuda_kwargs = {"num_workers": 4, "pin_memory": True, "shuffle": True}
         train_kwargs.update(cuda_kwargs)
         test_kwargs.update(cuda_kwargs)
 
     # transform = transforms.Compose([transforms.ToTensor()])
-    train_transforms = torchvision.transforms.Compose([torchvision.transforms.RandomHorizontalFlip(p=0.0),
-                                                   torchvision.transforms.RandomAffine(degrees=3, translate=(0.1, 0.1)),
-                                                   torchvision.transforms.ToTensor()])
+    train_transforms = torchvision.transforms.Compose(
+        [
+            torchvision.transforms.RandomHorizontalFlip(p=0.0),
+            torchvision.transforms.RandomAffine(degrees=3, translate=(0.1, 0.1)),
+            torchvision.transforms.ToTensor(),
+        ]
+    )
 
-    test_transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
+    test_transforms = torchvision.transforms.Compose(
+        [torchvision.transforms.ToTensor()]
+    )
 
-    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=train_transforms)
-    dataset2 = datasets.MNIST("../data", train=False, transform=test_transforms)
+    dataset1 = datasets.MNIST(
+        ".data", train=True, download=True, transform=train_transforms
+    )
+    dataset2 = datasets.MNIST(".data", train=False, transform=test_transforms)
 
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     model = Net(args).to(device)
+    criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
-
+    epoch = 1
     # Learning Rate Annealing (LRA) scheduling
     # lr = 0.1     if epoch < 25
     # lr = 0.01    if 30 <= epoch < 50
     # lr = 0.001   if epoch >= 50
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[75, 125], gamma=0.1)
-    for epoch in range(1, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test_acc = test(model, device, test_loader)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer, milestones=[75, 125], gamma=0.1
+    )
+    if args.load_checkpoint:
+        print("Loading checkpoint args.load_checkpoint")
+        checkpoint = torch.load(args.load_checkpoint)
+        model.load_state_dict(checkpoint["state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer"])
+        scheduler.load_state_dict(checkpoint["scheduler"])
+        epoch = checkpoint["epoch"]
+    best_acc = 0
+    for epoch in range(epoch, args.epochs + 1):
+        train(args, model, device, train_loader, optimizer, epoch, criterion)
+        test_acc = test(model, device, test_loader, criterion)
+        if test_acc > best_acc:
+            best_acc = test_acc
         if test_acc > 99.2:
             print("Error < 0.8 achieved, stopped training")
             break
+        if args.save_model and test_acc >= best_acc:
+            checkpoint = {
+                "epoch": epoch + 1,
+                "state_dict": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+                "scheduler": scheduler.state_dict(),
+            }
+            print("Saving checkpoint as best model to mnist-best-checkpoint.pt")
+            save_ckp(checkpoint, "")
         scheduler.step()
-
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
 
 
 if __name__ == "__main__":
