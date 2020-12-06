@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- Seminario 1 GPC. Loading screen WebGL app-->
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Loading screen WebGL</title>
+    <style>
+        body {
+            background-color: white;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: blueviolet;
+        }
+    </style>
+</head>
+
+<body onload="main()">
+    <canvas id="canvasJaime" width="400" height="300">
+        YOYO CANVAS
+    </canvas>
+
+    <!-- Utility libraries of WebGL Programming Guide-->
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+
+    <!-- <script src="js/paintCanvas.js"></script> -->
+    <script src="js/clickPoints.js"></script>
+</body>
+
+</html>
