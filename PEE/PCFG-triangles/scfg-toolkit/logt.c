@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdlib.h>
 
 #include "logt.h"
@@ -28,7 +28,7 @@ void CreateTabLog(double Base, TTabLog *T) {
 /**************************************************************/
 int LogAdd(int sum1, int sum2, TTabLog T) {
   int dif;
-  
+
   if ((sum1 <= MINLOG) && (sum2 <= MINLOG))
     return(MINLOG);
   else {
@@ -43,7 +43,7 @@ int LogAdd(int sum1, int sum2, TTabLog T) {
       else return(sum1 + T.v[-dif]);
     }
   }
-} 
+}
 
 /**************************************************************/
 int LogProduct(register int c1, register int c2, register int c3) {
