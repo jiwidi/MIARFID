@@ -26,7 +26,7 @@ def train(args, model, device, train_loader, optimizer, epoch, loss):
         output = loss(output, target)
         output.backward()
         optimizer.step()
-        if batch_idx % 10 == 0:
+        if batch_idx % 200 == 0 or batch_idx==len(train_loader):
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
@@ -167,7 +167,7 @@ def main():
         model.load_state_dict(checkpoint["state_dict"])
         optimizer.load_state_dict(checkpoint["optimizer"])
         scheduler.load_state_dict(checkpoint["scheduler"])
-        epoch = checkpoint["epoch"]
+      Q  epoch = checkpoint["epoch"]
     best_acc = 0
     for epoch in range(epoch, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, loss)

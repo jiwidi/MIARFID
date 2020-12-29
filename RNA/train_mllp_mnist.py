@@ -84,13 +84,13 @@ class Net(nn.Module):
         self.bn = nn.BatchNorm1d(args.d_model)
         self.gn = GaussianNoise(0.1)
         self.relu = nn.ReLU()
-        self.sequential = nn.Sequential(*(noisylayer(args) for i in range(1)))
+        # self.sequential = nn.Sequential(*(noisylayer(args) for i in range(1)))
         self.classifier = nn.Linear(args.d_model, 10)
 
     def forward(self, x):
         out = self.gn0(x)
         out = self.relu(self.gn(self.bn(self.linear(out))))
-        out = self.sequential(out)
+        # out = self.sequential(out)
         out = self.classifier(out)
         return out
 
@@ -147,9 +147,11 @@ def test(model, device, test_loader, loss):
     )
     return acc
 
+
 def save_ckp(state, checkpoint_dir):
     f_path = "mnist-best-checkpoint.pt"
     torch.save(state, f_path)
+
 
 def main():
     # Training settings
@@ -171,7 +173,7 @@ def main():
     parser.add_argument(
         "--d_model",
         type=int,
-        default=512,
+        default=4096,
         metavar="N",
         help="Number of neurons per layer",
     )
