@@ -11,39 +11,19 @@ from torch.optim.lr_scheduler import StepLR
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
-# class Net(nn.Module):
-#     def __init__(self):
-#         super(Net, self).__init__()
-#         self.fl1 = nn.Linear(784, 2048)
-#         self.bn1 = nn.BatchNorm1d(2048)
-#         self.relu1 = nn.ReLU()
-#         self.fl2 = nn.Linear(2048, 2048)
-#         self.bn2 = nn.BatchNorm1d(2048)
-#         self.relu2 = nn.ReLU()
-#         self.fl3 = nn.Linear(2048, 2048)
-#         self.bn3 = nn.BatchNorm1d(2048)
-#         self.relu3 = nn.ReLU()
-#         self.fl4 = nn.Linear(2048, 10)
+
+
+# class noisylayer(nn.Module):
+#     def __init__(self, args):
+#         super().__init__()
+#         self.linear = nn.Linear(args.d_model, args.d_model)
+#         self.bn = nn.BatchNorm1d(args.d_model)
+#         self.gn = GaussianNoise(0.1)
+#         self.relu = nn.ReLU()
 
 #     def forward(self, x):
-#         x = self.relu1(self.bn1(self.fl1(x)))
-#         x = self.relu2(self.bn2(self.fl2(x)))
-#         x = self.relu3(self.bn3(self.fl3(x)))
-#         x = self.fl4(x)
-#         return x
-
-
-class noisylayer(nn.Module):
-    def __init__(self, args):
-        super().__init__()
-        self.linear = nn.Linear(args.d_model, args.d_model)
-        self.bn = nn.BatchNorm1d(args.d_model)
-        self.gn = GaussianNoise(0.1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        out = self.relu(self.gn(self.bn(self.linear(x))))
-        return out
+#         out = self.relu(self.gn(self.bn(self.linear(x))))
+#         return out
 
 
 class GaussianNoise(nn.Module):
@@ -240,7 +220,7 @@ def main():
     # lr = 0.01    if 30 <= epoch < 50
     # lr = 0.001   if epoch >= 50
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, milestones=[75, 125], gamma=0.1
+        optimizer, milestones=[75, 125, 175], gamma=0.1
     )
     if args.load_checkpoint:
         print("Loading checkpoint args.load_checkpoint")
