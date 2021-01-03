@@ -1,9 +1,3 @@
-"""ResNet in PyTorch.
-For Pre-activation ResNet, see 'preact_resnet.py'.
-Reference:
-[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition. arXiv:1512.03385
-"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -38,7 +32,7 @@ class ResBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, num_classes=10):
+    def __init__(self):
         super(ResNet, self).__init__()
         self.in_size = 64
 
@@ -46,16 +40,16 @@ class ResNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(64)
 
         self.blocks = nn.Sequential(
-            ResBlock(64, 64, 1, shorcut=False),
-            ResBlock(64, 64, 1, shorcut=False),
+            ResBlock(64, 64, 1,),
+            ResBlock(64, 64, 1,),
             ResBlock(64, 128, 2, shorcut=True),
-            ResBlock(128, 128, 1, shorcut=False),
+            ResBlock(128, 128, 1,),
             ResBlock(128, 256, 2, shorcut=True),
-            ResBlock(256, 256, 1, shorcut=False),
+            ResBlock(256, 256, 1,),
             ResBlock(256, 512, 2, shorcut=True),
-            ResBlock(512, 512, 1, shorcut=False),
+            ResBlock(512, 512, 1,),
         )
-        self.fw = nn.Linear(512, num_classes)
+        self.fw = nn.Linear(512, 10)  # 10 Classes
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -65,12 +59,3 @@ class ResNet(nn.Module):
         out = self.fw(out)
         return out
 
-
-def ResNet18():
-    return ResNet()
-
-
-def test():
-    net = ResNet18()
-    y = net(torch.randn(1, 3, 32, 32))
-    print(y.size())
