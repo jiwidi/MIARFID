@@ -29,11 +29,6 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
     for batch_idx, (train_batch, labels_batch) in enumerate(dataloader):
         # move the data onto the device
         train_batch, labels_batch = train_batch.to(device), labels_batch.to(device)
-
-        # # convert to torch Variables
-        # train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
-
-        # clear the previous grad
         optimizer.zero_grad()
 
         # compute model outputs and loss
@@ -45,11 +40,11 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
         # apply them to parameters
         optimizer.step()
         scheduler.step()
+
         train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += labels_batch.size(0)
         correct += predicted.eq(labels_batch).sum().item()
-        # get learning rate
 
         # write to tensorboard
         writer.add_scalar(
@@ -196,8 +191,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    # model = DPN92().to(device)
-    model = ResNet18().to(device)
+    model = ResNet().to(device)
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), epochs=200
