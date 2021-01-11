@@ -19,63 +19,59 @@ def lee_fichero(fichero):
 
 
 def stdw(distancias):
-    matrix = np.zeros(shape=(len(query), len(audio), 3))
+    matrix = np.zeros(shape=(len(npmatriz1), len(npmatrix2), 3))
     # Calculamos T i,0
-    for i in range(1, len(query)):
+    for i in range(1, len(npmatriz1)):
         matrix[i][0] = [
             distancias[i, 0] + matrix[i - 1][0][0],
             matrix[i - 1][0][1] + 1,
             matrix[i - 1][0][2],
         ]
     # Calculamos T 0,j
-    for j in range(len(audio)):
+    for j in range(len(npmatrix2)):
         matrix[0][j] = [distancias[0, j], 0, j]
     # Calculamos T i,j
     result = [0, 0, 0]
-    for j in range(1, len(audio)):
-        for i in range(1, len(query)):
+    for j in range(1, len(npmatrix2)):
+        for i in range(1, len(npmatriz1)):
             aux1 = (matrix[i - 1][j - 1][0] + distancias[i, j]) / (
                 matrix[i - 1][j - 1][1] + 1
             )
-            aux2 = (matrix[i - 1][j][0] + distancias[i, j]) / \
-                (matrix[i - 1][j][1] + 1)
-            aux3 = (matrix[i][j - 1][0] + distancias[i, j]) / \
-                (matrix[i][j - 1][1] + 1)
-            options = [[aux1, i - 1, j - 1],
-                       [aux2, i - 1, j], [aux3, i, j - 1]]
+            aux2 = (matrix[i - 1][j][0] + distancias[i, j]) / (matrix[i - 1][j][1] + 1)
+            aux3 = (matrix[i][j - 1][0] + distancias[i, j]) / (matrix[i][j - 1][1] + 1)
+            options = [[aux1, i - 1, j - 1], [aux2, i - 1, j], [aux3, i, j - 1]]
             aux = [options[0][0], options[1][0], options[2][0]]
             index_min = aux.index(min(aux))
             result[0] = (
                 matrix[options[index_min][1]][options[index_min][2]][0]
                 + distancias[i, j]
             )
-            result[1] = matrix[options[index_min]
-                               [1]][options[index_min][2]][1] + 1
+            result[1] = matrix[options[index_min][1]][options[index_min][2]][1] + 1
             result[2] = matrix[options[index_min][1]][options[index_min][2]][2]
 
             matrix[i][j] = result
 
-    last_rows = [matrix[len(query) - 1][j] for j in range(len(audio))]
+    last_rows = [matrix[len(npmatriz1) - 1][j] for j in range(len(npmatrix2))]
     return last_rows
 
 
 if __name__ == "__main__":
-    query = lee_fichero("mfc_queries/SEG-0062.mfc.raw")
-    audio = lee_fichero("largo250000.mfc.raw")
+    npmatriz1 = lee_fichero("mfc_queries/SEG-0062.mfc.raw")
+    npmatrix2 = lee_fichero("largo250000.mfc.raw")
 
     print("Calculando distancias", end="\r")
-    distancias = get_distance_matrix(query, audio, "cos")
+    distancias = get_distance_matrix(npmatriz1, npmatrix2, "cos")
     print("Calculando distancias ... DONE")
 
     print("Calculando stdw", end="\r")
     last_row = stdw(distancias)
     print("Calculando stdw ... DONE")
 
-    print("Encontrando minimos", end="\r")
-    minimos = []
-    audio_length = int(round(len(audio)))
     ventana = 100
-    for index in range(0, audio_length, ventana):
+    print(f"Encontrando minimos locales con ventana {ventana}", end="\r")
+    minimos = []
+    npmatrix2_length = int(round(len(npmatrix2)))
+    for index in range(0, npmatrix2_length, ventana):
         minimun_cost = math.inf
         minimo = None
         for x in range(index + 1, index + ventana):
