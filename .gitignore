@@ -9,6 +9,9 @@ data/
 # C extensions
 *.so
 #*.pickle
+#RAH
+RAH/qbe/mfc_queries
+RAH/qbe/largo250000.mfc.raw
 # Distribution / packaging
 .Python
 build/
