@@ -7,23 +7,25 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
+import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter
 
-
+writer = SummaryWriter()
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-# class noisylayer(nn.Module):
-#     def __init__(self, args):
-#         super().__init__()
-#         self.linear = nn.Linear(args.d_model, args.d_model)
-#         self.bn = nn.BatchNorm1d(args.d_model)
-#         self.gn = GaussianNoise(0.1)
-#         self.relu = nn.ReLU()
+class noisyblock(nn.Module):
+    def __init__(self, args):
+        super().__init__()
+        self.linear = nn.Linear(args.d_model, args.d_model)
+        self.bn = nn.BatchNorm1d(args.d_model)
+        self.gn = GaussianNoise(0.1)
+        self.relu = nn.ReLU()
 
-#     def forward(self, x):
-#         out = self.relu(self.gn(self.bn(self.linear(x))))
-#         return out
+    def forward(self, x):
+        out = self.relu(self.gn(self.bn(self.linear(x))))
+        return out
 
 
 class GaussianNoise(nn.Module):
@@ -64,7 +66,7 @@ class Net(nn.Module):
         self.bn = nn.BatchNorm1d(args.d_model)
         self.gn = GaussianNoise(0.1)
         self.relu = nn.ReLU()
-        # self.sequential = nn.Sequential(*(noisylayer(args) for i in range(1)))
+        # self.sequential = nn.Sequential(*(noisyblock(args) for i in range(3)))
         self.classifier = nn.Linear(args.d_model, 10)
 
     def forward(self, x):
@@ -75,8 +77,12 @@ class Net(nn.Module):
         return out
 
 
-def train(args, model, device, train_loader, optimizer, epoch, loss):
+def train(args, model, device, train_loader, optimizer, epoch, loss, scheduler):
     model.train()
+    train_loss = 0
+    correct = 0
+    datacount = len(train_loader)
+
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         # Flatt the image into 1D tensor
@@ -84,9 +90,17 @@ def train(args, model, device, train_loader, optimizer, epoch, loss):
         # Training
         optimizer.zero_grad()
         output = model(data)
-        output = loss(output, target)
-        output.backward()
+        batch_loss = loss(output, target)
+        batch_loss.backward()
         optimizer.step()
+
+        # write to tensorboard
+        train_loss += batch_loss
+        pred = output.argmax(
+            dim=1, keepdim=True
+        )  # get the index of the max log-probability
+        correct += pred.eq(target.view_as(pred)).sum().item()
+
         if batch_idx % 200 == 0:
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
@@ -94,18 +108,23 @@ def train(args, model, device, train_loader, optimizer, epoch, loss):
                     batch_idx * len(data),
                     len(train_loader.dataset),
                     100.0 * batch_idx / len(train_loader),
-                    output,
+                    batch_loss,
                     # loss,
                 ),
                 end="\r",
                 flush=True,
             )
+    train_loss = train_loss / datacount
+    train_acc = 100.0 * correct / len(train_loader.dataset)
+
+    return train_loss, train_acc
 
 
 def test(model, device, test_loader, loss):
     model.eval()
     test_loss = 0
     correct = 0
+
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
@@ -116,16 +135,18 @@ def test(model, device, test_loader, loss):
             pred = output.argmax(
                 dim=1, keepdim=True
             )  # get the index of the max log-probability
+
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
     acc = 100.0 * correct / len(test_loader.dataset)
+
     print(
         "\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n".format(
             test_loss, correct, len(test_loader.dataset), acc,
         )
     )
-    return acc
+    return test_loss, acc
 
 
 def save_ckp(state, checkpoint_dir):
@@ -230,9 +251,16 @@ def main():
         scheduler.load_state_dict(checkpoint["scheduler"])
         epoch = checkpoint["epoch"]
     best_acc = 0
+    l_train_loss = []
+    l_test_loss = []
+    l_train_acc = []
+    l_test_acc = []
+    l_lr = []
     for epoch in range(epoch, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch, criterion)
-        test_acc = test(model, device, test_loader, criterion)
+        train_loss, train_acc = train(
+            args, model, device, train_loader, optimizer, epoch, criterion, scheduler
+        )
+        test_loss, test_acc = test(model, device, test_loader, criterion)
         if test_acc > best_acc:
             best_acc = test_acc
         if test_acc > 99.2:
@@ -248,6 +276,41 @@ def main():
             print("Saving checkpoint as best model to mnist-best-checkpoint.pt")
             save_ckp(checkpoint, "")
         scheduler.step()
+        l_train_loss.append(train_loss)
+        l_test_loss.append(test_loss)
+        l_train_acc.append(train_acc)
+        l_test_acc.append(test_acc)
+        l_lr.append(scheduler._last_lr[0])
+
+    # PLOTS
+    fig = plt.figure()
+    plt.plot(l_train_loss, color="red", label="Train")
+    plt.plot(l_test_loss, color="blue", label="Test")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Loss", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/mnist_loss.png")
+    plt.close()
+
+    fig = plt.figure()
+    plt.plot(l_train_acc, color="red", label="Train")
+    plt.plot(l_test_acc, color="blue", label="Test")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Accuracy", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/mnist_acc.png")
+    plt.close()
+
+    fig = plt.figure()
+    plt.plot(l_lr, color="orange", label="Learning rate")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Learning rate", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/mnist_lr.png")
+    plt.close()
 
 
 if __name__ == "__main__":

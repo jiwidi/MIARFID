@@ -132,8 +132,8 @@ def main():
         test_kwargs.update(cuda_kwargs)
 
     transform = transforms.Compose([transforms.ToTensor()])
-    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=transform)
-    dataset2 = datasets.MNIST("../data", train=False, transform=transform)
+    dataset1 = datasets.MNIST(".data", train=True, download=True, transform=transform)
+    dataset2 = datasets.MNIST(".data", train=False, transform=transform)
 
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)

@@ -10,6 +10,8 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
+import matplotlib.pyplot as plt
+
 writer = SummaryWriter()
 from resnet import ResNet
 
@@ -75,6 +77,7 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
             flush=True,
         )
     print()
+    return train_loss / datacount, 100.0 * correct / total
 
 
 def test(model, dataloader, loss_fn, epoch):
@@ -111,9 +114,11 @@ def test(model, dataloader, loss_fn, epoch):
                 100.0 * correct / total,
                 (datacount * (epoch + 1)) + (batch_idx + 1),
             )
+
+    test_loss = test_loss / datacount
     acc = 100.0 * correct / total
     print("Test accuracy:", acc)
-    return acc
+    return test_loss, acc
 
 
 def save_ckp(state, checkpoint_dir):
@@ -164,7 +169,6 @@ def main():
         train_kwargs.update(cuda_kwargs)
         test_kwargs.update(cuda_kwargs)
 
-    # transform = transforms.Compose([transforms.ToTensor()])
     train_transforms = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -207,9 +211,16 @@ def main():
         epoch = checkpoint["epoch"]
     best_acc = 0
 
+    l_train_loss = []
+    l_test_loss = []
+    l_train_acc = []
+    l_test_acc = []
+    l_lr = []
     for epoch in range(epoch, args.epochs + 1):
-        train(model, train_loader, optimizer, scheduler, loss, epoch)
-        test_acc = test(model, test_loader, loss, epoch)
+        train_loss, train_acc = train(
+            model, train_loader, optimizer, scheduler, loss, epoch
+        )
+        test_loss, test_acc = test(model, test_loader, loss, epoch)
         if test_acc > best_acc:
             best_acc = test_acc
         if test_acc > 95.0:
@@ -224,6 +235,42 @@ def main():
             }
             print("Saving checkpoint as best model to cifar-best-checkpoint.pt")
             save_ckp(checkpoint, "")
+
+        l_train_loss.append(train_loss)
+        l_test_loss.append(test_loss)
+        l_train_acc.append(train_acc)
+        l_test_acc.append(test_acc)
+        l_lr.append(scheduler._last_lr[0])
+
+    # PLOTS
+    fig = plt.figure()
+    plt.plot(l_train_loss, color="red", label="Train")
+    plt.plot(l_test_loss, color="blue", label="Test")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Loss", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/cifar_loss.png")
+    plt.close()
+
+    fig = plt.figure()
+    plt.plot(l_train_acc, color="red", label="Train")
+    plt.plot(l_test_acc, color="blue", label="Test")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Accuracy", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/cifar_acc.png")
+    plt.close()
+
+    fig = plt.figure()
+    plt.plot(l_lr, color="orange", label="Learning rate")
+    plt.xlabel("Epochs", fontsize=10)
+    plt.ylabel("Learning rate", fontsize=8)
+    plt.legend()
+    plt.grid()
+    fig.savefig("figures/cifar_lr.png")
+    plt.close()
 
 
 if __name__ == "__main__":
