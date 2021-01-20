@@ -1,0 +1,7 @@
+problema_transporte: Problema propuesto en el pdf
+
+problema1: 5 paquetes
+problema1_2: Otra instancia de problema1
+
+problema2: 3 trenes, 5 paquetes, 2 aviones, 3 furgonetas
+problema2_2: Otra instancia de problema2

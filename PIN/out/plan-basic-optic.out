@@ -1,0 +1,48 @@
+Number of literals: 125
+Constructing lookup tables: [10%] [20%] [30%] [40%] [50%] [60%] [70%] [80%] [90%] [100%]
+Post filtering unreachable actions:  [10%] [20%] [30%] [40%] [50%] [60%] [70%] [80%] [90%] [100%]
+No semaphore facts found, returning
+[01;34mNo analytic limits found, not considering limit effects of goal-only operators[00m
+Initial heuristic = 25.000, admissible cost estimate 0.000
+b (24.000 | 0.000)b (23.000 | 0.000)b (22.000 | 0.000)b (21.000 | 0.000)b (20.000 | 0.001)b (19.000 | 0.001)b (18.000 | 0.002)b (17.000 | 0.002)b (16.000 | 0.004)b (15.000 | 0.005)b (14.000 | 0.006)b (13.000 | 0.007)b (12.000 | 0.008)b (11.000 | 0.009)b (10.000 | 0.010)b (9.000 | 0.010)b (8.000 | 0.010)b (7.000 | 0.010)b (6.000 | 0.010)b (5.000 | 0.010)b (4.000 | 0.010)b (3.000 | 0.010)b (2.000 | 0.011)b (1.000 | 0.012)(G)
+; No metric specified - using makespan
+
+; Plan found with metric 0.012
+; States evaluated so far: 87
+; States pruned based on pre-heuristic cost lower bound: 0
+; Time 0.06
+0.000: (subir_conductor f4 d3 ca3)  [0.001]
+0.000: (mover_conductor d2 ca2 a2 ciudad2)  [0.001]
+0.000: (mover_conductor d1 e2 a1 ciudad1)  [0.001]
+0.000: (mover_tren t1 e2 e4)  [0.001]
+0.000: (mover_tren t2 e4 e1)  [0.001]
+0.001: (subir_conductor f3 d2 a2)  [0.001]
+0.001: (subir_conductor f2 d1 a1)  [0.001]
+0.001: (mover_tren t1 e4 e3)  [0.001]
+0.001: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [0.001]
+0.002: (mover_furgoneta f3 d2 a2 e3 ciudad2)  [0.001]
+0.002: (mover_furgoneta f2 d1 a1 e1 ciudad1)  [0.001]
+0.003: (mover_furgoneta f3 d2 e3 ca2 ciudad2)  [0.001]
+0.003: (mover_furgoneta f2 d1 e1 ca1 ciudad1)  [0.001]
+0.004: (load f3 ca2 p2)  [0.001]
+0.004: (load f2 ca1 p1)  [0.001]
+0.005: (mover_furgoneta f3 d2 ca2 e3 ciudad2)  [0.001]
+0.005: (mover_furgoneta f2 d1 ca1 e1 ciudad1)  [0.001]
+0.006: (unload f3 e3 p2)  [0.001]
+0.006: (unload f2 e1 p1)  [0.001]
+0.007: (load t1 e3 p2)  [0.001]
+0.007: (load t2 e1 p1)  [0.001]
+0.008: (mover_tren t1 e3 e4)  [0.001]
+0.008: (mover_tren t2 e1 e4)  [0.001]
+0.009: (unload t1 e4 p2)  [0.001]
+0.009: (unload t2 e4 p1)  [0.001]
+0.010: (load f4 e4 p2)  [0.001]
+0.010: (load f4 e4 p1)  [0.001]
+0.011: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [0.001]
+0.012: (unload f4 ca3 p2)  [0.001]
+0.012: (unload f4 ca3 p1)  [0.001]
+
+ * All goal deadlines now no later than 0.012
+
+Resorting to best-first search
+Running WA* with W = 5.000, not restarting with goal states
