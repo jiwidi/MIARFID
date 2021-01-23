@@ -44,6 +44,19 @@
     (= (distancia A1 E2) 60) (= (distancia E2 A1) 60)
     (= (distancia E2 E1) 50) (= (distancia E1 E2) 50)
 
+    ;; Distancias aeropuertos
+    (= (distancia A1 A2) 60) (= (distancia A2 A1) 60)
+    ;; Distancias estaciones
+    (= (distancia E1 E2) 60) (= (distancia E2 E1) 60)
+    (= (distancia E1 E3) 60) (= (distancia E3 E1) 60)
+    (= (distancia E1 E4) 60) (= (distancia E4 E1) 60)
+
+    (= (distancia E2 E3) 60) (= (distancia E3 E2) 60)
+    (= (distancia E2 E4) 60) (= (distancia E4 E2) 60)
+
+    (= (distancia E3 E4) 60) (= (distancia E4 E3) 60)
+
+
     ; Ciudad 2
     (= (distancia A2 E3) 150) (= (distancia E3 A2) 150)
     (= (distancia A2 Ca2) 80) (= (distancia Ca2 A2) 80)
@@ -63,14 +76,20 @@
 
     (= (combustible Av1) 1000)
     (= (combustible Av2) 1000)
-    (= (combustible T1) 500)
-    (= (combustible T2) 500)
+    (= (combustible T1) 1000)
+    (= (combustible T2) 1000)
+
+    ;Capacidad
+    (= (capacidad Av1) 1000)
+    (= (capacidad Av2) 1000)
+    (= (capacidad T1) 1000)
+    (= (capacidad T2) 1000)
 
     ; ;Gasto
-    (= (gasto Av1) 20)
-    (= (gasto Av2) 20)
-    (= (gasto T1) 5)
-    (= (gasto T2) 5)
+    (= (gasto Av1) 2)
+    (= (gasto Av2) 2)
+    (= (gasto T1) 2)
+    (= (gasto T2) 2)
 
 )
 
