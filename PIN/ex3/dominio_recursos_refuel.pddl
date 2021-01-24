@@ -41,6 +41,7 @@
     (distancia ?l1 - loc ?l2 - loc)
     (velocidad ?f - (either furgoneta conductor avion tren)) ; Se puede hacer esto?
     (combustible ?a - (either avion tren furgoneta))
+    (capacidad ?a - (either avion tren furgoneta))
     (combustibletotal)
     (gasto ?a -  (either avion tren furgoneta))
 )
@@ -73,6 +74,34 @@
         (at end (at ?p ?l))
         (at end (not (loaded ?v ?p)))
     )
+)
+
+(:durative-action refuel-avion
+    :parameters (?a - avion ?o - aeropuerto  ?c - ciudad)
+    :duration (= ?duration (/ (- (capacidad ?a) (combustible ?a)) 5))
+    :condition (and (at start (> (capacidad ?a) (combustible ?a)))
+                    (at start (at ?a ?o))  ; El avion esta en el aeropuerto origen
+                    (over all (in ?c ?o))
+                )
+    :effect (at end (assign (combustible ?a) (capacidad ?a)))
+)
+
+(:durative-action refuel-tren
+    :parameters (?t - tren ?o - estacion)
+    :duration (= ?duration (/ (- (capacidad ?t) (combustible ?t)) 3))
+    :condition (and (at start (> (capacidad ?t) (combustible ?t)))
+                    (at start (at ?t ?o))  ; Tren en estacion origen
+                )
+    :effect (at end (assign (combustible ?t) (capacidad ?t)))
+)
+
+(:durative-action refuel-furgoneta
+    :parameters (?f - furgoneta ?o - loc)
+    :duration (= ?duration (/ (- (capacidad ?f) (combustible ?f)) 1))
+    :condition (and (at start (> (capacidad ?f) (combustible ?f)))
+                    (at start (at ?f ?o)) ; Furgoneta en origen
+                )
+    :effect (at end (assign (combustible ?f) (capacidad ?f)))
 )
 
 ; Mover un avion entre dos aeropuertos

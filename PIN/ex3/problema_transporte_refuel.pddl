@@ -80,16 +80,26 @@
     (= (combustibletotal) 0)
 
     ;Aviones
-    (= (combustible Av1) 10000)
-    (= (combustible Av2) 10000)
+    (= (combustible Av1) 0)
+    (= (combustible Av2) 0)
     ;Trenes
-    (= (combustible T1) 5000)
-    (= (combustible T2) 5000)
+    (= (combustible T1) 0)
+    (= (combustible T2) 0)
     ;Furgonetas
-    (= (combustible F1) 1000)
-    (= (combustible F2) 1000)
-    (= (combustible F3) 1000)
-    (= (combustible F4) 1000)
+    (= (combustible F1) 0)
+    (= (combustible F2) 0)
+    (= (combustible F3) 0)
+    (= (combustible F4) 0)
+
+    ;Capacidad
+    (= (capacidad Av1) 10000)
+    (= (capacidad Av2) 10000)
+    (= (capacidad T1) 5000)
+    (= (capacidad T2) 5000)
+    (= (capacidad F1) 1000)
+    (= (capacidad F2) 1000)
+    (= (capacidad F3) 1000)
+    (= (capacidad F4) 1000)
 
     ; ;Gasto
     (= (gasto Av1) 20)
