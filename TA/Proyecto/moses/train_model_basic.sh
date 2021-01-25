@@ -1,11 +1,7 @@
-export CPU=1
+docker container run -it --rm -v ${PWD}/data/:/data moses \
+/opt/moses/scripts/training/train-model.perl -mgiza -mgiza-cpus 10 --first-step 1 \
+-root-dir /data/alignment -corpus /data/dataset/tr -f src -e tgt \
+-alignment grow-diag-final-and -reordering msd-bidirectional-fe -lm 0:5:/data/model-$NGRAMA.lm \
+-external-bin-dir /opt/moses/mgiza/mgizapp/bin/
 
-cd train
-
-$SCRIPTS_ROOTDIR/training/train-model.perl -root-dir work \
--mgiza -mgiza-cpus $CPU \
--corpus training.clean -f es -e en \
--alignment grow-diag-final-and -reordering msd-bidirectional-fe \
--lm 0:3:$LM -external-bin-dir $GIZA
-
-cd ..
+mv data/alignment/model/moses.ini data/alignment/model/moses-$NGRAMA.ini

@@ -10,6 +10,8 @@ echo "Splitting train data in train/dev 45k/5k"
 python3 split_train.py
 
 echo "Cleaning corpus"
+
+mkdir data; cd data
 mkdir dataset
 clean-corpus-n.perl Corpus/europarl-v7.train es en dataset/training.clean 1 60
 

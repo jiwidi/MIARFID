@@ -20,11 +20,19 @@ for NGRAMA in 2 3 4 5; do
 
     echo "Adjusting weights"
     sh train_weights.sh > moses.output 2>&1
+
+    echo "Predict"
+    sh generate_predictions.sh > moses.output 2>&1
+
+    echo "Evaluate"
+    echo "Experiment NGRAMA" "$NGRAMA" "MERT" "$MERT" >> resultados.txt
+    sh evaluate.sh >> resultados.txt
 done
 
 export NGRAMA=3
 echo "Experimentos MERT"
 for MERT in 5 7 10; do
+    export MERT=$MERT
     echo "Preparing data NGRAMA" "$NGRAMA" "MERT" "$MERT"
 
     echo "Training LM"
@@ -35,4 +43,11 @@ for MERT in 5 7 10; do
 
     echo "Adjusting weights"
     sh train_weights.sh > moses.output 2>&1
+
+    echo "Predict"
+    sh generate_predictions.sh > moses.output 2>&1
+
+    echo "Evaluate"
+    echo "Experiment NGRAMA" "$NGRAMA" "MERT" "$MERT" >> resultados.txt
+    sh evaluate.sh >> resultados.txt
 done
