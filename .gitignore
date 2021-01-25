@@ -133,3 +133,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+PEE/PCFGs/MODELS/
+
+TA/Proyecto/moses/srilm-1.7.3.tar.gz
