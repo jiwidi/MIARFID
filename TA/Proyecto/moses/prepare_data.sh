@@ -31,29 +31,12 @@ clean-corpus-n.perl Corpus/test.tok.lc es en Corpus/test.clean 1 60
 mkdir data; cd data
 mkdir dataset
 
-mv ../Corpus/training.clean.es dataset/tr.src
-mv ../Corpus/training.clean.en dataset/tr-aux.tgt
+mv ../Corpus/training.clean.es dataset/tr-full.src
+mv ../Corpus/training.clean.en dataset/tr-full.tgt
 
 mv ../Corpus/test.clean.es dataset/test.src
-mv ../Corpus/test.clean.en dataset/test-aux.tgt
+mv ../Corpus/test.clean.en dataset/test.tgt
 
+cd ..
 
-
-
-# clean-corpus-n.perl Corpus/europarl-v7.train es en dataset/training.clean 1 60
-
-# mv dataset/training.clean.es dataset/tr.src
-# mv dataset/training.clean.en dataset/tr-aux.tgt
-
-# clean-corpus-n.perl Corpus/europarl-v7.dev es en dataset/dev.clean 1 60
-
-# mv dataset/dev.clean.es dataset/dev.src
-# mv dataset/dev.clean.en dataset/dev.tgt
-
-# cp Corpus/europarl-v7.es-en-test.es dataset/test.src
-# cp Corpus/europarl-v7.es-en-test.en dataset/test.tgt
-
-# echo "Tokenizing corpus"
-# $MOSES/scripts/tokenizer/tokenizer.perl -l en < dataset/tr-aux.tgt > dataset/tr.tgt
-# # $MOSES/scripts/tokenizer/tokenizer.perl -l en < dataset/dev.clean.es > dataset/dev.clean.tok.src
-
+python3 split_train.py
