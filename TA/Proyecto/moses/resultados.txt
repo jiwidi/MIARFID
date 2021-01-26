@@ -1,5 +1,2 @@
 Experiment NGRAMA 2 MERT 5
-BLEU = 0.60, 11.1/1.6/0.2/0.0 (BP=1.000, ratio=4.204, hyp_len=97005, ref_len=23073)
-Experiment NGRAMA 3 MERT 5
-BLEU = 4.22, 33.6/6.5/2.4/1.2 (BP=0.851, ratio=0.861, hyp_len=19874, ref_len=23073)
-Experiment NGRAMA 4 MERT 5
+BLEU = 24.99, 58.1/31.3/18.7/11.4 (BP=1.000, ratio=1.022, hyp_len=23580, ref_len=23073)
