@@ -62,11 +62,11 @@ done
 rm *_tmp*
 
 
-mv train.clean.es ../data/dataset/tr-full.src
-mv train.clean.en ../data/dataset/tr-full.tgt
+mv train.clean.es ../data/dataset/tr-full.tgt
+mv train.clean.en ../data/dataset/tr-full.src
 
-mv test.clean.es ../data/dataset/test.src
-mv test.clean.en ../data/dataset/test.tgt
+mv test.clean.es ../data/dataset/test.tgt
+mv test.clean.en ../data/dataset/test.src
 
 cd ..
 echo "Removing duplicate lines and dividing train data in train/development sets..."
