@@ -19,12 +19,9 @@ conda config --set always_yes yes --set changeps1 no && conda init && \
 conda install --file /opt/nmt-keras/req-travis-conda.txt && conda install mkl mkl-service pip && \
 pip install -r /opt/nmt-keras/req-travis-pip.txt && \
 pip install nvidia-pyindex && \
-#pip install astor && pip install opt-einsum gast==0.2.2 wrapt tensorflow-estimator==1.15.1 && \
-#pip install -i https://pypi.ngc.nvidia.com nvidia-tensorflow && \
 pip install https://developer.download.nvidia.com/compute/redist/nvidia-tensorflow/nvidia_tensorflow-1.15.4%2Bnv20.12-cp38-cp38-linux_x86_64.whl && \
 
 export PATH=$PATH:$HOME/.local/bin
-	#pip install https://developer.download.nvidia.com/compute/redist/nvidia-tensorflow/nvidia_tensorflow-1.15.4%2Bnv20.12-cp38-cp38-linux_x86_64.whl
 ENV PYTHONPATH="PYTHONPATH=${PYTHONPATH}:/opt/nmt-keras/keras:\
 /opt/nmt-keras/coco-caption:/opt/nmt-keras/multimodal_keras_wrapper"
 
