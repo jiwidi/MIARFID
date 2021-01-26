@@ -40,3 +40,23 @@ mv ../Corpus/test.clean.en dataset/test.tgt
 cd ..
 
 python3 split_train.py
+
+
+# cp europarl-v7.es-en-train-red.en train_tmp.en
+# cp europarl-v7.es-en-train-red.es train_tmp.es
+# cp europarl-v7.es-en-test.en test_tmp.en
+# cp europarl-v7.es-en-test.es test_tmp.es
+# for DATA in train_tmp test_tmp 15
+# do
+#     for LANG in en es
+#         do
+#             $MOSES/scripts/tokenizer/tokenizer.perl -l $LANG < "$DATA.$LANG" > $DATA.tk.$LANG
+#             $MOSES/scripts/tokenizer/lowercase.perl < $DATA.tk.$LANG > $DATA.tk.lc.$LANG
+#         done
+#         clean-corpus-n.perl $DATA.tk.lc es en ${DATA%_*}.clean 1 60
+# done
+
+# rm *_tmp*
+
+# echo "Removing duplicate lines and dividing train data in train/development sets..."
+
