@@ -1,3 +1,1 @@
-
-
-python "$NMT"/nmt-keras/main.py -c config.py 
+python "$NMT"/nmt-keras/main.py -c config.py

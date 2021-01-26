@@ -16,7 +16,7 @@ rm -rf trained_models/
 
 nvidia-docker container run -it --rm \
     -v $PWD:/data \
-    -v $PWD/config.py:/opt/nmt-keras/config.py \
+    -v $PWD/config_rnn.py:/opt/nmt-keras/config.py \
     nmt-keras-ta /opt/miniconda/bin/python main.py
 
 
