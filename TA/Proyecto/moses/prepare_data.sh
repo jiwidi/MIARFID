@@ -13,7 +13,7 @@ echo "Cleaning corpus"
 $MOSES/scripts/tokenizer/tokenizer.perl -l en < Corpus/europarl-v7.es-en-train-red.en > Corpus/train.tok.en
 $MOSES/scripts/tokenizer/lowercase.perl < Corpus/train.tok.en > Corpus/train.tok.lc.en
 ##ES
-$MOSES/scripts/tokenizer/tokenizer.perl -l en < Corpus/europarl-v7.es-en-train-red.es > Corpus/train.tok.es
+$MOSES/scripts/tokenizer/tokenizer.perl -l es < Corpus/europarl-v7.es-en-train-red.es > Corpus/train.tok.es
 $MOSES/scripts/tokenizer/lowercase.perl < Corpus/train.tok.es > Corpus/train.tok.lc.es
 
 clean-corpus-n.perl Corpus/train.tok.lc es en Corpus/training.clean 1 60
@@ -23,7 +23,7 @@ clean-corpus-n.perl Corpus/train.tok.lc es en Corpus/training.clean 1 60
 $MOSES/scripts/tokenizer/tokenizer.perl -l en < Corpus/europarl-v7.es-en-test.en > Corpus/test.tok.en
 $MOSES/scripts/tokenizer/lowercase.perl < Corpus/test.tok.en > Corpus/test.tok.lc.en
 ##ES
-$MOSES/scripts/tokenizer/tokenizer.perl -l en < Corpus/europarl-v7.es-en-test.es > Corpus/test.tok.es
+$MOSES/scripts/tokenizer/tokenizer.perl -l es < Corpus/europarl-v7.es-en-test.es > Corpus/test.tok.es
 $MOSES/scripts/tokenizer/lowercase.perl < Corpus/test.tok.es > Corpus/test.tok.lc.es
 
 clean-corpus-n.perl Corpus/test.tok.lc es en Corpus/test.clean 1 60
