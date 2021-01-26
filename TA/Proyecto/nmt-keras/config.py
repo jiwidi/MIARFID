@@ -8,22 +8,24 @@ def load_parameters():
     :return parameters: Dictionary of loaded parameters.
     """
     try:
-        TA = os.environ["TA"]
+        # TA = os.environ["TA"]
+        TA='/data'
+        pass
     except:
         sys.stderr.write("Error: la variable $TA no está definida.\n")
         sys.exit(-1)
 
 
     # Input data params
-    TASK_NAME = 'EuTrans'                           # Task name.
+    TASK_NAME = 'Europarl'                           # Task name.
     DATASET_NAME = TASK_NAME                        # Dataset name.
-    SRC_LAN = 'es'                                  # Language of the source text.
-    TRG_LAN = 'en'                                  # Language of the target text.
-    DATA_ROOT_PATH = '%s/nmt-keras/Data/%s/' % (TA, DATASET_NAME)  # Path where data is stored.
+    SRC_LAN = 'en'                                  # Language of the source text.
+    TRG_LAN = 'es'                                  # Language of the target text.
+    DATA_ROOT_PATH = '%s/Data/%s/' % (TA, DATASET_NAME)  # Path where data is stored.
 
     # SRC_LAN or TRG_LAN will be added to the file names.
-    TEXT_FILES = {'train': 'training.',             # Data files.
-                  'val': 'development.',
+    TEXT_FILES = {'train': 'tr.',             # Data files.
+                  'val': 'dev.',
                   'test': 'test.'}
 
     GLOSSARY = None                               # Glossary location. If not None, it overwrites translations according to this glossary file
@@ -163,8 +165,8 @@ def load_parameters():
     MIN_LR = 1e-9                                 # Minimum value allowed for the decayed LR
 
     # Training parameters
-    MAX_EPOCH = 5                               # Stop when computed this number of epochs.
-    BATCH_SIZE = 50                               # Size of each minibatch.
+    MAX_EPOCH = 100                               # Stop when computed this number of epochs.
+    BATCH_SIZE = 256                               # Size of each minibatch.
     N_GPUS = 1                                    # Number of GPUs to use. Only for Tensorflow backend. Each GPU will receive mini-batches of BATCH_SIZE / N_GPUS.
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!).
@@ -176,7 +178,7 @@ def load_parameters():
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol.
-    PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this.
+    PATIENCE = 6                                 # We'll stop if the val STOP_METRIC does not improve after this.
                                                   # number of evaluations.
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop.
     MIN_DELTA = 0.                                # Minimum change in the monitored quantity to consider it as an improvement.

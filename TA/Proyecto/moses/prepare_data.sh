@@ -31,11 +31,11 @@ clean-corpus-n.perl Corpus/test.tok.lc es en Corpus/test.clean 1 60
 mkdir data; cd data
 mkdir dataset
 
-mv ../Corpus/training.clean.es dataset/tr-full.src
-mv ../Corpus/training.clean.en dataset/tr-full.tgt
+mv ../Corpus/training.clean.es dataset/tr-full.tgt
+mv ../Corpus/training.clean.en dataset/tr-full.src
 
-mv ../Corpus/test.clean.es dataset/test.src
-mv ../Corpus/test.clean.en dataset/test.tgt
+mv ../Corpus/test.clean.es dataset/test.tgt
+mv ../Corpus/test.clean.en dataset/test.src
 
 cd ..
 

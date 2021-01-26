@@ -25,9 +25,10 @@ export PATH=$PATH:$HOME/.local/bin
 ENV PYTHONPATH="PYTHONPATH=${PYTHONPATH}:/opt/nmt-keras/keras:\
 /opt/nmt-keras/coco-caption:/opt/nmt-keras/multimodal_keras_wrapper"
 
+# RUN
 ##########################
 ## Default: train model ##
-##########################
+########################## El run de ahi arriba antes estaba en el CMD
 CMD export PATH="/opt/miniconda/bin:$PATH" && \
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64 && \
+export LD_LIBRARY_PATH='/usr/local/cuda/lib64' && \
 python main.py
