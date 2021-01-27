@@ -43,6 +43,7 @@
     (= (distancia A1 E1) 100) (= (distancia E1 A1) 100)
     (= (distancia A1 E2) 60) (= (distancia E2 A1) 60)
     (= (distancia E2 E1) 50) (= (distancia E1 E2) 50)
+    
 
     ; Ciudad 2
     (= (distancia A2 E3) 150) (= (distancia E3 A2) 150)
@@ -50,7 +51,7 @@
     (= (distancia Ca2 E3) 150) (= (distancia E3 Ca2) 150)
 
     ; Ciudad 3
-    (= (distancia E4 Ca3) 70) (= (distancia E4 Ca3) 70)
+    (= (distancia Ca3 E4) 70) (= (distancia E4 Ca3) 70)
 
     ; Velocidades
     (= (velocidad F1) 50) (= (velocidad F2) 50) 

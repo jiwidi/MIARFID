@@ -35,10 +35,37 @@
     (in CIUDAD3 Ca3) (in CIUDAD3 E4)
     (at F4 Ca3) (at T2 E4) (at D3 Ca3) (at P5 Ca3)
     (empty F4)
+
+     ; Temporal
+    (= (peso P1) 10) (= (peso P2) 15) (= (peso P3) 10) (= (peso P4) 5) (= (peso P5) 5)
+    ; Ciudad 1
+    (= (distancia Ca1 E1) 50) (= (distancia E1 Ca1) 50)
+    (= (distancia Ca1 E2) 120) (= (distancia E2 Ca1) 120)
+    (= (distancia Ca1 A1) 50) (= (distancia A1 Ca1) 50)
+    (= (distancia A1 E1) 100) (= (distancia E1 A1) 100)
+    (= (distancia A1 E2) 60) (= (distancia E2 A1) 60)
+    (= (distancia E2 E1) 50) (= (distancia E1 E2) 50)
+    
+
+    ; Ciudad 2
+    (= (distancia A2 E3) 150) (= (distancia E3 A2) 150)
+    (= (distancia A2 Ca2) 80) (= (distancia Ca2 A2) 80)
+    (= (distancia Ca2 E3) 150) (= (distancia E3 Ca2) 150)
+
+    ; Ciudad 3
+    (= (distancia Ca3 E4) 70) (= (distancia E4 Ca3) 70)
+
+    ; Velocidades
+    (= (velocidad F1) 50)
+    (= (velocidad F3) 50) (= (velocidad F4) 50)
+    (= (velocidad D1) 10) (= (velocidad D2) 10)
+    (= (velocidad D3) 10)
 )
 
 (:goal (and
     (at P1 Ca2) (at P2 Ca3) (at P3 E3) (at P4 Ca3) (at P5 Ca1)
 ))
+
+(:metric minimize (total-time))
 
 )

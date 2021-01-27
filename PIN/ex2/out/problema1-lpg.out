@@ -1,0 +1,92 @@
+
+Parsing domain file:  domain 'TRANSPORTE' defined ... done.
+Parsing problem file:  problem 'PROBTRANSPORTE' defined ... done.
+
+
+
+Modality: Incremental Planner
+
+Number of actions             :    1167
+Number of conditional actions :       0
+Number of facts               :     176
+
+
+Analyzing Planning Problem:
+	Temporal Planning Problem: YES
+	Numeric Planning Problem: YES
+	Problem with Timed Initial Litearals: NO
+	Problem with Derived Predicates: NO
+
+Evaluation function weights:
+     Action duration 1.00; Action cost 0.00
+
+
+Computing mutex... done
+
+Preprocessing total time: 0.02 seconds
+
+Searching ('.' = every 50 search steps):
+. solution found: 
+
+Plan computed:
+   Time: (ACTION) [action Duration; action Cost]
+ 0.0000: (SUBIR_CONDUCTOR F4 D3 CA3) [D:2.0000; C:0.1000]
+ 0.0000: (MOVER_TREN T1 E2 E1) [D:20.0000; C:0.1000]
+ 0.0000: (MOVER_TREN T2 E4 E1) [D:20.0000; C:0.1000]
+ 0.0000: (MOVER_CONDUCTOR D1 E2 E1 CIUDAD1) [D:5.0000; C:0.1000]
+ 0.0000: (MOVER_CONDUCTOR D2 CA2 A2 CIUDAD2) [D:8.0000; C:0.1000]
+ 2.0000: (MOVER_FURGONETA F4 D3 CA3 E4 CIUDAD3) [D:1.4000; C:0.1000]
+ 5.0000: (SUBIR_CONDUCTOR F1 D1 E1) [D:2.0000; C:0.1000]
+ 7.0000: (MOVER_FURGONETA F1 D1 E1 CA1 CIUDAD1) [D:1.0000; C:0.1000]
+ 8.0000: (LOAD F1 CA1 P1) [D:2.0000; C:0.1000]
+ 8.0000: (SUBIR_CONDUCTOR F3 D2 A2) [D:2.0000; C:0.1000]
+ 10.0000: (MOVER_FURGONETA F1 D1 CA1 E1 CIUDAD1) [D:1.0000; C:0.1000]
+ 10.0000: (MOVER_FURGONETA F3 D2 A2 CA2 CIUDAD2) [D:1.6000; C:0.1000]
+ 11.0000: (UNLOAD F1 E1 P1) [D:2.0000; C:0.1000]
+ 11.6000: (LOAD F3 CA2 P2) [D:3.0000; C:0.1000]
+ 14.6000: (MOVER_FURGONETA F3 D2 CA2 E3 CIUDAD2) [D:3.0000; C:0.1000]
+ 17.6000: (UNLOAD F3 E3 P2) [D:3.0000; C:0.1000]
+ 20.0000: (LOAD T1 E1 P3) [D:2.0000; C:0.1000]
+ 20.0000: (LOAD T2 E1 P1) [D:2.0000; C:0.1000]
+ 22.0000: (MOVER_TREN T1 E1 E4) [D:20.0000; C:0.1000]
+ 22.0000: (MOVER_TREN T2 E1 E4) [D:20.0000; C:0.1000]
+ 42.0000: (UNLOAD T1 E4 P3) [D:2.0000; C:0.1000]
+ 42.0000: (UNLOAD T2 E4 P1) [D:2.0000; C:0.1000]
+ 44.0000: (MOVER_TREN T1 E4 E3) [D:20.0000; C:0.1000]
+ 44.0000: (LOAD F4 E4 P1) [D:2.0000; C:0.1000]
+ 44.0000: (MOVER_TREN T2 E4 E1) [D:20.0000; C:0.1000]
+ 44.0000: (LOAD F4 E4 P3) [D:2.0000; C:0.1000]
+ 64.0000: (LOAD T1 E3 P4) [D:1.0000; C:0.1000]
+ 64.0000: (MOVER_TREN T2 E1 E3) [D:20.0000; C:0.1000]
+ 65.0000: (MOVER_TREN T1 E3 E4) [D:20.0000; C:0.1000]
+ 84.0000: (LOAD T2 E3 P2) [D:3.0000; C:0.1000]
+ 85.0000: (UNLOAD T1 E4 P4) [D:1.0000; C:0.1000]
+ 86.0000: (LOAD F4 E4 P4) [D:1.0000; C:0.1000]
+ 87.0000: (MOVER_TREN T2 E3 E4) [D:20.0000; C:0.1000]
+ 107.0000: (UNLOAD T2 E4 P2) [D:3.0000; C:0.1000]
+ 110.0000: (LOAD F4 E4 P2) [D:3.0000; C:0.1000]
+ 113.0000: (MOVER_FURGONETA F4 D3 E4 CA3 CIUDAD3) [D:1.4000; C:0.1000]
+ 114.4000: (UNLOAD F4 CA3 P1) [D:2.0000; C:0.1000]
+ 114.4000: (UNLOAD F4 CA3 P2) [D:3.0000; C:0.1000]
+ 114.4000: (UNLOAD F4 CA3 P3) [D:2.0000; C:0.1000]
+ 114.4000: (UNLOAD F4 CA3 P4) [D:1.0000; C:0.1000]
+ 114.4000: (LOAD F4 CA3 P5) [D:1.0000; C:0.1000]
+ 117.4000: (MOVER_FURGONETA F4 D3 CA3 E4 CIUDAD3) [D:1.4000; C:0.1000]
+ 118.8000: (UNLOAD F4 E4 P5) [D:1.0000; C:0.1000]
+ 119.8000: (LOAD T2 E4 P5) [D:1.0000; C:0.1000]
+ 120.8000: (MOVER_TREN T2 E4 E1) [D:20.0000; C:0.1000]
+ 140.8000: (UNLOAD T2 E1 P5) [D:1.0000; C:0.1000]
+ 141.8000: (LOAD F1 E1 P5) [D:1.0000; C:0.1000]
+ 142.8000: (MOVER_FURGONETA F1 D1 E1 CA1 CIUDAD1) [D:1.0000; C:0.1000]
+ 143.8000: (UNLOAD F1 CA1 P5) [D:1.0000; C:0.1000]
+
+
+Solution number: 1
+Total time:      0.02
+Search time:     0.00
+Actions:         49
+Execution cost:  4.90
+Duration:        144.800
+Plan quality:    144.800
+     Plan file:       plan_problema1.pddl_1.SOL
+
