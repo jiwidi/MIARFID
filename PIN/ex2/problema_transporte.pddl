@@ -59,6 +59,11 @@
     (= (velocidad D1) 10) (= (velocidad D2) 10)
     (= (velocidad D3) 10)
 
+    (= (velocidad Av1) 300)
+    (= (velocidad Av2) 300)
+    (= (velocidad T1) 100)
+    (= (velocidad T2) 100)
+
 )
 
 (:goal (and
