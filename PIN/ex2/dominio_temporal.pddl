@@ -38,7 +38,7 @@
 (:functions
     (peso ?p - paquete)
     (distancia ?l1 - loc ?l2 - loc)
-    (velocidad ?f - (either furgoneta conductor)) ; Se puede hacer esto?
+    (velocidad ?f - (either furgoneta conductor avion tren)) ; Se puede hacer esto?
 )
 
 ; ACCIONES
@@ -74,7 +74,7 @@
 ; Mover un avion entre dos aeropuertos
 (:durative-action mover_avion
     :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
-    :duration (= ?duration 15)
+    :duration (= ?duration (/ (velocidad ?a) (distancia ?o ?d) ))
     :condition (and
         (at start (at ?a ?o))  ; El avion esta en el aeropuerto origen
         (over all (not (= ?co ?cd))) ; Podria ser at start simplemente (?)
