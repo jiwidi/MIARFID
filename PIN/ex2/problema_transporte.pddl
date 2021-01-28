@@ -64,6 +64,18 @@
     (= (velocidad T1) 100)
     (= (velocidad T2) 100)
 
+    ;; Distancias aeropuertos
+    (= (distancia A1 A2) 200) (= (distancia A2 A1) 200)
+    ;; Distancias estaciones
+    ;(= (distancia E1 E2) 60) (= (distancia E2 E1) 60) No se pone porque ya esta puesta arriba
+    (= (distancia E1 E3) 300) (= (distancia E3 E1) 300)
+    (= (distancia E1 E4) 250) (= (distancia E4 E1) 250)
+
+    (= (distancia E2 E3) 300) (= (distancia E3 E2) 300)
+    (= (distancia E2 E4) 200) (= (distancia E4 E2) 200)
+
+    (= (distancia E3 E4) 250) (= (distancia E4 E3) 250)
+
 )
 
 (:goal (and

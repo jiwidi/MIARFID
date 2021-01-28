@@ -90,7 +90,7 @@
 ; Mover un tren entre dos estaciones
 (:durative-action mover_tren
     :parameters (?t - tren ?o - estacion ?d - estacion)
-    :duration (= ?duration 20)
+    :duration (= ?duration (/ (velocidad ?t) (distancia ?o ?d) ))
     :condition (and
         (at start (at ?t ?o))  ; Tren en estacion origen
         (over all (not (= ?o ?d)))  ; Las estaciones son distintas - At start (?)
