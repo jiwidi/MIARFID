@@ -39,10 +39,10 @@
 (:functions
     (peso ?p - paquete)
     (distancia ?l1 - loc ?l2 - loc)
-    (velocidad ?f - (either furgoneta conductor)) ; Se puede hacer esto?
-    (combustible ?a - (either avion tren))
+    (velocidad ?f - (either furgoneta conductor avion tren)) ; Se puede hacer esto?
+    (combustible ?a - (either avion tren furgoneta))
     (combustibletotal)
-    (gasto ?a - (either avion tren))
+    (gasto ?a -  (either avion tren furgoneta))
 )
 
 ; ACCIONES
@@ -78,35 +78,40 @@
 ; Mover un avion entre dos aeropuertos
 (:durative-action mover_avion
     :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
-    :duration (= ?duration 15)
+    :duration (= ?duration (/ (velocidad ?a) (distancia ?o ?d) ))
     :condition (and
         (at start (at ?a ?o))  ; El avion esta en el aeropuerto origen
         (over all (not (= ?co ?cd))) ; Podria ser at start simplemente (?)
         (over all (in ?co ?o)) ; Aeropuerto origen en ciudad origen - At start (?)
         (over all (in ?cd ?d)) ; Aeropuerto destino en ciudad destino - At start (?)
-        (at start (>= (combustible ?a) (* (distancia ?o ?d) (gasto ?a))))
+        (at start (>= (combustible ?a) (* (distancia ?o ?d) (gasto ?a)))) ; Tenemos suficiente combustible en el avion
     )
     :effect (and
         (at start (not(at ?a ?o)))
         (at end (at ?a ?d))
-        ; (at end (increase combustibletotal
-        ;     (* (distancia ?o ?d) (gasto ?a))))
-        ; (at end (decrease (combustible ?a)
-        ;     (* (distancia ?o ?d) (gasto ?a)))))
+        (at end (increase combustibletotal
+            (* (distancia ?o ?d) (gasto ?a)))) ; Aumentamos la variable de combustibel total
+        (at end (decrease (combustible ?a)
+            (* (distancia ?o ?d) (gasto ?a)))) ; Restamos el combustible usado al avion
     )
 )
 
 ; Mover un tren entre dos estaciones
 (:durative-action mover_tren
     :parameters (?t - tren ?o - estacion ?d - estacion)
-    :duration (= ?duration 20)
+    :duration  (= ?duration (/ (velocidad ?t) (distancia ?o ?d) ))
     :condition (and
         (at start (at ?t ?o))  ; Tren en estacion origen
         (over all (not (= ?o ?d)))  ; Las estaciones son distintas - At start (?)
+        (at start (>= (combustible ?t) (* (distancia ?o ?d) (gasto ?t)))) ; Tenemos suficiente combustible en el avion
     )
     :effect (and
         (at start (not (at ?t ?o)))
         (at end (at ?t ?d))
+        (at end (increase combustibletotal
+            (* (distancia ?o ?d) (gasto ?t)))) ; Aumentamos la variable de combustibel total
+        (at end (decrease (combustible ?t)
+            (* (distancia ?o ?d) (gasto ?t)))) ; Restamos el combustible usado al tren
     )
 )
 
@@ -119,10 +124,15 @@
         (at start (at ?f ?o)) ; Furgoneta en origen
         (over all (in ?ci ?o)) ; Las dos localizaciones son de la misma ciudad
         (over all (in ?ci ?d)) ; Podria ser At start simplemente?
+        (at start (>= (combustible ?F) (* (distancia ?o ?d) (gasto ?f))))
     )
     :effect (and
         (at start (not (at ?f ?o)))
         (at end (at ?f ?d)) ; Furgoneta en posicion destino
+        (at end (increase combustibletotal
+            (* (distancia ?o ?d) (gasto ?f)))) ; Aumentamos la variable de combustibel total
+        (at end (decrease (combustible ?f)
+            (* (distancia ?o ?d) (gasto ?f)))) ; Restamos el combustible usado al tren
     )
 )
 

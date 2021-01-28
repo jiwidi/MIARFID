@@ -54,11 +54,11 @@
     (= (distancia Ca3 E4) 70) (= (distancia E4 Ca3) 70)
 
     ; Velocidades
-    (= (velocidad F1) 50) (= (velocidad F2) 50) 
+    (= (velocidad F1) 50) (= (velocidad F2) 50)
     (= (velocidad F3) 50) (= (velocidad F4) 50)
     (= (velocidad D1) 10) (= (velocidad D2) 10)
     (= (velocidad D3) 10)
-    
+
 )
 
 (:goal (and

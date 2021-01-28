@@ -44,6 +44,19 @@
     (= (distancia A1 E2) 60) (= (distancia E2 A1) 60)
     (= (distancia E2 E1) 50) (= (distancia E1 E2) 50)
 
+    ;; Distancias aeropuertos
+    (= (distancia A1 A2) 60) (= (distancia A2 A1) 60)
+    ;; Distancias estaciones
+    (= (distancia E1 E2) 60) (= (distancia E2 E1) 60)
+    (= (distancia E1 E3) 60) (= (distancia E3 E1) 60)
+    (= (distancia E1 E4) 60) (= (distancia E4 E1) 60)
+
+    (= (distancia E2 E3) 60) (= (distancia E3 E2) 60)
+    (= (distancia E2 E4) 60) (= (distancia E4 E2) 60)
+
+    (= (distancia E3 E4) 60) (= (distancia E4 E3) 60)
+
+
     ; Ciudad 2
     (= (distancia A2 E3) 150) (= (distancia E3 A2) 150)
     (= (distancia A2 Ca2) 80) (= (distancia Ca2 A2) 80)
@@ -58,19 +71,35 @@
     (= (velocidad D1) 10) (= (velocidad D2) 10)
     (= (velocidad D3) 10)
 
+    (= (velocidad Av1) 300)
+    (= (velocidad Av2) 300)
+    (= (velocidad T1) 100)
+    (= (velocidad T2) 100)
+
     ; Combustible
     (= (combustibletotal) 0)
 
-    (= (combustible Av1) 1000)
-    (= (combustible Av2) 1000)
-    (= (combustible T1) 500)
-    (= (combustible T2) 500)
+    ;Aviones
+    (= (combustible Av1) 10000)
+    (= (combustible Av2) 10000)
+    ;Trenes
+    (= (combustible T1) 5000)
+    (= (combustible T2) 5000)
+    ;Furgonetas
+    (= (combustible F1) 1000)
+    (= (combustible F2) 1000)
+    (= (combustible F3) 1000)
+    (= (combustible F4) 1000)
 
     ; ;Gasto
     (= (gasto Av1) 20)
     (= (gasto Av2) 20)
-    (= (gasto T1) 5)
-    (= (gasto T2) 5)
+    (= (gasto T1) 1)
+    (= (gasto T2) 1)
+    (= (gasto F1) 2)
+    (= (gasto F2) 2)
+    (= (gasto F3) 2)
+    (= (gasto F4) 2)
 
 )
 
@@ -78,6 +107,6 @@
     (at P1 Ca3) (at P2 Ca3)
 ))
 
-(:metric minimize (total-time))
-
+; (:metric minimize (total-time))
+(:metric minimize (combustibletotal))
 )
