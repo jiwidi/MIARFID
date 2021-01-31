@@ -78,7 +78,7 @@
 ; Mover un avion entre dos aeropuertos
 (:durative-action mover_avion
     :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
-    :duration (= ?duration (/ (velocidad ?a) (distancia ?o ?d) ))
+    :duration (= ?duration (/ (distancia ?o ?d) (velocidad ?a) ))
     :condition (and
         (at start (at ?a ?o))  ; El avion esta en el aeropuerto origen
         (over all (not (= ?co ?cd))) ; Podria ser at start simplemente (?)
@@ -99,7 +99,7 @@
 ; Mover un tren entre dos estaciones
 (:durative-action mover_tren
     :parameters (?t - tren ?o - estacion ?d - estacion)
-    :duration  (= ?duration (/ (velocidad ?t) (distancia ?o ?d) ))
+    :duration  (= ?duration (/ (distancia ?o ?d) (velocidad ?t) ))
     :condition (and
         (at start (at ?t ?o))  ; Tren en estacion origen
         (over all (not (= ?o ?d)))  ; Las estaciones son distintas - At start (?)
