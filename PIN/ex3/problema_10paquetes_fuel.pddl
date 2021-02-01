@@ -19,7 +19,7 @@
         F1 F2 F3 F4 - furgoneta
         T1 T2 - tren
         Av1 Av2 - avion
-        P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 - paquete
+        P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 - paquete
         D1 D2 D3 - conductor
     )
 
@@ -29,10 +29,10 @@
         (in CIUDAD1 E1)
         (in CIUDAD1 E2)
         (at F1 E1)
-        (at F2 A1)
         (at Av1 A1)
         (at T1 E2)
         (at D1 E2)
+        (at F2 Ca1)
         (empty F1)
         (empty F2)
 
@@ -51,7 +51,7 @@
         (at D3 Ca3)
         (empty F4)
 
-        ;Paquetes
+        ; Paquetes
         (at P1 Ca1)
         (at P2 Ca2)
         (at P3 E1)
@@ -62,16 +62,6 @@
         (at P8 Ca3)
         (at P9 E2)
         (at P10 A2)
-        (at P11 Ca2)
-        (at P12 Ca3)
-        (at P13 E2)
-        (at P14 E1)
-        (at P15 A2)
-        (at P16 A2)
-        (at P17 E1)
-        (at P18 Ca3)
-        (at P19 E2)
-        (at P20 Ca1)
 
         ; Temporal
         (= (peso P1) 10)
@@ -84,17 +74,6 @@
         (= (peso P8) 15)
         (= (peso P9) 20)
         (= (peso P10) 20)
-
-        (= (peso P11) 10)
-        (= (peso P12) 15)
-        (= (peso P13) 20)
-        (= (peso P14) 10)
-        (= (peso P15) 15)
-        (= (peso P16) 20)
-        (= (peso P17) 10)
-        (= (peso P18) 15)
-        (= (peso P19) 20)
-        (= (peso P20) 20)
 
         ; Ciudad 1
         (= (distancia Ca1 E1) 50)
@@ -154,40 +133,41 @@
         (= (distancia E3 E4) 250)
         (= (distancia E4 E3) 250)
 
-        ; Combustible
+        ;Combustible
         (= (combustibletotal) 0)
 
         ;Aviones
-        (= (combustible Av1) 0)
-        (= (combustible Av2) 0)
+        (= (combustible Av1) 500)
+        (= (combustible Av2) 500)
         ;Trenes
-        (= (combustible T1) 0)
-        (= (combustible T2) 0)
+        (= (combustible T1) 200)
+        (= (combustible T2) 200)
         ;Furgonetas
-        (= (combustible F1) 0)
-        (= (combustible F2) 0)
-        (= (combustible F3) 0)
-        (= (combustible F4) 0)
+        (= (combustible F1) 100)
+        (= (combustible F2) 100)
+        (= (combustible F3) 100)
+        (= (combustible F4) 100)
 
         ;Capacidad
-        (= (capacidad Av1) 10000)
-        (= (capacidad Av2) 10000)
-        (= (capacidad T1) 5000)
-        (= (capacidad T2) 5000)
-        (= (capacidad F1) 1000)
-        (= (capacidad F2) 1000)
-        (= (capacidad F3) 1000)
-        (= (capacidad F4) 1000)
+        (= (capacidad Av1) 1000)
+        (= (capacidad Av2) 1000)
+        (= (capacidad T1) 500)
+        (= (capacidad T2) 500)
+        (= (capacidad F1) 100)
+        (= (capacidad F2) 100)
+        (= (capacidad F3) 100)
+        (= (capacidad F4) 100)
 
         ; ;Gasto
-        (= (gasto Av1) 1)
-        (= (gasto Av2) 1)
-        (= (gasto T1) 1)
-        (= (gasto T2) 1)
-        (= (gasto F1) 1)
-        (= (gasto F2) 1)
-        (= (gasto F3) 1)
-        (= (gasto F4) 1)
+        (= (gasto Av1) 0.1)
+        (= (gasto Av2) 0.1)
+        (= (gasto T1) 0.2)
+        (= (gasto T2) 0.2)
+        (= (gasto F1) 0.3)
+        (= (gasto F2) 0.3)
+        (= (gasto F3) 0.3)
+        (= (gasto F4) 0.3)
+
     )
 
     (:goal
@@ -195,14 +175,11 @@
             (at P1 Ca3) (at P2 Ca3) (at P3 Ca3) (at P4 Ca3)
             (at P5 Ca2) (at P6 Ca1) (at P7 Ca2) (at P8 Ca1)
             (at P9 A2) (at P10 A1)
-            (at P11 Ca3) (at P12 Ca3) (at P13 Ca3) (at P14 Ca3)
-            (at P15 Ca2) (at P16 Ca1) (at P17 Ca2) (at P18 Ca1)
-            (at P19 A2) (at P20 A1)
         )
     )
 
     (:metric minimize
-        (total-time)
+        (combustibletotal)
     )
 
 )
