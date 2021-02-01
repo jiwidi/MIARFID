@@ -14,8 +14,8 @@
           Ca1 Ca2 Ca3 - casa
           E1 E2 E3 E4 - estacion
           A1 A2 - aeropuerto
-          F1 F2 F3 F4 - furgoneta
-          T1 T2 - tren
+          F1 F3 F4 - furgoneta
+          T1 T2 T3 - tren
           Av1 Av2 - avion
           P1 P2 P3 P4 P5 - paquete
           D1 D2 D3 - conductor
@@ -24,19 +24,19 @@
 (:init
 
     (in CIUDAD1 Ca1) (in CIUDAD1 A1) (in CIUDAD1 E1) (in CIUDAD1 E2)
-    (at F1 Ca1) (at F2 Ca1) (at Av1 A1) (at T1 E2) (at P1 Ca1) (at D1 E2)
+    (at F1 E1) (at Av1 A1) (at T1 E2) (at P1 Ca1) (at D1 E2)
     (at P3 E1)
-    (empty F1) (empty F2)
+    (empty F1)
 
-    (in CIUDAD2 Ca2) (in CIUDAD2 A2) (in CIUDAD2 E3)
-    (at F3 E3) (at Av2 A2) (at P2 Ca2) (at D2 Ca2) (at P4 E3)
+    (in CIUDAD2 Ca2) (in CIUDAD2 A2) (in CIUDAD2 E3) 
+    (at F3 A2) (at Av2 A2) (at P2 Ca2) (at D2 Ca2) (at P4 E3) (at T3 E3)
     (empty F3)
 
     (in CIUDAD3 Ca3) (in CIUDAD3 E4)
     (at F4 Ca3) (at T2 E4) (at D3 Ca3) (at P5 Ca3)
     (empty F4)
 
-    ; Temporal
+     ; Temporal
     (= (peso P1) 10) (= (peso P2) 15) (= (peso P3) 10) (= (peso P4) 5) (= (peso P5) 5)
     ; Ciudad 1
     (= (distancia Ca1 E1) 50) (= (distancia E1 Ca1) 50)
@@ -56,14 +56,31 @@
     (= (distancia Ca3 E4) 70) (= (distancia E4 Ca3) 70)
 
     ; Velocidades
-    (= (velocidad F1) 50) (= (velocidad F2) 50) 
+    (= (velocidad F1) 50) 
     (= (velocidad F3) 50) (= (velocidad F4) 50)
     (= (velocidad D1) 10) (= (velocidad D2) 10)
     (= (velocidad D3) 10)
+
+    (= (velocidad Av1) 300)
+    (= (velocidad Av2) 300)
+    (= (velocidad T1) 100) (= (velocidad T3) 200)
+    (= (velocidad T2) 100)
+
+    ;; Distancias aeropuertos
+    (= (distancia A1 A2) 200) (= (distancia A2 A1) 200)
+    ;; Distancias estaciones
+    ;(= (distancia E1 E2) 60) (= (distancia E2 E1) 60) No se pone porque ya esta puesta arriba
+    (= (distancia E1 E3) 300) (= (distancia E3 E1) 300)
+    (= (distancia E1 E4) 250) (= (distancia E4 E1) 250)
+
+    (= (distancia E2 E3) 300) (= (distancia E3 E2) 300)
+    (= (distancia E2 E4) 200) (= (distancia E4 E2) 200)
+
+    (= (distancia E3 E4) 250) (= (distancia E4 E3) 250)
 )
 
 (:goal (and
-    (at P1 Ca2) (at P2 Ca3) (at P3 E3) (at P4 Ca3) (at P5 Ca1)
+    (at P1 Ca3) (at P2 Ca3) (at P3 Ca3) (at P4 Ca3) (at P5 Ca1)
 ))
 
 (:metric minimize (total-time))

@@ -1,0 +1,78 @@
+Number of literals: 167
+Constructing lookup tables: [10%] [20%] [30%] [40%] [50%] [60%] [70%] [80%] [90%] [100%]
+Post filtering unreachable actions:  [10%] [20%] [30%] [40%] [50%] [60%] [70%] [80%] [90%] [100%]
+No semaphore facts found, returning
+Seeing if metric is defined in terms of task vars or a minimal value of makespan
+- Yes it is
+Recognised a monotonic-change-induced limit on -1.000*<special>
+- Must be >=  the metric
+[01;34mFor limits: literal goal index 0, fact (at p1 ca3), is static or a precondition[00m
+[01;34mFor limits: literal goal index 1, fact (at p2 ca3), is static or a precondition[00m
+[01;34mFor limits: literal goal index 2, fact (at p3 ca3), is static or a precondition[00m
+[01;34mFor limits: literal goal index 3, fact (at p4 ca3), is static or a precondition[00m
+[01;34mFor limits: literal goal index 4, fact (at p5 ca1), is static or a precondition[00m
+66% of the ground temporal actions in this problem are compression-safe
+Initial heuristic = 52.000, admissible cost estimate 29.609
+b (51.000 | 2.000)b (50.000 | 8.000)b (49.000 | 8.000)b (48.000 | 8.000)b (47.000 | 8.000)b (46.000 | 8.000)b (45.000 | 8.000)b (44.000 | 8.000)b (43.000 | 8.000)b (42.000 | 8.000)b (41.000 | 10.000)b (40.000 | 13.002)b (39.000 | 13.002)b (38.000 | 13.002)b (37.000 | 13.002)b (36.000 | 13.002)b (35.000 | 13.002)b (34.000 | 13.002)b (33.000 | 13.002)b (32.000 | 13.003)b (31.000 | 13.003)b (30.000 | 15.003)b (29.000 | 19.003)b (28.000 | 22.003)b (27.000 | 25.003)b (26.000 | 25.003)b (25.000 | 25.003)b (24.000 | 25.003)b (23.000 | 25.003)b (22.000 | 25.003)b (21.000 | 25.003)b (20.000 | 25.003)b (19.000 | 25.003)b (18.000 | 25.003)b (17.000 | 25.003)b (16.000 | 25.003)b (15.000 | 25.003)b (14.000 | 25.003)b (13.000 | 25.003)b (12.000 | 25.003)b (11.000 | 25.003)b (10.000 | 25.003)b (9.000 | 25.003)b (8.000 | 25.003)b (7.000 | 28.004)b (6.000 | 30.504)b (5.000 | 33.504)b (4.000 | 33.504)b (3.000 | 36.505)b (2.000 | 37.904)b (1.000 | 40.905)(G)
+; LP calculated the cost
+
+; Plan found with metric 40.905
+; Theoretical reachable cost 40.906
+; States evaluated so far: 227
+; States pruned based on pre-heuristic cost lower bound: 0
+; Time 0.48
+0.000: (subir_conductor f4 d3 ca3)  [2.000]
+0.000: (mover_conductor d2 ca2 a2 ciudad2)  [8.000]
+0.000: (mover_conductor d1 e2 e1 ciudad1)  [5.000]
+0.000: (mover_tren t1 e2 e1)  [0.500]
+0.000: (load f4 ca3 p5)  [1.000]
+0.000: (load t3 e3 p4)  [1.000]
+0.501: (load t1 e1 p3)  [2.000]
+1.000: (mover_tren t3 e3 e4)  [1.250]
+2.000: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [1.399]
+2.250: (unload t3 e4 p4)  [1.000]
+3.400: (unload f4 e4 p5)  [1.000]
+3.400: (load f4 e4 p4)  [1.000]
+4.401: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [1.399]
+4.402: (load t2 e4 p5)  [1.000]
+5.001: (subir_conductor f1 d1 e1)  [2.000]
+5.402: (mover_tren t2 e4 e1)  [2.500]
+5.800: (unload f4 ca3 p4)  [1.000]
+6.800: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [1.399]
+7.002: (mover_furgoneta f1 d1 e1 ca1 ciudad1)  [1.000]
+7.902: (unload t2 e1 p5)  [1.000]
+8.001: (subir_conductor f3 d2 a2)  [2.000]
+8.003: (load f1 ca1 p1)  [2.000]
+10.002: (mover_furgoneta f3 d2 a2 e3 ciudad2)  [3.000]
+10.003: (mover_furgoneta f1 d1 ca1 e1 ciudad1)  [1.000]
+11.003: (unload f1 e1 p1)  [2.000]
+11.003: (load f1 e1 p5)  [1.000]
+13.003: (mover_furgoneta f3 d2 e3 ca2 ciudad2)  [3.000]
+13.003: (mover_furgoneta f1 d1 e1 ca1 ciudad1)  [1.000]
+13.004: (load t1 e1 p1)  [2.000]
+14.003: (unload f1 ca1 p5)  [1.000]
+15.004: (mover_tren t1 e1 e4)  [2.500]
+16.003: (load f3 ca2 p2)  [3.000]
+17.504: (unload t1 e4 p3)  [2.000]
+17.504: (unload t1 e4 p1)  [2.000]
+19.003: (mover_furgoneta f3 d2 ca2 e3 ciudad2)  [3.000]
+19.504: (mover_tren t1 e4 e3)  [2.500]
+19.505: (load f4 e4 p3)  [2.000]
+19.505: (load f4 e4 p1)  [2.000]
+21.505: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [1.399]
+22.003: (unload f3 e3 p2)  [3.000]
+22.904: (unload f4 ca3 p3)  [2.000]
+22.904: (unload f4 ca3 p1)  [2.000]
+24.904: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [1.399]
+25.004: (load t1 e3 p2)  [3.000]
+28.004: (mover_tren t1 e3 e4)  [2.500]
+30.504: (unload t1 e4 p2)  [3.000]
+33.505: (load f4 e4 p2)  [3.000]
+36.506: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [1.399]
+37.905: (unload f4 ca3 p2)  [3.000]
+
+ * All goal deadlines now no later than 40.905
+
+Resorting to best-first search
+Running WA* with W = 5.000, not restarting with goal states
+b (51.000 | 0.500)b (50.000 | 2.000)b (50.000 | 1.000)b (49.000 | 8.000)b (49.000 | 5.000)b (49.000 | 2.000)b (48.000 | 8.000)b (47.000 | 8.000)b (46.000 | 8.000)b (45.000 | 8.000)b (44.000 | 8.000)b (43.000 | 8.000)b (42.000 | 8.000)b (41.000 | 8.000)b (40.000 | 10.000)b (39.000 | 13.002)b (39.000 | 11.602)b (38.000 | 14.602)b (37.000 | 17.602)b (36.000 | 20.602)b (35.000 | 20.602)b (34.000 | 20.602)b (33.000 | 20.602)b (32.000 | 20.602)b (31.000 | 20.602)b (30.000 | 20.602)b (29.000 | 20.602)b (28.000 | 20.602)b (27.000 | 20.602)b (26.000 | 20.602)b (25.000 | 20.602)b (24.000 | 20.602)b (23.000 | 20.602)b (22.000 | 20.602)b (21.000 | 20.602)b (20.000 | 20.602)b (19.000 | 20.602)b (18.000 | 20.602)b (17.000 | 20.602)b (16.000 | 20.602)b (15.000 | 20.602)b (14.000 | 20.602)b (13.000 | 21.504)b (12.000 | 21.504)b (11.000 | 24.903)b (10.000 | 24.903)b (9.000 | 24.904)b (8.000 | 24.904)
