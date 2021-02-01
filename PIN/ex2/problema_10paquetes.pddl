@@ -36,7 +36,6 @@
 
     ; Paquetes
     (at P1 Ca1) (at P2 Ca2) (at P3 E1) (at P4 E2) (at P5 A1) (at P6 A2) (at P7 E4) (at P8 Ca3) (at P9 E2) (at P10 A2)
-    (at P11 Ca2) (at P12 Ca3) (at P13 E2) (at P14 E1) (at P15 A2) (at P16 A2) (at P17 E1) (at P18 Ca3) (at P19 E2) (at P20 Ca1)
 
 
     ; Temporal
