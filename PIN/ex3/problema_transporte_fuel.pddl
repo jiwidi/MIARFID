@@ -160,6 +160,6 @@
 
     ; (:metric minimize (total-time))
     (:metric minimize
-        (total-time)
+        (combustibletotal)
     )
 )
