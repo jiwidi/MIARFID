@@ -80,7 +80,7 @@
         )
     )
 
-    ; Mover un avion entre dos aeropuertos
+    ;Mover avion entre aeropuertos
     (:durative-action mover_avion
         :parameters (?a - avion ?o - aeropuerto ?d - aeropuerto ?co - ciudad ?cd - ciudad)
         :duration (= ?duration (/ (distancia ?o ?d) (velocidad ?a)))
@@ -89,17 +89,17 @@
             (over all (not (= ?co ?cd))) ; Podria ser at start simplemente (?)
             (over all (in ?co ?o)) ; Aeropuerto origen en ciudad origen - At start (?)
             (over all (in ?cd ?d)) ; Aeropuerto destino en ciudad destino - At start (?)
-            (at start (>= (combustible ?a) (* (/ 1 (/ (velocidad ?a) (distancia ?o ?d))) (gasto ?a)))) ; Tenemos suficiente combustible en el avion
+            (at start (>= (combustible ?a) (* (/ 1 (/ (distancia ?o ?d) (velocidad ?a))) (gasto ?a)))) ; Tenemos suficiente combustible en el avion
         )
         :effect (and
             (at start (not(at ?a ?o)))
             (at end (at ?a ?d))
             (at end (increase
                     combustibletotal
-                    (* (/ 1 (/ (velocidad ?a) (distancia ?o ?d))) (gasto ?a)))) ; Aumentamos la variable de combustibel total
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?a))) (gasto ?a)))) ; Aumentamos la variable de combustibel total
             (at end (decrease
                     (combustible ?a)
-                    (* (/ 1 (/ (velocidad ?a) (distancia ?o ?d))) (gasto ?a)))) ; Restamos el combustible usado al avion
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?a))) (gasto ?a)))) ; Restamos el combustible usado al avion
         )
     )
 
@@ -110,17 +110,17 @@
         :condition (and
             (at start (at ?t ?o)) ; Tren en estacion origen
             (over all (not (= ?o ?d))) ; Las estaciones son distintas - At start (?)
-            (at start (>= (combustible ?t) (* (/ 1 (/ (velocidad ?t) (distancia ?o ?d))) (gasto ?t)))) ; Tenemos suficiente combustible en el avion
+            (at start (>= (combustible ?t) (* (/ 1 (/ (distancia ?o ?d) (velocidad ?t))) (gasto ?t)))) ; Tenemos suficiente combustible en el avion
         )
         :effect (and
             (at start (not (at ?t ?o)))
             (at end (at ?t ?d))
             (at end (increase
                     combustibletotal
-                    (* (/ 1 (/ (velocidad ?t) (distancia ?o ?d))) (gasto ?t)))) ; Aumentamos la variable de combustibel total
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?t))) (gasto ?t)))) ; Aumentamos la variable de combustibel total
             (at end (decrease
                     (combustible ?t)
-                    (* (/ 1 (/ (velocidad ?t) (distancia ?o ?d))) (gasto ?t)))) ; Restamos el combustible usado al tren
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?t))) (gasto ?t)))) ; Restamos el combustible usado al tren
         )
     )
 
@@ -134,17 +134,17 @@
             (at start (at ?f ?o)) ; Furgoneta en origen
             (over all (in ?ci ?o)) ; Las dos localizaciones son de la misma ciudad
             (over all (in ?ci ?d)) ; Podria ser At start simplemente?
-            (at start (>= (combustible ?F) (* (/ 1 (/ (velocidad ?f) (distancia ?o ?d))) (gasto ?f))))
+            (at start (>= (combustible ?F) (* (/ 1 (/ (distancia ?o ?d) (velocidad ?f))) (gasto ?f))))
         )
         :effect (and
             (at start (not (at ?f ?o)))
             (at end (at ?f ?d)) ; Furgoneta en posicion destino
             (at end (increase
                     combustibletotal
-                    (* (/ 1 (/ (velocidad ?f) (distancia ?o ?d))) (gasto ?f)))) ; Aumentamos la variable de combustibel total
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?f))) (gasto ?f)))) ; Aumentamos la variable de combustibel total
             (at end (decrease
                     (combustible ?f)
-                    (* (/ 1 (/ (velocidad ?f) (distancia ?o ?d))) (gasto ?f)))) ; Restamos el combustible usado al tren
+                    (* (/ 1 (/ (distancia ?o ?d) (velocidad ?f))) (gasto ?f)))) ; Restamos el combustible usado al tren
         )
     )
 
