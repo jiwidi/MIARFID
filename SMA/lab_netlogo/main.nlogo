@@ -14,6 +14,7 @@ professors-own [
   busy-professor?
   safe-professor?
   health-professor?
+  extinguisher-cap? ; Extinguisher capacity
   target-fire
 ]
 
@@ -42,7 +43,7 @@ to go
   move-students
   move-professors
   stop-fire
-  die-students
+  die-people
   ifelse any? students with [safe-student? = false] or any? professors with [ safe-professor? = false ]
   [tick]
   [stop]
@@ -95,6 +96,7 @@ to initialize-students
     set in-seat? true
     set target-exit ""
     set color yellow
+    set health-student? 100
     move-to one-of patches with [ pcolor = blue ]
   ]
 
@@ -114,6 +116,8 @@ to initialize-professor
     setxy random-xcor random-ycor
     set size 1.5
     set safe-professor? false
+    set health-professor? 100
+    set extinguisher-cap? capacidad-extintor ; Each extinguisher can kill 50 fire-spots
     move-to one-of patches with [pcolor = red]
   ]
 end
@@ -305,16 +309,25 @@ to go-toward-exits
 end
 
 ;; Kill students if they touch the fire
-to die-students
+to die-people
   ask fire-spots [
-    ask students-here [ die ]
+    ask students-here [ ; Bajar vida a los estudiantes
+      set health-student? (health-student? - 2)
+      if health-student? = 0 [ die ]
+    ]
+
+    ask professors-here [
+      set health-professor? (health-professor? - 2)
+      if health-professor? = 0 [ die ]
+    ]
+
   ]
 end
 
 ;; Move professors to a fire
 to move-professors
   ask professors [
-   ifelse count fire-spots > 0
+   ifelse count fire-spots > 0 and extinguisher-cap? > 0
     [
       set busy-professor? true
       face min-one-of fire-spots [distance myself]
@@ -339,22 +352,29 @@ end
 ;; Stop the fire if a professor is close
 to stop-fire
   ask professors [
-    ask fire-spots-here [die]
-    ;ask patch-here [ if pcolor = grey [pcolor = white] ]
-    ask neighbors [
-      if count fire-spots-here > 0 [    ; Si hay algun fuego lo matamos.
-        ask fire-spots-here [die]       ; El if se pone para no quitar el humo sin haber apagado fuego
-        ; Quitar el humo a las celdas vecinas
-        if pcolor = grey [set pcolor white]
+    if extinguisher-cap? > 0 [
+      let fire-count count fire-spots-here
+      if fire-count > 0 [    ; Si hay algun fuego lo matamos.
+          ask fire-spots-here [die]
+          set extinguisher-cap? (extinguisher-cap? - fire-count)
+      ]
 
-        ask neighbors with [pcolor = grey][
-          set pcolor white
+      ask neighbors [
+        set fire-count count fire-spots-here
+        if count fire-spots-here > 0 [               ; Si hay algun fuego lo matamos.
+          ask fire-spots-here [die]       ; El if se pone para no quitar el humo sin haber apagado fuego
+          if pcolor = grey [set pcolor white]
+
+          ask neighbors with [pcolor = grey][
+            set pcolor white
+          ]
         ]
       ]
+      set extinguisher-cap? (extinguisher-cap? - fire-count)
+
     ]
   ]
 end
-
 
 
 
@@ -445,7 +465,7 @@ initial-fire-spots
 initial-fire-spots
 0
 20
-2.0
+3.0
 1
 1
 NIL
@@ -460,7 +480,7 @@ fire-speed
 fire-speed
 0
 10
-1.0
+4.0
 1
 1
 NIL
@@ -476,6 +496,73 @@ num_professors
 0
 6
 1.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+884
+10
+1367
+334
+Evolución
+Pasos de ejecución
+Estudiantes
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"Estudiantes vivos" 1.0 0 -13345367 true "" "plot count students"
+"Estudiantes muertos" 1.0 0 -2674135 true "" "plot student-count - count students"
+
+MONITOR
+890
+345
+1067
+390
+% Estudiantes en peligro
+(count students with [safe-student? = false] / student-count) * 100
+2
+1
+11
+
+MONITOR
+891
+395
+1061
+440
+% Estudiantes salvados
+(count students with [safe-student? = true] / student-count) * 100
+2
+1
+11
+
+MONITOR
+891
+444
+1057
+489
+% Estudiantes muertos
+((student-count - count students) / student-count) * 100
+2
+1
+11
+
+SLIDER
+21
+243
+203
+276
+capacidad-extintor
+capacidad-extintor
+0
+50
+25.0
 1
 1
 NIL
