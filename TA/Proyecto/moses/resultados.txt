@@ -1,2 +1,26 @@
+Experiment NGRAMA 3 MERT 5
+BLEU = 25.30, 57.9/31.4/19.0/11.9 (BP=1.000, ratio=1.049, hyp_len=24198, ref_len=23073)
 Experiment NGRAMA 2 MERT 5
-BLEU = 24.99, 58.1/31.3/18.7/11.4 (BP=1.000, ratio=1.022, hyp_len=23580, ref_len=23073)
+BLEU = 25.06, 58.1/31.2/18.8/11.6 (BP=1.000, ratio=1.022, hyp_len=23589, ref_len=23073)
+Experiment NGRAMA 3 MERT 5
+BLEU = 25.31, 57.3/31.2/19.1/12.0 (BP=1.000, ratio=1.054, hyp_len=24325, ref_len=23073)
+Experiment NGRAMA 4 MERT 5
+BLEU = 25.04, 57.6/31.1/18.8/11.7 (BP=1.000, ratio=1.048, hyp_len=24188, ref_len=23073)
+Experiment NGRAMA 5 MERT 5
+BLEU = 25.05, 57.3/31.0/18.9/11.7 (BP=1.000, ratio=1.057, hyp_len=24391, ref_len=23073)
+Experiment NGRAMA 3 MERT 5
+BLEU = 25.09, 57.5/31.1/18.9/11.7 (BP=1.000, ratio=1.057, hyp_len=24386, ref_len=23073)
+Experiment NGRAMA 3 MERT 7
+BLEU = 25.19, 57.4/31.1/19.0/11.9 (BP=1.000, ratio=1.058, hyp_len=24417, ref_len=23073)
+Experiment NGRAMA 3 MERT 10
+BLEU = 25.44, 57.5/31.4/19.2/12.1 (BP=1.000, ratio=1.050, hyp_len=24236, ref_len=23073)
+Experiment NGRAMA 3 MERT 10 
+BLEU = 25.02, 57.2/31.0/18.9/11.7 (BP=1.000, ratio=1.058, hyp_len=24404, ref_len=23073)
+Experiment NGRAMA 3 MERT 10 GOOD TURING
+BLEU = 25.11, 57.3/31.0/18.9/11.8 (BP=1.000, ratio=1.054, hyp_len=24324, ref_len=23073)
+Experiment NGRAMA 3 MERT 10 WB
+BLEU = 25.02, 57.2/31.0/18.9/11.7 (BP=1.000, ratio=1.058, hyp_len=24404, ref_len=23073)
+Experiment NGRAMA 3 MERT 10 KN
+BLEU = 25.44, 57.5/31.4/19.2/12.1 (BP=1.000, ratio=1.050, hyp_len=24236, ref_len=23073)
+Experiment NGRAMA 3 MERT 10 GOOD TURING
+BLEU = 25.11, 57.3/31.0/18.9/11.8 (BP=1.000, ratio=1.054, hyp_len=24324, ref_len=23073)

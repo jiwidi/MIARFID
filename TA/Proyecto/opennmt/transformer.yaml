@@ -1,0 +1,75 @@
+# toy_en_de.yaml
+
+## Where the samples will be written
+save_data: toy-ende/run/example
+## Where the vocab(s) will be written
+src_vocab: toy-ende/run/example.vocab.src
+tgt_vocab: toy-ende/run/example.vocab.tgt
+# Prevent overwriting existing files in the folder
+overwrite: False
+
+# Corpus opts:
+data:
+    corpus_1:
+        path_src: ../nmt-keras/Data/Europarl/tr.en
+        path_tgt: ../nmt-keras/Data/Europarl/tr.es
+    valid:
+        path_src: ../nmt-keras/Data/Europarl/test.en
+        path_tgt: ../nmt-keras/Data/Europarl/test.es
+# Vocabulary files that were just created
+src_vocab: toy-ende/run/example.vocab.src
+tgt_vocab: toy-ende/run/example.vocab.tgt
+
+# Train on a single GPU
+world_size: 1
+gpu_ranks: [0]
+
+#valid
+early_stopping: 4
+early_stopping_criteria: accuracy
+
+#MEtric
+external_evaluators: BLEU
+
+# Where to save the checkpoints
+save_model: toy-ende/run/model
+save_checkpoint_steps: 500
+train_steps: 1000
+valid_steps: 500
+
+save_checkpoint_steps: 1000
+keep_checkpoint: 10
+seed: 3435
+train_steps: 500000
+valid_steps: 500
+warmup_steps: 8000
+report_every: 100
+
+decoder_type: transformer
+encoder_type: transformer
+word_vec_size: 512
+rnn_size: 512
+layers: 6
+transformer_ff: 2048
+heads: 8
+
+accum_count: 8
+optim: adam
+adam_beta1: 0.9
+adam_beta2: 0.998
+decay_method: noam
+learning_rate: 2.0
+max_grad_norm: 0.0
+
+batch_size: 4096
+batch_type: tokens
+normalization: tokens
+dropout: 0.1
+label_smoothing: 0.1
+
+max_generator_batches: 2
+
+param_init: 0.0
+param_init_glorot: 'true'
+position_encoding: 'true'
+

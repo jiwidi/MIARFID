@@ -1,0 +1,119 @@
+# PREGUNTA 1
+El mejor plan obtenido
+
+Plan computed:
+   Time: (ACTION) [action Duration; action Cost]
+ 0.0000: (SUBIR_CONDUCTOR F1 D1 E1) [D:1.0000; C:1.0000]
+ 0.0000: (SUBIR_CONDUCTOR F3 D3 A2) [D:1.0000; C:1.0000]
+ 1.0000: (MOVER_FURGONETA F1 D1 E1 CA1 CIUDAD1) [D:1.0000; C:1.0000]
+ 2.0000: (LOAD-FURGONETA F1 CA1 P1) [D:1.0000; C:1.0000]
+ 3.0000: (MOVER_FURGONETA F1 D1 CA1 A1 CIUDAD1) [D:1.0000; C:1.0000]
+ 4.0000: (UNLOAD-FURGONETA F1 A1 P1) [D:1.0000; C:1.0000]
+ 5.0000: (LOAD-AVION AV1 A1 P1) [D:1.0000; C:1.0000]
+ 5.0000: (MOVER_FURGONETA F1 D1 A1 CA1 CIUDAD1) [D:1.0000; C:1.0000]
+ 6.0000: (LOAD-FURGONETA F1 CA1 P2) [D:1.0000; C:1.0000]
+ 7.0000: (MOVER_FURGONETA F1 D1 CA1 A1 CIUDAD1) [D:1.0000; C:1.0000]
+ 8.0000: (UNLOAD-FURGONETA F1 A1 P2) [D:1.0000; C:1.0000]
+ 9.0000: (LOAD-AVION AV1 A1 P2) [D:1.0000; C:1.0000]
+ 10.0000: (MOVER_AVION AV1 A1 A2 CIUDAD1 CIUDAD2) [D:1.0000; C:1.0000]
+ 11.0000: (UNLOAD-AVION AV1 A2 P1) [D:1.0000; C:1.0000]
+ 11.0000: (UNLOAD-AVION AV1 A2 P2) [D:1.0000; C:1.0000]
+ 12.0000: (LOAD-FURGONETA F3 A2 P1) [D:1.0000; C:1.0000]
+ 13.0000: (MOVER_FURGONETA F3 D3 A2 CA2 CIUDAD2) [D:1.0000; C:1.0000]
+ 14.0000: (UNLOAD-FURGONETA F3 CA2 P1) [D:1.0000; C:1.0000]
+
+
+Solution number: 3
+Total time:      0.02
+Search time:     0.02
+Actions:         18
+Execution cost:  18.00
+Duration:        15.000
+Plan quality:    18.000
+
+(omitiendo los pasos de subir conductor a cada furgoneta)
+En este plan se usa la furgoneta 1 para ir a Ca1, cargar paquete1 y llevarlo a A1 para cargarlo en Av1. Tras esto furgoneta 1 vuelva a Ca1 a coger el paquete2 y lo vuelve a llevar al A1 para cargarlo en Av1.
+Una vez el avion Av1 esta cargado con los dos paquetes vuela a A2, descarga p2 (consiguiendo asi el segundo goal), descarga p1 que es cargado en furgoneta 3 y lo lleva a casa Ca2 (consiguiendo el primer goal).
+
+El plan es correcto y es optimo si consideramos como objetivo el numero de acciones. Si nos importara mas el numero de pasos del plan creo que se podria paralelizar la llevada de paquetes P1,P2 de Ca1 a A1
+usando furgoneta f1 y furgoneta f2 al mismo tiempo. De esta manera furgoneta 1 no tiene que hacer dos viajes y se ahorraria el tiempo. La contrapartida seria que necesitamos una accion mas para subir el conductor D2 a F2.
+
+El plan optimo en numero de pasos:
+
+Plan computed:
+   Time: (ACTION) [action Duration; action Cost]
+ 0.0000: (SUBIR_CONDUCTOR F1 D1 E1) [D:1.0000; C:1.0000]
+ 0.0000: (SUBIR_CONDUCTOR F2 D2 A1) [D:1.0000; C:1.0000]
+ 0.0000: (SUBIR_CONDUCTOR F3 D3 A2) [D:1.0000; C:1.0000]
+ 1.0000: (MOVER_FURGONETA F1 D1 E1 CA1 CIUDAD1) [D:1.0000; C:1.0000]
+ 1.0000: (MOVER_FURGONETA F2 D2 A1 CA1 CIUDAD1) [D:1.0000; C:1.0000]
+ 2.0000: (LOAD-FURGONETA F1 CA1 P1) [D:1.0000; C:1.0000]
+ 2.0000: (LOAD-FURGONETA F2 CA1 P2) [D:1.0000; C:1.0000]
+ 3.0000: (MOVER_FURGONETA F2 D2 CA1 A1 CIUDAD1) [D:1.0000; C:1.0000]
+ 3.0000: (MOVER_FURGONETA F1 D1 CA1 A1 CIUDAD1) [D:1.0000; C:1.0000]
+ 4.0000: (UNLOAD-FURGONETA F2 A1 P2) [D:1.0000; C:1.0000]
+ 4.0000: (UNLOAD-FURGONETA F1 A1 P1) [D:1.0000; C:1.0000]
+ 5.0000: (LOAD-AVION AV1 A1 P2) [D:1.0000; C:1.0000]
+ 5.0000: (LOAD-AVION AV1 A1 P1) [D:1.0000; C:1.0000]
+ 6.0000: (MOVER_AVION AV1 A1 A2 CIUDAD1 CIUDAD2) [D:1.0000; C:1.0000]
+ 7.0000: (UNLOAD-AVION AV1 A2 P1) [D:1.0000; C:1.0000]
+ 7.0000: (UNLOAD-AVION AV1 A2 P2) [D:1.0000; C:1.0000]
+ 8.0000: (LOAD-FURGONETA F3 A2 P1) [D:1.0000; C:1.0000]
+ 9.0000: (MOVER_FURGONETA F3 D3 A2 CA2 CIUDAD2) [D:1.0000; C:1.0000]
+ 10.0000: (UNLOAD-FURGONETA F3 CA2 P1) [D:1.0000; C:1.0000]
+
+
+Solution number: 4
+Total time:      0.02
+Search time:     0.02
+Actions:         19
+Execution cost:  19.00
+Duration:        11.000
+Plan quality:    19.000
+
+Podemos ver como realiza el paralelismo de carga de paquetes de Ca1 y
+
+
+
+# PREGUNTA 2
+
+En el nivel 1 de acción estarían las acciones:
+ - subir D2 a F2
+ - subir D1 a F1
+ - subir D3 a F3
+
+En el nivel 2 de acción ya podemos tener las acciones:
+ - mover F1 a Ca1
+ - mover F2 a Ca1
+
+En el nivel 3 de acción ya podemos tener las acciones:
+- cargar P1 a F1
+- cargar P2 a F2
+
+En el nivel 4 de acción ya podemos tener las acciones:
+- mover F1 a A1
+- mover F2 a A1
+
+En el nivel 5 de acción ya podemos tener las acciones:
+- Descargar P1 de F1 en A1
+- Descargar P2 de F2 en A1
+
+En el nivel 6 de acción ya podemos tener las acciones:
+- Cargar P1 en Av1
+- Cargar P2 en Av1
+
+En el nivel 7 de acción ya podemos tener las acciones:
+- Descargar P1 de Av1 en A2
+- Descargar P2 de Av1 en A2
+Por tanto conseguimos los objetivos (at P2 A2) en el nivel 7 de literal #  Objetivo: paquete 2 (P2) llegue al aeropuerto 2 (A2)
+
+En el nivel 8 de acción ya podemos tener las acciones:
+- Cargar P1 en F3
+
+En el nivel 9 de acción ya podemos tener las acciones:
+- Mover F3 a Ca2
+
+En el nivel 10 de acción ya podemos tener las acciones:
+- Descargar P1 en Ca2
+
+Por tanto conseguimos los objetivos (at P1 Ca2) en el nivel 10 de literal #  Objetivo: paquete 1 (P1) llegue a la casa 2 (Ca2)
