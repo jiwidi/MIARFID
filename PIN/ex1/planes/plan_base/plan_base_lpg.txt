@@ -1,4 +1,3 @@
-
 Parsing domain file:  domain 'TRANSPORTE' defined ... done.
 Parsing problem file:  problem 'PROBTRANSPORTE' defined ... done.
 
@@ -18,7 +17,7 @@ Analyzing Planning Problem:
 	Problem with Derived Predicates: NO
 
 Evaluation function weights:
-     Action duration 1.00; Action cost 0.00
+     Action duration 0.00; Action cost 1.00
 
 
 Computing mutex... done
@@ -27,11 +26,19 @@ Preprocessing total time: 0.00 seconds
 
 Searching ('.' = every 50 search steps):
  solution found: 
+Solution number: 1
+Total time:      0.00
+Search time:     0.00
+Actions:         27
+Execution cost:  27.00
+Duration:        16.000
+Plan quality:    27.000
+     Plan file:       plan_problema_transporte.pddl_1.SOL Restart using stored plan
+.. solution found: 
 
 Plan computed:
    Time: (ACTION) [action Duration; action Cost]
  0.0000: (SUBIR_CONDUCTOR F4 D3 CA3) [D:1.0000; C:1.0000]
- 0.0000: (MOVER_TREN T2 E4 E2) [D:1.0000; C:1.0000]
  0.0000: (MOVER_CONDUCTOR D1 E2 E1 CIUDAD1) [D:1.0000; C:1.0000]
  0.0000: (MOVER_CONDUCTOR D2 CA2 A2 CIUDAD2) [D:1.0000; C:1.0000]
  1.0000: (MOVER_FURGONETA F4 D3 CA3 E4 CIUDAD3) [D:1.0000; C:1.0000]
@@ -45,28 +52,24 @@ Plan computed:
  4.0000: (MOVER_FURGONETA F3 D2 CA2 E3 CIUDAD2) [D:1.0000; C:1.0000]
  5.0000: (UNLOAD F1 E2 P1) [D:1.0000; C:1.0000]
  5.0000: (UNLOAD F3 E3 P2) [D:1.0000; C:1.0000]
- 6.0000: (LOAD T2 E2 P1) [D:1.0000; C:1.0000]
- 7.0000: (MOVER_TREN T2 E2 E4) [D:1.0000; C:1.0000]
- 8.0000: (UNLOAD T2 E4 P1) [D:1.0000; C:1.0000]
- 9.0000: (LOAD F4 E4 P1) [D:1.0000; C:1.0000]
- 9.0000: (MOVER_TREN T2 E4 E3) [D:1.0000; C:1.0000]
- 10.0000: (LOAD T2 E3 P2) [D:1.0000; C:1.0000]
- 11.0000: (MOVER_TREN T2 E3 E4) [D:1.0000; C:1.0000]
- 12.0000: (UNLOAD T2 E4 P2) [D:1.0000; C:1.0000]
- 13.0000: (LOAD F4 E4 P2) [D:1.0000; C:1.0000]
- 14.0000: (UNLOAD F4 E4 P2) [D:1.0000; C:1.0000]
- 15.0000: (LOAD F4 E4 P2) [D:1.0000; C:1.0000]
- 16.0000: (MOVER_FURGONETA F4 D3 E4 CA3 CIUDAD3) [D:1.0000; C:1.0000]
- 17.0000: (UNLOAD F4 CA3 P1) [D:1.0000; C:1.0000]
- 17.0000: (UNLOAD F4 CA3 P2) [D:1.0000; C:1.0000]
+ 6.0000: (LOAD T1 E2 P1) [D:1.0000; C:1.0000]
+ 7.0000: (MOVER_TREN T1 E2 E3) [D:1.0000; C:1.0000]
+ 8.0000: (LOAD T1 E3 P2) [D:1.0000; C:1.0000]
+ 9.0000: (MOVER_TREN T1 E3 E4) [D:1.0000; C:1.0000]
+ 10.0000: (UNLOAD T1 E4 P2) [D:1.0000; C:1.0000]
+ 10.0000: (UNLOAD T1 E4 P1) [D:1.0000; C:1.0000]
+ 11.0000: (LOAD F4 E4 P2) [D:1.0000; C:1.0000]
+ 11.0000: (LOAD F4 E4 P1) [D:1.0000; C:1.0000]
+ 12.0000: (MOVER_FURGONETA F4 D3 E4 CA3 CIUDAD3) [D:1.0000; C:1.0000]
+ 13.0000: (UNLOAD F4 CA3 P2) [D:1.0000; C:1.0000]
+ 13.0000: (UNLOAD F4 CA3 P1) [D:1.0000; C:1.0000]
 
 
-Solution number: 1
+Solution number: 2
 Total time:      0.00
 Search time:     0.00
-Actions:         29
-Execution cost:  29.00
-Duration:        18.000
-Plan quality:    18.000
-     Plan file:       plan_problema_transporte.pddl_1.SOL
-
+Actions:         25
+Execution cost:  25.00
+Duration:        14.000
+Plan quality:    25.000
+     Plan file:       plan_problema_transporte.pddl_2.SOL
