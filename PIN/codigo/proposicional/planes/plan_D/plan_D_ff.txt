@@ -1,0 +1,113 @@
+ff: parsing domain file
+domain 'TRANSPORTE' defined
+ ... done.
+ff: parsing problem file
+problem 'PROBTRANSPORTE' defined
+ ... done.
+
+
+no metric specified. plan length assumed.
+
+checking for cyclic := effects --- OK.
+
+ff: search configuration is EHC, if that fails then  best-first on 1*g(s) + 5*h(s) where
+    metric is  plan length
+
+Cueing down from goal distance:   41 into depth [1]
+                                  39            [1]
+                                  38            [1]
+                                  37            [1]
+                                  36            [1]
+                                  35            [1]
+                                  34            [1]
+                                  33            [1]
+                                  32            [1]
+                                  31            [1]
+                                  30            [1]
+                                  29            [1]
+                                  28            [1]
+                                  27            [1]
+                                  26            [1]
+                                  25            [1]
+                                  24            [1][2]
+                                  23            [1]
+                                  22            [1][2]
+                                  21            [1]
+                                  20            [1][2]
+                                  19            [1]
+                                  18            [1]
+                                  17            [1]
+                                  16            [1]
+                                  15            [1][2]
+                                  14            [1]
+                                  13            [1][2]
+                                  12            [1]
+                                  11            [1]
+                                  10            [1]
+                                   9            [1]
+                                   8            [1]
+                                   7            [1]
+                                   6            [1]
+                                   5            [1]
+                                   4            [1]
+                                   3            [1]
+                                   2            [1]
+                                   1            [1]
+                                   0            
+
+ff: found legal plan as follows
+
+step    0: MOVER_TREN T2 E4 E1
+        1: LOAD T2 E1 P3
+        2: LOAD T3 E3 P4
+        3: MOVER_CONDUCTOR D2 CA2 A2 CIUDAD2
+        4: MOVER_CONDUCTOR D1 E2 E1 CIUDAD1
+        5: SUBIR_CONDUCTOR F3 D2 A2
+        6: MOVER_FURGONETA F3 D2 A2 CA2 CIUDAD2
+        7: LOAD F3 CA2 P2
+        8: MOVER_FURGONETA F3 D2 CA2 E3 CIUDAD2
+        9: UNLOAD F3 E3 P2
+       10: LOAD T3 E3 P2
+       11: SUBIR_CONDUCTOR F4 D3 CA3
+       12: LOAD F4 CA3 P5
+       13: SUBIR_CONDUCTOR F1 D1 E1
+       14: MOVER_TREN T3 E3 E2
+       15: MOVER_FURGONETA F1 D1 E1 E2 CIUDAD1
+       16: MOVER_TREN T2 E1 E4
+       17: UNLOAD T2 E4 P3
+       18: MOVER_TREN T2 E4 E2
+       19: MOVER_FURGONETA F4 D3 CA3 E4 CIUDAD3
+       20: UNLOAD F4 E4 P5
+       21: LOAD F4 E4 P3
+       22: MOVER_TREN T3 E2 E4
+       23: LOAD T3 E4 P5
+       24: UNLOAD T3 E4 P2
+       25: UNLOAD T3 E4 P4
+       26: LOAD F4 E4 P2
+       27: LOAD F4 E4 P4
+       28: MOVER_TREN T3 E4 E2
+       29: UNLOAD T3 E2 P5
+       30: LOAD F1 E2 P5
+       31: MOVER_FURGONETA F1 D1 E2 CA1 CIUDAD1
+       32: LOAD F1 CA1 P1
+       33: UNLOAD F1 CA1 P5
+       34: MOVER_FURGONETA F1 D1 CA1 E2 CIUDAD1
+       35: UNLOAD F1 E2 P1
+       36: LOAD T3 E2 P1
+       37: MOVER_TREN T3 E2 E4
+       38: UNLOAD T3 E4 P1
+       39: LOAD F4 E4 P1
+       40: MOVER_FURGONETA F4 D3 E4 CA3 CIUDAD3
+       41: UNLOAD F4 CA3 P1
+       42: UNLOAD F4 CA3 P2
+       43: UNLOAD F4 CA3 P3
+       44: UNLOAD F4 CA3 P4
+     
+
+time spent:    0.00 seconds instantiating 1270 easy, 0 hard action templates
+               0.00 seconds reachability analysis, yielding 125 facts and 366 actions
+               0.00 seconds creating final representation with 125 relevant facts, 0 relevant fluents
+               0.00 seconds computing LNF
+               0.00 seconds building connectivity graph
+               0.00 seconds searching, evaluating 71 states, to a max depth of 2
+               0.00 seconds total time
