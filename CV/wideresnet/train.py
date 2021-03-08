@@ -31,7 +31,6 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
     for batch_idx, (train_batch, labels_batch) in enumerate(dataloader):
         # move the data onto the device
         train_batch, labels_batch = train_batch.to(device), labels_batch.to(device)
-        print(train_batch)
         optimizer.zero_grad()
 
         # compute model outputs and loss

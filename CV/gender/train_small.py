@@ -9,11 +9,12 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
-
+import numpy as np
 import matplotlib.pyplot as plt
 
 writer = SummaryWriter()
-from resnet import ResNet
+from resnet import ResNet, ResNet_small
+from torchsummary import summary
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
@@ -31,12 +32,11 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
     for batch_idx, (train_batch, labels_batch) in enumerate(dataloader):
         # move the data onto the device
         train_batch, labels_batch = train_batch.to(device), labels_batch.to(device)
-        print(train_batch)
         optimizer.zero_grad()
 
         # compute model outputs and loss
         outputs = model(train_batch)
-        loss = loss_fn(outputs, labels_batch)
+        loss = loss_fn(outputs, labels_batch.squeeze())
         loss.backward()
 
         # after computing gradients based on current batch loss,
@@ -97,13 +97,12 @@ def test(model, dataloader, loss_fn, epoch):
 
             # compute the model output
             outputs = model(test_batch)
-            loss = loss_fn(outputs, labels_batch)
+            loss = loss_fn(outputs, labels_batch.squeeze())
 
             test_loss += loss.item()
             _, predicted = outputs.max(1)
             total += labels_batch.size(0)
-            correct += predicted.eq(labels_batch).sum().item()
-
+            correct += predicted.eq(labels_batch.squeeze()).sum().item()
             # log the test_loss
             writer.add_scalar(
                 "test/loss",
@@ -117,19 +116,19 @@ def test(model, dataloader, loss_fn, epoch):
             )
 
     test_loss = test_loss / datacount
-    acc = 100.0 * correct / total
+    acc = 100 * correct / total
     print("Test accuracy:", acc)
     return test_loss, acc
 
 
 def save_ckp(state, checkpoint_dir):
-    f_path = "cifar-best-checkpoint.pt"
+    f_path = "gender-best-checkpoint.pt"
     torch.save(state, f_path)
 
 
 def main():
     # Training settings
-    parser = argparse.ArgumentParser(description="PyTorch MNIST RNA LAB")
+    parser = argparse.ArgumentParser(description="PyTorch GENDER CV LAB")
     parser.add_argument(
         "--batch-size",
         type=int,
@@ -150,7 +149,7 @@ def main():
     parser.add_argument(
         "--save_model",
         action="store_true",
-        default=True,
+        default=False,
         help="For Saving the current Model",
     )
     parser.add_argument(
@@ -185,18 +184,35 @@ def main():
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
         ]
     )
+    # Load
+    x_train = np.load("data/x_train.npy")
+    x_test = np.load("data/x_test.npy")
 
-    dataset1 = torchvision.datasets.CIFAR10(
-        ".data", train=True, download=True, transform=train_transforms
-    )
-    dataset2 = torchvision.datasets.CIFAR10(
-        ".data", train=False, download=True, transform=test_transforms
-    )
+    x_train = x_train / 255
+    x_test = x_test / 255
+
+    x_train = torch.from_numpy(x_train).squeeze().permute(0, 3, 1, 2).float()
+    x_test = torch.from_numpy(x_test).squeeze().permute(0, 3, 1, 2).float()
+
+    y_train = np.load("data/y_train.npy")
+    y_test = np.load("data/y_test.npy")
+
+    y_train = torch.from_numpy(y_train).squeeze().long()
+    y_test = torch.from_numpy(y_test).squeeze().long()
+
+    dataset1 = torch.utils.data.TensorDataset(x_train, y_train.unsqueeze(1))
+    dataset2 = torch.utils.data.TensorDataset(x_test, y_test.unsqueeze(1))
 
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    model = ResNet().to(device)
+    model = ResNet_small().to(device)
+    print(summary(model, (3, 100, 100)))
+
+    print(
+        "Trainable parameters",
+        sum(p.numel() for p in model.parameters() if p.requires_grad),
+    )
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), epochs=200
@@ -224,7 +240,7 @@ def main():
         test_loss, test_acc = test(model, test_loader, loss, epoch)
         if test_acc > best_acc:
             best_acc = test_acc
-        if test_acc > 95.0:
+        if test_acc > 97.0:
             print("Error < 5.0 achieved, stopped training")
             break
         if args.save_model and test_acc >= best_acc:
@@ -234,7 +250,7 @@ def main():
                 "optimizer": optimizer.state_dict(),
                 "scheduler": scheduler.state_dict(),
             }
-            print("Saving checkpoint as best model to cifar-best-checkpoint.pt")
+            print("Saving checkpoint as best model to gender-best-checkpoint.pt")
             save_ckp(checkpoint, "")
 
         l_train_loss.append(train_loss)
@@ -251,7 +267,7 @@ def main():
     plt.ylabel("Loss", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/cifar_loss.png")
+    fig.savefig("figures/gender_loss.png")
     plt.close()
 
     fig = plt.figure()
@@ -261,7 +277,7 @@ def main():
     plt.ylabel("Accuracy", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/cifar_acc.png")
+    fig.savefig("figures/gender_acc.png")
     plt.close()
 
     fig = plt.figure()
@@ -270,7 +286,7 @@ def main():
     plt.ylabel("Learning rate", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/cifar_lr.png")
+    fig.savefig("figures/gender_lr.png")
     plt.close()
 
 
