@@ -8,6 +8,7 @@ data/
 *data/
 *runs/
 runs/
+.runs/
 # C extensions
 *.so
 #*.pickle
