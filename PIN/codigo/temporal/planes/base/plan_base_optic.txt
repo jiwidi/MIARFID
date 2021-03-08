@@ -1,0 +1,38 @@
+; Plan found with metric 40.905
+; Theoretical reachable cost 40.906
+; States evaluated so far: 104
+; States pruned based on pre-heuristic cost lower bound: 0
+; Time 0.16
+0.000: (subir_conductor f4 d3 ca3)  [2.000]
+0.000: (mover_conductor d2 ca2 a2 ciudad2)  [8.000]
+0.000: (mover_conductor d1 e2 e1 ciudad1)  [5.000]
+0.000: (mover_tren t1 e2 e4)  [2.000]
+2.000: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [1.399]
+2.001: (mover_tren t1 e4 e1)  [2.500]
+5.001: (subir_conductor f1 d1 e1)  [2.000]
+7.002: (mover_furgoneta f1 d1 e1 ca1 ciudad1)  [1.000]
+8.001: (subir_conductor f3 d2 a2)  [2.000]
+8.003: (load f1 ca1 p1)  [2.000]
+10.002: (mover_furgoneta f3 d2 a2 e3 ciudad2)  [3.000]
+10.003: (mover_furgoneta f1 d1 ca1 e1 ciudad1)  [1.000]
+11.003: (unload f1 e1 p1)  [2.000]
+13.003: (mover_furgoneta f3 d2 e3 ca2 ciudad2)  [3.000]
+13.004: (load t1 e1 p1)  [2.000]
+15.004: (mover_tren t1 e1 e4)  [2.500]
+16.003: (load f3 ca2 p2)  [3.000]
+17.504: (unload t1 e4 p1)  [2.000]
+19.003: (mover_furgoneta f3 d2 ca2 e3 ciudad2)  [3.000]
+19.504: (mover_tren t1 e4 e3)  [2.500]
+19.505: (load f4 e4 p1)  [2.000]
+21.505: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [1.399]
+22.003: (unload f3 e3 p2)  [3.000]
+22.904: (unload f4 ca3 p1)  [2.000]
+24.904: (mover_furgoneta f4 d3 ca3 e4 ciudad3)  [1.399]
+25.004: (load t1 e3 p2)  [3.000]
+28.004: (mover_tren t1 e3 e4)  [2.500]
+30.504: (unload t1 e4 p2)  [3.000]
+33.505: (load f4 e4 p2)  [3.000]
+36.506: (mover_furgoneta f4 d3 e4 ca3 ciudad3)  [1.399]
+37.905: (unload f4 ca3 p2)  [3.000]
+
+ * All goal deadlines now no later than 40.905
