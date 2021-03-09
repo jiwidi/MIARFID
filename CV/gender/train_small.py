@@ -3,6 +3,8 @@ import argparse
 import shutil
 import torch
 import torchvision
+import random
+import os
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -47,7 +49,7 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
         train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += labels_batch.size(0)
-        correct += predicted.eq(labels_batch).sum().item()
+        correct += predicted.eq(labels_batch.squeeze()).sum().item()
 
         # write to tensorboard
         writer.add_scalar(
@@ -132,7 +134,7 @@ def main():
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=128,
+        default=64,
         metavar="N",
         help="input batch size for training (default: 128)",
     )
@@ -160,7 +162,12 @@ def main():
     )
     args = parser.parse_args()
 
+    random.seed(args.seed)
+    os.environ['PYTHONHASHSEED'] = str(args.seed)
+    np.random.seed(args.seed)
     torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+    torch.backends.cudnn.deterministic = True
 
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.batch_size}
@@ -171,7 +178,7 @@ def main():
 
     train_transforms = transforms.Compose(
         [
-            transforms.RandomCrop(32, padding=4),
+            transforms.RandomCrop(64, padding=2),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
@@ -241,7 +248,7 @@ def main():
         if test_acc > best_acc:
             best_acc = test_acc
         if test_acc > 97.0:
-            print("Error < 5.0 achieved, stopped training")
+            print("Error < 3.0 achieved, stopped training")
             break
         if args.save_model and test_acc >= best_acc:
             checkpoint = {

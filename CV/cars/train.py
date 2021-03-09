@@ -132,14 +132,14 @@ def main():
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=128,
+        default=8,
         metavar="N",
         help="input batch size for training (default: 128)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=200,
+        default=500,
         metavar="N",
         help="number of epochs to train (default: 200)",
     )
@@ -193,6 +193,10 @@ def main():
 
     y_train = np.load("data/y_train.npy")
     y_test = np.load("data/y_test.npy")
+
+    # Fix class labels
+    y_train = y_train - 1
+    y_test = y_test - 1
 
     y_train = torch.from_numpy(y_train).squeeze().long()
     y_test = torch.from_numpy(y_test).squeeze().long()

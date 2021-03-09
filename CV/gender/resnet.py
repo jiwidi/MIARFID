@@ -69,7 +69,7 @@ class ResNet_small(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
 
         self.blocks = ResBlock(32, 32, 1,)
-        self.fw = nn.Linear(4608, 2)  # 10 Classes
+        self.fw = nn.Linear(4608, 2)  # 2 Classes
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
