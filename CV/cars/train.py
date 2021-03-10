@@ -47,7 +47,7 @@ def train(model, dataloader, optimizer, scheduler, loss_fn, epoch):
         train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += labels_batch.size(0)
-        correct += predicted.eq(labels_batch).sum().item()
+        correct += predicted.eq(labels_batch.squeeze()).sum().item()
 
         # write to tensorboard
         writer.add_scalar(
@@ -122,17 +122,17 @@ def test(model, dataloader, loss_fn, epoch):
 
 
 def save_ckp(state, checkpoint_dir):
-    f_path = "gender-best-checkpoint.pt"
+    f_path = "cars-best-checkpoint.pt"
     torch.save(state, f_path)
 
 
 def main():
     # Training settings
-    parser = argparse.ArgumentParser(description="PyTorch GENDER CV LAB")
+    parser = argparse.ArgumentParser(description="PyTorch cars CV LAB")
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=8,
+        default=64,
         metavar="N",
         help="input batch size for training (default: 128)",
     )
@@ -218,8 +218,8 @@ def main():
     )
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), epochs=200
-    )  # epoch 187
+        optimizer, max_lr=0.05, steps_per_epoch=len(train_loader), epochs=args.epochs
+    )
     epoch = 1
     loss = nn.CrossEntropyLoss()
     if args.load_checkpoint:
@@ -243,8 +243,8 @@ def main():
         test_loss, test_acc = test(model, test_loader, loss, epoch)
         if test_acc > best_acc:
             best_acc = test_acc
-        if test_acc > 97.0:
-            print("Error < 5.0 achieved, stopped training")
+        if test_acc > 65.0:
+            print("Error < 35.0 achieved, stopped training")
             break
         if args.save_model and test_acc >= best_acc:
             checkpoint = {
@@ -253,7 +253,7 @@ def main():
                 "optimizer": optimizer.state_dict(),
                 "scheduler": scheduler.state_dict(),
             }
-            print("Saving checkpoint as best model to gender-best-checkpoint.pt")
+            print("Saving checkpoint as best model to cars-best-checkpoint.pt")
             save_ckp(checkpoint, "")
 
         l_train_loss.append(train_loss)
@@ -270,7 +270,7 @@ def main():
     plt.ylabel("Loss", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/gender_loss.png")
+    fig.savefig("figures/cars_loss.png")
     plt.close()
 
     fig = plt.figure()
@@ -280,7 +280,7 @@ def main():
     plt.ylabel("Accuracy", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/gender_acc.png")
+    fig.savefig("figures/cars_acc.png")
     plt.close()
 
     fig = plt.figure()
@@ -289,7 +289,7 @@ def main():
     plt.ylabel("Learning rate", fontsize=8)
     plt.legend()
     plt.grid()
-    fig.savefig("figures/gender_lr.png")
+    fig.savefig("figures/cars_lr.png")
     plt.close()
 
 
