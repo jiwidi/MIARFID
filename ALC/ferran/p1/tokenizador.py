@@ -56,13 +56,16 @@ def tokenize(sentences):
 
 
 if __name__ == "__main__":
+    # Leemos los datos de entrada
     with open("entrada_tokenizador.txt") as f:
         data = f.readlines()
 
+    # Guardamos los datos procesados
     result = tokenize(data)
     with open("salida_tokenizador.txt", "w+") as f:
         f.write(result)
 
+    # Comparamos nuestros datos procesados contra la salida de test que nos dio el profesor
     with open("salida_test.txt") as f:
         test = f.readlines()
 

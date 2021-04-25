@@ -12,6 +12,7 @@ data/
 *runs/
 runs/
 .runs/
+lightning_logs/
 # C extensions
 *.so
 #*.pickle
@@ -148,3 +149,4 @@ TA/Proyecto/moses/Corpus.tgz
 
 TA/Proyecto/moses/Corpus/
 ALC/cardiffnlp/twitter-roberta-base-sentiment/tokenizer_config.json
+ARF/lightning_logs/version_12/hparams.yaml

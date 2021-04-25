@@ -20,7 +20,7 @@ for file in os.listdir(root_folder):
         assert root[0].tag=="documents"
         for child in root[0]:
             assert child.tag=="document"
-            data = [file[:-4], child.text, truths[file[:-4]]] # [userid, tweettext,tag ]
+            data = [file[:-4], child.text, int(truths[file[:-4]])] # [userid, tweettext,tag ]
             data_en.append(data)
 
 root_folder = 'dataset/pan21-author-profiling-training-2021-03-14/es/'
@@ -38,7 +38,7 @@ for file in os.listdir(root_folder):
         assert root[0].tag=="documents"
         for child in root[0]:
             assert child.tag=="document"
-            data = [file[:-4], child.text,truths[file[:-4]]] # [userid, tweettext]
+            data = [file[:-4], child.text,int(truths[file[:-4]])] # [userid, tweettext]
             data_es.append(data)
 
 print("Saving to files")
