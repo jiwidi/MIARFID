@@ -10,22 +10,32 @@ GradientBoostingClassifier:
 
 
 HuggingFaceRoberta:
-ratio: if negative > ratio * positive: then labelled as negative
+ratio: if counter_negative > ratio * counter_positive: then labelled as negative
 EN
     Unprocessed TEXT
-        Accuracy 0.0 with sensitivity ratio 0.0
-        Accuracy 0.045 with sensitivity ratio 0.2
-        Accuracy 0.17 with sensitivity ratio 0.4
-        Accuracy 0.37 with sensitivity ratio 0.6000000000000001
-        Accuracy 0.605 with sensitivity ratio 0.8
-        Accuracy 0.825 with sensitivity ratio 1.0
+        Accuracy 0.00 with sensitivity ratio 0.00
+        Accuracy 0.20 with sensitivity ratio 0.20
+        Accuracy 0.67 with sensitivity ratio 0.40
+        Accuracy 0.92 with sensitivity ratio 0.60
+        Accuracy 0.98 with sensitivity ratio 0.80
+        Accuracy 0.98 with sensitivity ratio 1.00
+        Accuracy 0.98 with sensitivity ratio 1.20
+        Accuracy 0.99 with sensitivity ratio 1.40
+        Accuracy 0.99 with sensitivity ratio 1.60
+        Accuracy 0.99 with sensitivity ratio 1.80
+        Accuracy 0.99 with sensitivity ratio 2.00
     Processed TEXT
-        Accuracy 0.0 with sensitivity ratio 0.0
-        Accuracy 0.195 with sensitivity ratio 0.2
-        Accuracy 0.67 with sensitivity ratio 0.4
-        Accuracy 0.915 with sensitivity ratio 0.6000000000000001
-        Accuracy 0.98 with sensitivity ratio 0.8
-        Accuracy 0.985 with sensitivity ratio 1.0
+        Accuracy 0.00 with sensitivity ratio 0.00
+        Accuracy 0.04 with sensitivity ratio 0.20
+        Accuracy 0.17 with sensitivity ratio 0.40
+        Accuracy 0.37 with sensitivity ratio 0.60
+        Accuracy 0.60 with sensitivity ratio 0.80
+        Accuracy 0.82 with sensitivity ratio 1.00
+        Accuracy 0.92 with sensitivity ratio 1.20
+        Accuracy 0.94 with sensitivity ratio 1.40
+        Accuracy 0.95 with sensitivity ratio 1.60
+        Accuracy 0.96 with sensitivity ratio 1.80
+        Accuracy 0.98 with sensitivity ratio 2.00
 
 
 
