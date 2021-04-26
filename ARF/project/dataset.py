@@ -1,6 +1,6 @@
+import numpy
 import PIL.Image as Image
 import torch.utils.data as pytorch_data
-import numpy
 from torchvision import transforms
 
 

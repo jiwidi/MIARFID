@@ -1,8 +1,7 @@
-import xml.etree.ElementTree as ET
-import pandas as pd
 import os
+import xml.etree.ElementTree as ET
 
-
+import pandas as pd
 
 root_folder = 'dataset/pan21-author-profiling-training-2021-03-14/en/'
 

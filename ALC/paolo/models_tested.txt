@@ -1,4 +1,4 @@
-GradientBoostingClassifier: 
+GradientBoostingClassifier:
     -Stem = FALSE -> Accuracy (en): 0.65 (+/- 0.23)
     -Stem = TRUE  -> Accuracy (en): 0.63 (+/- 0.24)
     -Stem = FALSE -> Accuracy (es): 0.70 (+/- 0.19)
@@ -7,3 +7,25 @@ GradientBoostingClassifier:
 
     -Stem = FALSE + Tfidf-> Accuracy (es): 0.75 (+/- 0.21)
     -Stem = TRUE + Tfidf -> Accuracy (es): 0.71 (+/- 0.18)
+
+
+HuggingFaceRoberta:
+ratio: if negative > ratio * positive: then labelled as negative
+EN
+    Unprocessed TEXT
+        Accuracy 0.0 with sensitivity ratio 0.0
+        Accuracy 0.045 with sensitivity ratio 0.2
+        Accuracy 0.17 with sensitivity ratio 0.4
+        Accuracy 0.37 with sensitivity ratio 0.6000000000000001
+        Accuracy 0.605 with sensitivity ratio 0.8
+        Accuracy 0.825 with sensitivity ratio 1.0
+    Processed TEXT
+        Accuracy 0.0 with sensitivity ratio 0.0
+        Accuracy 0.195 with sensitivity ratio 0.2
+        Accuracy 0.67 with sensitivity ratio 0.4
+        Accuracy 0.915 with sensitivity ratio 0.6000000000000001
+        Accuracy 0.98 with sensitivity ratio 0.8
+        Accuracy 0.985 with sensitivity ratio 1.0
+
+
+

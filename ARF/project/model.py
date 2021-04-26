@@ -1,14 +1,15 @@
+import numpy as np
 import pytorch_lightning as pl
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from efficientnet_pytorch import EfficientNet
 from pytorch_lightning.metrics.classification import AUROC
 from sklearn.metrics import roc_auc_score
-import torch
-import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
-import numpy as np
-
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
+
 from dataset import SIIMDataset
 
 lr = 0.001
@@ -102,7 +103,7 @@ class BigModel(pl.LightningModule):
         y = torch.cat([x["y"] for x in outputs])
         y_hat = torch.cat([x["y_hat"] for x in outputs])
         auc = (
-            AUROC()(pred=y_hat, target=y) if y.float().mean() > 0 else 0.5
+            AUROC()(preds=y_hat, target=y) if y.float().mean() > 0 else 0.5
         )  # skip sanity check
         acc = (y_hat.round() == y).float().mean().item()
         print(f"Epoch {self.current_epoch} acc:{acc} auc:{auc}")

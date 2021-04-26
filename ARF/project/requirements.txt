@@ -1,0 +1,8 @@
+torch==1.7.1
+pytorch_lightning==1.2.10
+pandas==1.2.1
+torchvision==0.8.2
+efficientnet_pytorch==0.7.1
+numpy==1.19.5
+Pillow==8.2.0
+scikit_learn==0.24.1
