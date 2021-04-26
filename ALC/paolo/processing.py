@@ -1,5 +1,6 @@
 import re
 
+import pickle
 import demoji
 import emoji
 import nltk
@@ -117,9 +118,12 @@ def demoji_tweet(tweet, lan):
     return tweet
 
 
-def process_csv(
-    filename, lan="en", stem=True, remove_tags=True, remove_stopwords=True, demoji=True
-):
+def process_csv(filename,
+                lan="en",
+                stem=True, 
+                remove_tags=True, 
+                remove_stopwords=True, 
+                demoji=True):
     """
 
     Process a .csv file with the tweets
@@ -178,5 +182,8 @@ def process_csv(
 if __name__ == "__main__":
     # demoji.download_codes()
     # X, Y = process_csv('dataset/data_en.csv', lan='en')
-    X, Y = process_csv("dataset/data_es.csv", lan="es")
-    print(X)
+    X, Y = process_csv("dataset/data_en.csv", lan="en")
+    with open('processed_text_en.pkl', 'wb') as f:
+        pickle.dump((X,Y), f)
+
+    #print(X)
