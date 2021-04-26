@@ -1,11 +1,19 @@
 import os
+import sys
+import argparse
+import pickle
 from xml.dom import minidom
 
 import numpy
 from nltk.tokenize.casual import casual_tokenize
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn import svm
+from sklearn.linear_model import SGDClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn import neighbors
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score
 from zeugma.embeddings import EmbeddingTransformer
 
@@ -49,26 +57,64 @@ if __name__ == "__main__":
     # X_train_en, Y_train_en = load_data('dataset/pan21-author-profiling-training-2021-03-14/en')
     # X_train_es, Y_train_es = load_data('dataset/pan21-author-profiling-training-2021-03-14/es')
 
-    # X_train_en, Y_train_en = process_csv('dataset/data_en.csv', lan = 'en')
-    X_train_es, Y_train_es = process_csv("dataset/data_es.csv", lan="es")
+    parser = argparse.ArgumentParser(usage="python train_models.py --lan [\'es\',\'en\'] --vec [0-1] --model [0-8]")
+    parser.add_argument("--lan", type=str, metavar="string -> language, default: en", default='en')
+    parser.add_argument("--vec", type=int, metavar="int -> type of vectorizer, default: 0", default=0)
+    parser.add_argument("--model", type=int, metavar="int -> type of model, default: 0", default=0)
+    args = parser.parse_args()
 
-    # vectorizador = TfidfVectorizer(tokenizer=casual_tokenize, max_features=1000, max_df=0.8, ngram_range=(2,3))
-    vectorizador = CountVectorizer(tokenizer=casual_tokenize, max_df=0.8)
+    if args.lan == 'en':
+        #X_train, Y_train = load_data('dataset/pan21-author-profiling-training-2021-03-14/en')
+        #X_train, Y_train = process_csv('dataset/data_en.csv', lan = 'en')
+        with open('processed_text_en.pkl','rb') as f:
+            X_train, Y_train = pickle.load(f)
 
-    # vectorizador.fit(X_train_en)
-    vectorizador.fit(X_train_es)
+    elif args.lan == 'es':
+        #X_train, Y_train = process_csv('dataset/data_es.csv', lan = 'es')
+        with open('processed_text_es.pkl','rb') as f:
+            X_train, Y_train = pickle.load(f)
+    
+    if args.vec == 0:
+        vectorizador = CountVectorizer(tokenizer=casual_tokenize, max_df=0.8)
+    elif args.vec == 1:
+        vectorizador = TfidfVectorizer(tokenizer=casual_tokenize, max_features=5000, max_df=0.8, ngram_range=(2,3))
 
-    # matriz_train_en = vectorizador.transform(X_train_en)
-    matriz_train_es = vectorizador.transform(X_train_es)
+    vectorizador.fit(X_train)
 
-    # print(len(matriz_train_en.toarray()[1])) // Matriz de 200 muestras de 26080 caracteristicas
+    matriz_train = vectorizador.transform(X_train)
 
-    modelo_en = GradientBoostingClassifier(
-        loss="deviance", learning_rate=0.01, n_estimators=250, verbose=1
+    if args.model == 0:
+        modelo = GradientBoostingClassifier(loss="deviance", learning_rate=0.01, n_estimators=250, verbose=1)
+    elif args.model == 1:
+        modelo = svm.LinearSVC(C=100, tol=0.01, loss='hinge', max_iter=500)
+    elif args.model == 2:
+        modelo = svm.SVC(C=1)
+    elif args.model == 3:
+        modelo = SGDClassifier()
+    elif args.model == 4:
+        modelo = MLPClassifier(hidden_layer_sizes=(16,32,16),
+                                solver='adam',
+                                alpha=0.0001, 
+                                batch_size=200, 
+                                learning_rate='constant', 
+                                learning_rate_init=0.001, 
+                                random_state=1, 
+                                max_iter=500, 
+                                verbose=True, 
+                                warm_start=True)
+    elif args.model == 5:
+        modelo = neighbors.KNeighborsClassifier()
+    elif args.model == 6:
+        modelo = RandomForestClassifier(n_estimators=100)
+    elif args.model == 7:
+        modelo = GaussianNB()
+    elif args.model == 8:
+        modelo = DecisionTreeClassifier()
+
+
+    scores = cross_val_score(
+        modelo, matriz_train.toarray(), Y_train, cv=10, scoring="accuracy"
     )
-    scores_en = cross_val_score(
-        modelo_en, matriz_train_es.toarray(), Y_train_es, cv=10, scoring="accuracy"
-    )
-    print("Accuracy (es): %0.2f (+/- %0.2f)" % (scores_en.mean(), scores_en.std() * 2))
+    print("Model %s: Accuracy (%s): %0.2f (+/- %0.2f)" % ( args.model, args.lan, scores.mean(), scores.std() * 2))
 
     quit()
