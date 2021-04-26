@@ -28,4 +28,41 @@ EN
         Accuracy 0.985 with sensitivity ratio 1.0
 
 
+RUN 0:
 
+Model 0: Accuracy (en): 0.65 (+/- 0.26)
+Model 0: Accuracy (es): 0.75 (+/- 0.21)
+Model 1: Accuracy (en): 0.69 (+/- 0.20) *
+Model 1: Accuracy (es): 0.76 (+/- 0.17)
+Model 2: Accuracy (en): 0.69 (+/- 0.18) *
+Model 2: Accuracy (es): 0.76 (+/- 0.21)
+Model 3: Accuracy (en): 0.66 (+/- 0.18)
+Model 3: Accuracy (es): 0.78 (+/- 0.23) *
+Model 4: Accuracy (en): 0.69 (+/- 0.19)
+Model 4: Accuracy (es): 0.79 (+/- 0.16) *
+Model 5: Accuracy (en): 0.61 (+/- 0.26)
+Model 5: Accuracy (es): 0.74 (+/- 0.21)
+Model 6: Accuracy (en): 0.64 (+/- 0.21)
+Model 6: Accuracy (es): 0.77 (+/- 0.19)
+Model 7: Accuracy (en): 0.61 (+/- 0.17)
+Model 7: Accuracy (es): 0.75 (+/- 0.16)
+Model 8: Accuracy (en): 0.65 (+/- 0.20)
+Model 8: Accuracy (es): 0.64 (+/- 0.29)
+Model 0: Accuracy (en): 0.57 (+/- 0.20)
+Model 0: Accuracy (es): 0.72 (+/- 0.23)
+Model 1: Accuracy (en): 0.65 (+/- 0.15)
+Model 1: Accuracy (es): 0.77 (+/- 0.22)
+Model 2: Accuracy (en): 0.67 (+/- 0.17)
+Model 2: Accuracy (es): 0.74 (+/- 0.21)
+Model 3: Accuracy (en): 0.66 (+/- 0.22)
+Model 3: Accuracy (es): 0.74 (+/- 0.25)
+Model 4: Accuracy (en): 0.58 (+/- 0.26)
+Model 4: Accuracy (es): 0.74 (+/- 0.22)
+Model 5: Accuracy (en): 0.62 (+/- 0.18)
+Model 5: Accuracy (es): 0.76 (+/- 0.14)
+Model 6: Accuracy (en): 0.60 (+/- 0.25)
+Model 6: Accuracy (es): 0.75 (+/- 0.23)
+Model 7: Accuracy (en): 0.53 (+/- 0.20)
+Model 7: Accuracy (es): 0.74 (+/- 0.16)
+Model 8: Accuracy (en): 0.52 (+/- 0.14)
+Model 8: Accuracy (es): 0.64 (+/- 0.26)
