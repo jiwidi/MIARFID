@@ -15,7 +15,7 @@ from sklearn import neighbors
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from zeugma.embeddings import EmbeddingTransformer
+#from zeugma.embeddings import EmbeddingTransformer
 
 from processing import process_csv
 
@@ -66,12 +66,12 @@ if __name__ == "__main__":
     if args.lan == 'en':
         #X_train, Y_train = load_data('dataset/pan21-author-profiling-training-2021-03-14/en')
         #X_train, Y_train = process_csv('dataset/data_en.csv', lan = 'en')
-        with open('processed_text_en.pkl','rb') as f:
+        with open('dataset/processed_text_en.pkl','rb') as f:
             X_train, Y_train = pickle.load(f)
 
     elif args.lan == 'es':
         #X_train, Y_train = process_csv('dataset/data_es.csv', lan = 'es')
-        with open('processed_text_es.pkl','rb') as f:
+        with open('dataset/processed_text_es.pkl','rb') as f:
             X_train, Y_train = pickle.load(f)
     
     if args.vec == 0:

@@ -15,7 +15,7 @@ from sklearn import neighbors
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from zeugma.embeddings import EmbeddingTransformer
+#from zeugma.embeddings import EmbeddingTransformer
 
 from processing import process_csv
 
@@ -57,18 +57,18 @@ if __name__ == "__main__":
     # X_train_en, Y_train_en = load_data('dataset/pan21-author-profiling-training-2021-03-14/en')
     # X_train_es, Y_train_es = load_data('dataset/pan21-author-profiling-training-2021-03-14/es')
 
-    parser = argparse.ArgumentParser(usage="python train_models.py --lan [\'es\',\'en\'] --vec [0-1] --model [0-8]")
+    parser = argparse.ArgumentParser(usage="python grid_search.py --lan [\'es\',\'en\'] --vec [0-1] --model [0-8]")
     parser.add_argument("--lan", type=str, metavar="string -> language, default: en", default='en')
     parser.add_argument("--vec", type=int, metavar="int -> type of vectorizer, default: 0", default=0)
     parser.add_argument("--model", type=int, metavar="int -> type of model, default: 0", default=0)
     args = parser.parse_args()
 
     if args.lan == 'en':
-        with open('processed_text_en.pkl','rb') as f:
+        with open('dataset/processed_text_en.pkl','rb') as f:
             X_train, Y_train = pickle.load(f)
 
     elif args.lan == 'es':
-        with open('processed_text_es.pkl','rb') as f:
+        with open('dataset/processed_text_es.pkl','rb') as f:
             X_train, Y_train = pickle.load(f)
     
     if args.vec == 0:
@@ -167,5 +167,5 @@ if __name__ == "__main__":
     grid_search.fit(matriz_train.toarray(), Y_train)
 
     print("Model %s: Accuracy (%s): %0.2f \tBest params: %s" % ( args.model, args.lan, grid_search.best_score_, grid_search.best_params_))
-    
+
     quit()
