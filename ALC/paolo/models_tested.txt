@@ -13,29 +13,30 @@ HuggingFaceRoberta:
 ratio: if counter_negative > ratio * counter_positive: then labelled as negative
 EN
     Unprocessed TEXT
-        Accuracy 0.00 with sensitivity ratio 0.00
-        Accuracy 0.20 with sensitivity ratio 0.20
-        Accuracy 0.67 with sensitivity ratio 0.40
-        Accuracy 0.92 with sensitivity ratio 0.60
-        Accuracy 0.98 with sensitivity ratio 0.80
-        Accuracy 0.98 with sensitivity ratio 1.00
-        Accuracy 0.98 with sensitivity ratio 1.20
-        Accuracy 0.99 with sensitivity ratio 1.40
-        Accuracy 0.99 with sensitivity ratio 1.60
-        Accuracy 0.99 with sensitivity ratio 1.80
-        Accuracy 0.99 with sensitivity ratio 2.00
+
     Processed TEXT
-        Accuracy 0.00 with sensitivity ratio 0.00
-        Accuracy 0.04 with sensitivity ratio 0.20
-        Accuracy 0.17 with sensitivity ratio 0.40
-        Accuracy 0.37 with sensitivity ratio 0.60
-        Accuracy 0.60 with sensitivity ratio 0.80
-        Accuracy 0.82 with sensitivity ratio 1.00
-        Accuracy 0.92 with sensitivity ratio 1.20
-        Accuracy 0.94 with sensitivity ratio 1.40
-        Accuracy 0.95 with sensitivity ratio 1.60
-        Accuracy 0.96 with sensitivity ratio 1.80
-        Accuracy 0.98 with sensitivity ratio 2.00
+        Accuracy 0.50 with sensitivity ratio 0.00
+        Accuracy 0.60 with sensitivity ratio 0.20
+        Accuracy 0.65 with sensitivity ratio 0.40
+        Accuracy 0.55 with sensitivity ratio 0.60
+        Accuracy 0.52 with sensitivity ratio 0.80
+        Accuracy 0.52 with sensitivity ratio 1.00
+        Accuracy 0.52 with sensitivity ratio 1.20
+        Accuracy 0.51 with sensitivity ratio 1.40
+        Accuracy 0.51 with sensitivity ratio 1.60
+        Accuracy 0.51 with sensitivity ratio 1.80
+        Accuracy 0.51 with sensitivity ratio 2.00
+        Accuracy 0.50 with sensitivity ratio 2.20
+        Accuracy 0.50 with sensitivity ratio 2.40
+        Accuracy 0.50 with sensitivity ratio 2.60
+        Accuracy 0.50 with sensitivity ratio 2.80
+        Accuracy 0.50 with sensitivity ratio 3.00
+        Accuracy 0.50 with sensitivity ratio 3.20
+        Accuracy 0.50 with sensitivity ratio 3.40
+        Accuracy 0.50 with sensitivity ratio 3.60
+        Accuracy 0.50 with sensitivity ratio 3.80
+        Accuracy 0.50 with sensitivity ratio 4.00
+
 
 
 RUN 0:

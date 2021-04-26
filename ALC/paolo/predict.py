@@ -12,20 +12,23 @@ from transformers import (
 )
 
 from processing import process_csv, rmv_tags, demoji_tweet, rmv_stopwords, stem_tweet
+import matplotlib.pyplot as plt
 
 
 # Preprocess text (username and link placeholders)
-def preprocess(text, lan="en"):
-    # text = rmv_tags(text)
-    # text = demoji_tweet(text, lan)
-    # text = rmv_stopwords(text, lan)
-    # text = stem_tweet(text, lan)
+def preprocess(text, lan="en", preprocess=True):
+    if preprocess:
+        text = rmv_tags(text)
+        text = demoji_tweet(text, lan)
+        text = rmv_stopwords(text, lan)
+        text = stem_tweet(text, lan)
 
     new_text = []
     for t in text.split(" "):
         t = "@user" if t.startswith("@") and len(t) > 1 else t
         t = "http" if t.startswith("http") else t
         new_text.append(t)
+
     return " ".join(new_text)
 
 
@@ -53,21 +56,21 @@ tokenizer.save_pretrained(MODEL)
 
 # Tag 1 is negative, 0 positive
 correct = 0
-data_en = pd.read_csv("dataset/data_en.csv")
-
+data_en = pd.read_csv("dataset/data_en_processed.csv").replace(np.nan, "", regex=True)
 
 raw_results_n = {}
 raw_results_p = {}
 
+negative_author_ratios = []
+positive_author_ratios = []
 for author in tqdm(data_en["author_id"].unique()):
     data_author = data_en[data_en["author_id"] == author]
     true_y = data_author["tag"].iloc[0]
     author_negative = 0
     author_positive = 0
 
-    for idx, row in tqdm(data_author.iterrows(), total=len(data_author)):
+    for idx, row in data_author.iterrows():
         text = row["tweet"]
-        text = preprocess(text)
         encoded_input = tokenizer(text, return_tensors="pt")
         output = model(**encoded_input)
         scores = output[0][0].detach().numpy()
@@ -78,21 +81,28 @@ for author in tqdm(data_en["author_id"].unique()):
         # print(f"For tweet {text} with tag {row['tag']} predicted {labels[ranking[0]]} with score {scores[ranking[0]]}")
         if labels[ranking[0]] == "negative":  # predicted negative and it was negative
             author_negative += 1
-        elif (
-            labels[ranking[0]] != "negative"
-        ):  # predicted positive/neutral and it was positive
+        else:  # predicted positive/neutral and it was positive
             author_positive += 1
     raw_results_n[author] = author_negative
     raw_results_p[author] = author_positive
+    if true_y == 0:
+        negative_author_ratios.append(
+            author_negative / (author_negative + author_positive)
+        )
+    else:
+        positive_author_ratios.append(
+            author_negative / (author_negative + author_positive)
+        )
 
 
 def evaluate_ratio(ratio):
     correct = 0
     for author in data_en["author_id"].unique():
+        data_author = data_en[data_en["author_id"] == author]
         true_y = data_author["tag"].iloc[0]
-        negative = raw_results_n[author]
-        positive = raw_results_p[author]
-        if negative > ratio * positive:
+        counter_negative = raw_results_n[author]
+        counter_positive = raw_results_p[author]
+        if counter_negative > ratio * counter_positive:
             author_y = 1
         else:
             author_y = 0
@@ -102,6 +112,15 @@ def evaluate_ratio(ratio):
     return correct / len(data_en["author_id"].unique())
 
 
-for ratio in np.arange(0, 1.2, 0.2):
-    print(f"Accuracy {evaluate_ratio(ratio)} with sensitivity ratio {ratio}")
+for ratio in np.arange(0, 4.2, 0.2):
+    print(f"Accuracy {evaluate_ratio(ratio):.2f} with sensitivity ratio {ratio:.2f}")
 
+
+df = pd.DataFrame(
+    {
+        "Negative authors": negative_author_ratios,
+        "Positive authors": positive_author_ratios,
+    }
+)
+ax = df.plot.kde()
+ax.get_figure().savefig("negative_ratios.png")
