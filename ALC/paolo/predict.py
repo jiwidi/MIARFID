@@ -56,7 +56,7 @@ tokenizer.save_pretrained(MODEL)
 
 # Tag 1 is negative, 0 positive
 correct = 0
-data_en = pd.read_csv("dataset/data_en_processed.csv").replace(np.nan, "", regex=True)
+data_en = pd.read_csv("dataset/data_en.csv").replace(np.nan, "", regex=True)
 
 raw_results_n = {}
 raw_results_p = {}

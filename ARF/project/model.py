@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
@@ -7,7 +9,7 @@ from efficientnet_pytorch import EfficientNet
 from pytorch_lightning.metrics.classification import AUROC
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from torchvision import transforms
 
 from dataset import SIIMDataset
@@ -15,7 +17,7 @@ from dataset import SIIMDataset
 lr = 0.001
 max_epochs = 50
 batch_size = 16
-num_workers = 8
+num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
 
@@ -133,13 +135,29 @@ class BigModel(pl.LightningModule):
             self.transform_train,
             self.image_dir,
         )
+
+        classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
+            "target"
+        ].to_numpy()
+
+        class_sample_count = np.array(
+            [len(np.where(classes == t)[0]) for t in np.unique(classes)]
+        )
+        weight = 1.0 / class_sample_count
+
+        samples_weight = np.array([weight[t] for t in classes])
+
+        samples_weight = torch.from_numpy(samples_weight)
+        samples_weigth = samples_weight.double()
+        sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
+
         return DataLoader(
             ds_train,
             batch_size=batch_size,
             num_workers=num_workers,
             drop_last=True,
-            shuffle=True,
             pin_memory=True,
+            sampler=sampler,
         )
 
     def val_dataloader(self):

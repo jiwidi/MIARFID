@@ -29,5 +29,4 @@ class SIIMDataset(pytorch_data.Dataset):
 
         if self.transform is not None:
             img = self.transform(img)
-
         return img, meta["target"]
