@@ -167,6 +167,8 @@ optimizer = optim.Adam(policy_net.parameters(), lr=0.00001)
 
 
 NUM_EPISODES = 50000
+pbar = tqdm(range(NUM_EPISODES))
+
 for e in tqdm(range(NUM_EPISODES)):
     env.reset()
     lives = 5
@@ -203,20 +205,16 @@ for e in tqdm(range(NUM_EPISODES)):
         if (steps_done > STEPS_BEFORE_TRAIN) and steps_done % OPTIMIZE_MODEL_STEP == 0:
             BATCH_SIZE = 32
             optimize_model()
-        if e % 100 == 99 and t == 0:
-            print("\neps_threshold:", eps_threshold)
-            print("steps_done: ", steps_done)
-
-            print("Mean score : {}".format(np.mean(train_rewards[-100:])))
-        if e % 10 == 9 and t == 0:
-            print("10 ep.mean score : {}".format(np.mean(train_rewards[-10:])))
         if t > 18000:
             break
 
         if steps_done % TARGET_UPDATE == 0:
-            print("Target net updated!")
+            # print("Target net updated!")
             target_net.load_state_dict(policy_net.state_dict())
 
         if done:
             train_rewards.append(np.sum(ep_rewards))
             break
+        pbar.set_description(
+            f"Steps: {e} Mean score: {np.mean(train_rewards[-100:]):.2f} 10 ep.mean score: {np.mean(train_rewards[-10:]):.2f}"
+        )
