@@ -22,7 +22,12 @@ RANDOM_STATE = 17
 
 def train_evaluate(model, params, train_matrix, dev_matrix, train_target, dev_target):
     grid_search = GridSearchCV(
-        estimator=model, param_grid=params[0], scoring="f1_macro", n_jobs=-1, cv=5
+        estimator=model,
+        param_grid=params[0],
+        scoring="f1_macro",
+        n_jobs=-1,
+        cv=5,
+        verbose=1,
     )
     grid_search.fit(train_matrix, train_target)
 
@@ -89,28 +94,28 @@ if __name__ == "__main__":
         [  # GradientBoostingClassifier
             {
                 "loss": ["deviance"],
-                "learning_rate": [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
-                "min_samples_split": np.linspace(0.1, 0.5, 12),
-                "min_samples_leaf": np.linspace(0.1, 0.5, 12),
-                "max_depth": [3, 5, 8],
-                "max_features": ["log2", "sqrt"],
-                "criterion": ["friedman_mse", "mae"],
-                "subsample": [0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
-                "n_estimators": list(range(1, 10000, 100)),
+                # "learning_rate": [0.01, 0.05, 0.1, 0.2],
+                # "min_samples_split": np.linspace(0.1, 0.5, 12),
+                # "min_samples_leaf": np.linspace(0.1, 0.5, 12),
+                # "max_depth": [3, 5, 8],
+                # "max_features": ["log2", "sqrt"],
+                "criterion": ["friedman_mse"],  # ["friedman_mse", "mae"],
+                # "subsample": [0.5, 0.7, 0.8, 0.9, 1.0],
+                "n_estimators": list(range(1, 10000, 1000)),
             }
         ],
         [  # SGDClassifier
             {
                 "loss": ["hinge", "log", "squared_hinge", "modified_huber"],
                 "alpha": [0.0001, 0.001, 0.01, 0.1],
-                "penalty": ["l2", "l1", "none"],
+                # "penalty": ["l2", "l1", "none"],ß
                 "max_iter": [10000000],
             }
         ],
         [  # Kneighbors]
             {
                 "n_neighbors": list(range(1, 10, 1)),
-                "leaf_size": list(range(20, 40, 1)),
+                # "leaf_size": list(range(20, 40, 1)),
                 "p": [1, 2],
                 "weights": ["uniform", "distance"],
                 "metric": ["minkowski", "chebyshev"],
@@ -129,4 +134,3 @@ if __name__ == "__main__":
         scores.append(score)
     df = pd.DataFrame({"model_name": names, "f1_macro": scores})
     df.to_csv("results.csv", index=False)
-
