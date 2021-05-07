@@ -17,7 +17,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torchvision.transforms as T
 from torch.distributions import Categorical
+import os
 
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 STATE_SIZE = 4
 STATE_W = 84
 STATE_H = 84

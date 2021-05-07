@@ -8,6 +8,8 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 
+from sklearn.linear_model import LogisticRegression
+
 # Metrics
 from sklearn.metrics import (
     accuracy_score,
@@ -16,12 +18,14 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
+from pactools.grid_search import GridSearchCVProgressBar
+from sklearn.ensemble import StackingClassifier, VotingClassifier
 
 RANDOM_STATE = 17
 
 
 def train_evaluate(model, params, train_matrix, dev_matrix, train_target, dev_target):
-    grid_search = GridSearchCV(
+    grid_search = GridSearchCVProgressBar(
         estimator=model,
         param_grid=params[0],
         scoring="f1_macro",
@@ -34,7 +38,7 @@ def train_evaluate(model, params, train_matrix, dev_matrix, train_target, dev_ta
     print(
         f"Model {type(model).__name__}: F1_macro {grid_search.best_score_:.2f} \tBest params: {grid_search.best_params_}"
     )
-    return type(model).__name__, grid_search.best_score_
+    return type(model).__name__, grid_search.best_score_, grid_search.best_estimator_
 
     # print("Finished.")
 
@@ -101,36 +105,55 @@ if __name__ == "__main__":
                 # "max_features": ["log2", "sqrt"],
                 "criterion": ["friedman_mse"],  # ["friedman_mse", "mae"],
                 # "subsample": [0.5, 0.7, 0.8, 0.9, 1.0],
-                "n_estimators": list(range(1, 10000, 1000)),
+                "n_estimators": [4000],  # list(range(1, 401, 200)),
+                "random_state": [RANDOM_STATE],
             }
         ],
         [  # SGDClassifier
             {
-                "loss": ["hinge", "log", "squared_hinge", "modified_huber"],
+                # "loss": ["hinge", "log", "squared_hinge", "modified_huber"],
                 "alpha": [0.0001, 0.001, 0.01, 0.1],
                 # "penalty": ["l2", "l1", "none"],ß
                 "max_iter": [10000000],
+                "random_state": [RANDOM_STATE],
             }
         ],
         [  # Kneighbors]
             {
-                "n_neighbors": list(range(1, 10, 1)),
+                "n_neighbors": list(range(3, 10, 1)),
                 # "leaf_size": list(range(20, 40, 1)),
-                "p": [1, 2],
-                "weights": ["uniform", "distance"],
-                "metric": ["minkowski", "chebyshev"],
+                "p": [2],
+                "weights": ["distance"],
+                "metric": ["minkowski"],
             }
         ],
     ]
 
     names = []
     scores = []
+    estimators = []
     for model, param in zip(models, parameters):
         print(f"Evaluating model {type(model).__name__}")
-        name, score = train_evaluate(
+        name, score, best_model = train_evaluate(
             model, param, train_matrix, dev_matrix, train["target"], dev["target"]
         )
         names.append(name)
         scores.append(score)
+        if score >= 0.37:
+            estimators.append((name, best_model))
     df = pd.DataFrame({"model_name": names, "f1_macro": scores})
     df.to_csv("results.csv", index=False)
+
+    print(f"Ensemble of {estimators}")
+    clf = StackingClassifier(
+        estimators=estimators, final_estimator=LogisticRegression()
+    )
+    clf.fit(train_matrix, train["target"])
+    out = clf.predict(dev_matrix)
+    print(classification_report(dev["target"], out))
+
+    print(f"Ensemble of {estimators}")
+    clf = VotingClassifier(estimators=estimators)
+    clf.fit(train_matrix, train["target"])
+    out = clf.predict(dev_matrix)
+    print(classification_report(dev["target"], out))
