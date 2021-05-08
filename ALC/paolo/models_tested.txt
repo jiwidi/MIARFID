@@ -98,3 +98,18 @@ Model 7: Accuracy (en): 0.53 (+/- 0.20)
 Model 7: Accuracy (es): 0.74 (+/- 0.16)
 Model 8: Accuracy (en): 0.52 (+/- 0.14)
 Model 8: Accuracy (es): 0.64 (+/- 0.26)
+
+Model 4: (en) vec:0 no stemming : 0.66 +- 0.22
+Model 4: (en) vec:1 no stemming : 0.51 +- 0.06
+
+Model 3: (es) vec:0 no stemming : 0.65 +- 0.24
+Model 3: (es) vec:1 no stemming : 0.56 +- 0.11
+Model 4: (es) vec:0 no stemming : 0.65 +- 0.21
+Model 4: (es) vec:1 no stemming : 0.50 +- 0.00
+
+
+**********************************************
+TWEET BY TWEET
+
+Model 4: (es) vec:1 no stemming : 0.50 +- 0.02
+Model 4: (en) vec:1 no stemming : 0.50 +- 0.02

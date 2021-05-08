@@ -178,12 +178,76 @@ def process_csv(filename,
     #
     return X, Y
 
+def process_csv_tweet_by_tweet(filename,
+                lan="en",
+                stem=True, 
+                remove_tags=True, 
+                remove_stopwords=True, 
+                demoji=True):
+    """
+
+    Process a .csv file with the tweets
+
+    :param string filename
+        File to process.
+
+    :param string lan
+        Language of the text (es/en).
+
+    :param bool stemm
+        Flag to indicate whether to apply stemming to the text.
+
+    :param bool remove_tags
+        Flag to indicate whether to remove some tags in the text.
+
+    :param bool remove_stopwords
+        Flag to indicate whether to remove stopwords.
+
+    :param bool demoji
+        Flag to indicate whether to replace emojis with their textual description.
+
+    :return list X, Y
+        Two lists with the tweets in X and the labels in Y
+
+    """
+
+    X = []
+    Y = []
+    data = pd.read_csv(filename)
+
+    for usr in tqdm(data["author_id"].unique()):
+        user_tweets = []
+        sub_data = data[data["author_id"] == usr]
+        user_label = sub_data["tag"].unique()[0]
+
+        for tweet in sub_data["tweet"]:
+
+            if remove_tags:
+                tweet = rmv_tags(tweet)
+            if demoji:
+                tweet = demoji_tweet(tweet, lan)
+            if remove_stopwords:
+                tweet = rmv_stopwords(tweet, lan)
+            if stem:
+                tweet = stem_tweet(tweet, lan)
+            user_tweets.append(tweet)
+        #
+        for t in user_tweets:
+            X.append(t)
+            Y.append(user_label)
+    #
+    return X, Y
+
 
 if __name__ == "__main__":
     # demoji.download_codes()
-    # X, Y = process_csv('dataset/data_en.csv', lan='en')
-    X, Y = process_csv("dataset/data_en.csv", lan="en")
-    with open('processed_text_en.pkl', 'wb') as f:
+    #X, Y = process_csv('dataset/data_es.csv', lan='es')
+    #X, Y = process_csv("dataset/data_en.csv", lan="en")
+    #with open('processed_text_es_prova.pkl', 'wb') as f:
+    #    pickle.dump((X,Y), f)
+
+    X, Y = process_csv_tweet_by_tweet("dataset/data_en.csv", lan="en")
+    with open('processed_text_en_tbt.pkl', 'wb') as f:
         pickle.dump((X,Y), f)
 
     #print(X)

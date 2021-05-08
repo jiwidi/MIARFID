@@ -84,24 +84,24 @@ if __name__ == "__main__":
     matriz_train = vectorizador.transform(X_train)
 
     if args.model == 0:
-        modelo = GradientBoostingClassifier(loss="deviance", learning_rate=0.1, n_estimators=150, verbose=0)
+        modelo =    (loss="deviance", learning_rate=0.1, n_estimators=150, verbose=0)
     elif args.model == 1:
         modelo = svm.LinearSVC(C=100, tol=0.01, loss='hinge', max_iter=500)
     elif args.model == 2:
         modelo = svm.SVC(C=1)
     elif args.model == 3:
-        modelo = SGDClassifier()
+        modelo = SGDClassifier(alpha=1e-5, loss='squared_hinge', n_jobs=-1, tol=20 )
     elif args.model == 4:
-        modelo = MLPClassifier(hidden_layer_sizes=(16,32,16),
-                                solver='adam',
+        modelo = MLPClassifier(hidden_layer_sizes=(32),
+                                solver='sgd',
                                 alpha=0.0001, 
-                                batch_size=200, 
+                                batch_size=100, 
                                 learning_rate='constant', 
-                                learning_rate_init=0.001, 
-                                random_state=1, 
-                                max_iter=500, 
-                                verbose=False, 
-                                warm_start=True)
+                                learning_rate_init=0.1, 
+                                max_iter=1000, 
+                                verbose=True, 
+                                warm_start=True,
+                                activation='logistic')
     elif args.model == 5:
         modelo = neighbors.KNeighborsClassifier()
     elif args.model == 6:
