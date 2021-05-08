@@ -82,7 +82,7 @@ class DQNAgent:
         self.memory_size = 1000000
         self.epsilon = 1.0
         self.epsilon_min = 0.02
-        self.explore_step = 100000
+        self.explore_step = 1000000
         self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.explore_step
         self.batch_size = 32
         self.train_start = 100000

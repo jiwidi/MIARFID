@@ -144,6 +144,14 @@ if __name__ == "__main__":
     df = pd.DataFrame({"model_name": names, "f1_macro": scores})
     df.to_csv("results.csv", index=False)
 
+    estimators = [
+        ("SVC", svm.SVC(C=1000, gamma=0.001, random_state=17)),
+        ("LinearSVC", svm.LinearSVC(C=1, max_iter=10000000, random_state=17)),
+        (
+            "GradientBoostingClassifier",
+            GradientBoostingClassifier(n_estimators=200, random_state=17),
+        ),
+    ]
     print(f"Ensemble of {estimators}")
     clf = StackingClassifier(
         estimators=estimators, final_estimator=LogisticRegression()
