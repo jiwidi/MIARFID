@@ -1,306 +1,184 @@
-import sys
-import gym
-import torch
-import pylab
-import random
-import numpy as np
 from collections import deque
-from datetime import datetime
-from copy import deepcopy
-from skimage.transform import resize
-from skimage.color import rgb2gray
-import torch.nn as nn
-import torch.optim as optim
+
+import numpy as np
+import torch
 import torch.nn.functional as F
-from torch.autograd import Variable
+import torch.optim as optim
+import yaml
+from utils import make_atari, wrap_deepmind
+from tqdm import tqdm
+
+from model import DQN, ReplayMemory, fp, ActionSelector
+
+device = torch.device(
+    "cuda" if torch.cuda.is_available() else "cpu"
+)  # if gpu is to be used
 
 
-def find_max_lifes(env):
-    env.reset()
-    _, _, _, info = env.step(0)
-    return info["ale.lives"]
+def optimize_model(train, optimizer, memory, config, policy_net, target_net):
+    if not train:
+        return
+    state_batch, action_batch, reward_batch, n_state_batch, done_batch = memory.sample(
+        config["BATCH_SIZE"]
+    )
+
+    q = policy_net(state_batch).gather(1, action_batch)
+    nq = target_net(n_state_batch).max(1)[0].detach()
+
+    # Compute the expected Q values
+    expected_state_action_values = (nq * config["GAMMA"]) * (
+        1.0 - done_batch[:, 0]
+    ) + reward_batch[:, 0]
+
+    # Compute Huber loss
+    loss = F.smooth_l1_loss(q, expected_state_action_values.unsqueeze(1))
+
+    # Optimize the model
+    optimizer.zero_grad()
+    loss.backward()
+    for param in policy_net.parameters():
+        param.grad.data.clamp_(-1, 1)
+    optimizer.step()
 
 
-def check_live(life, cur_life):
-    if life > cur_life:
-        return True
-    else:
-        return False
+def evaluate(
+    step,
+    policy_net,
+    device,
+    env,
+    n_actions,
+    config,
+    train,
+    eps=0.05,
+    num_episode=5,
+):
+    env = wrap_deepmind(env)
+    sa = ActionSelector(eps, eps, policy_net, config["EPS_DECAY"], n_actions, device)
+    e_rewards = []
+    q = deque(maxlen=5)
+    for i in range(num_episode):
+        env.reset()
+        e_reward = 0
+        for _ in range(10):  # no-op
+            n_frame, _, done, _ = env.step(0)
+            n_frame = fp(n_frame)
+            q.append(n_frame)
+
+        while not done:
+            state = torch.cat(list(q))[1:].unsqueeze(0)
+            action, eps = sa.select_action(state, train)
+            n_frame, reward, done, info = env.step(action)
+            n_frame = fp(n_frame)
+            q.append(n_frame)
+
+            e_reward += reward
+        e_rewards.append(e_reward)
+
+    f = open("file.txt", "a")
+    f.write(
+        "%f, %d, %d\n" % (float(sum(e_rewards)) / float(num_episode), step, num_episode)
+    )
+    f.close()
+    return float(sum(e_rewards)) / float(num_episode)
 
 
-def pre_proc(X):
-    x = np.uint8(resize(rgb2gray(X), (HEIGHT, WIDTH), mode="reflect") * 255)
-    return x
+def main():
 
+    env_name = "Breakout"
+    env_raw = make_atari("{}NoFrameskip-v4".format(env_name))
+    env = wrap_deepmind(
+        env_raw, frame_stack=False, episode_life=True, clip_rewards=True
+    )
 
-def get_init_state(history, s):
-    for i in range(HISTORY_SIZE):
-        history[i, :, :] = pre_proc(s)
+    c, h, w = fp(env.reset()).shape
+    n_actions = env.action_space.n
+    print(f"Env {env_name} with {n_actions} actions")
 
+    # 4. Network reset
+    policy_net = DQN(n_actions, device).to(device)
+    target_net = DQN(n_actions, device).to(device)
+    policy_net.apply(policy_net.init_weights)
+    target_net.load_state_dict(policy_net.state_dict())
+    target_net.eval()
 
-class Flatten(nn.Module):
-    def forward(self, input):
-        return input.view(input.size(0), -1)
+    with open("config.yaml") as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
 
+    optimizer = optim.Adam(policy_net.parameters(), lr=0.0000625, eps=1.5e-4)
 
-# approximate Q function using Neural Network
-# state is input and Q Value of each action is output of network
-class DQN(nn.Module):
-    def __init__(self, action_size):
-        super(DQN, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Conv2d(in_channels=4, out_channels=32, kernel_size=8, stride=4),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1),
-            nn.ReLU(),
-            Flatten(),
-            nn.Linear(7 * 7 * 64, 512),
-            nn.ReLU(),
-            nn.Linear(512, action_size),
-        )
+    # replay memory and action selector
+    memory = ReplayMemory(config["M_SIZE"], [5, h, w], n_actions, device)
+    sa = ActionSelector(
+        config["EPS_START"],
+        config["EPS_END"],
+        policy_net,
+        config["EPS_DECAY"],
+        n_actions,
+        device,
+    )
 
-    def forward(self, x):
-        return self.fc(x)
+    q = deque(maxlen=5)
+    done = True
+    eps = 0
+    episode_len = 0
 
+    progressive = tqdm(
+        range(config["NUM_STEPS"]),
+        total=config["NUM_STEPS"],
+        leave=False,
+        unit="b",
+    )
+    rewards = []
+    for step in progressive:
+        if done:  # life reset !!!
+            eps += 1
+            env.reset()
+            sum_reward = 0
+            episode_len = 0
+            img, _, _, _ = env.step(1)  # BREAKOUT specific !!!
+            for i in range(10):  # no-op
+                n_frame, _, _, _ = env.step(0)
+                n_frame = fp(n_frame)
+                q.append(n_frame)
 
-# it uses Neural Network to approximate q function
-# and replay memory & target q network
-class DQNAgent:
-    def __init__(self, action_size):
-        # if you want to see Cartpole learning, then change to True
-        self.render = False
-        self.load_model = False
+        train = len(memory) > 50000
+        # Select and perform an action
+        state = torch.cat(list(q))[1:].unsqueeze(0)
+        action, eps = sa.select_action(state, train)
+        n_frame, reward, done, info = env.step(action)
+        rewards.append(reward)
+        n_frame = fp(n_frame)
 
-        # get size of action
-        self.action_size = action_size
+        # 5 frame as memory
+        q.append(n_frame)
+        memory.push(
+            torch.cat(list(q)).unsqueeze(0), action, reward, done
+        )  # here the n_frame means next frame from the previous time step
+        episode_len += 1
 
-        # These are hyper parameters for the DQN
-        self.discount_factor = 0.99
-        self.learning_rate = 0.0001
-        self.memory_size = 1000000
-        self.epsilon = 1.0
-        self.epsilon_min = 0.02
-        self.explore_step = 1000000
-        self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.explore_step
-        self.batch_size = 32
-        self.train_start = 100000
-        self.update_target = 1000
+        # Perform one step of the optimization (on the target network)
+        if step % config["POLICY_UPDATE"] == 0:
+            optimize_model(train, optimizer, memory, config, policy_net, target_net)
 
-        # create replay memory using deque
-        self.memory = deque(maxlen=self.memory_size)
+        # Update the target network, copying all weights and biases in DQN
+        if step % config["TARGET_UPDATE"] == 0:
+            target_net.load_state_dict(policy_net.state_dict())
 
-        # create main model and target model
-        self.model = DQN(action_size)
-        # self.model.cuda()
-        self.model.apply(self.weights_init)
-        self.target_model = DQN(action_size)
-        # self.target_model.cuda()
-
-        # self.optimizer = optim.RMSprop(params=self.model.parameters(),lr=self.learning_rate, eps=0.01, momentum=0.95)
-        self.optimizer = optim.Adam(
-            params=self.model.parameters(), lr=self.learning_rate
-        )
-
-        # initialize target model
-        self.update_target_model()
-
-        if self.load_model:
-            self.model = torch.load("breakout_dqn")
-
-    # weight xavier initialize
-    def weights_init(self, m):
-        classname = m.__class__.__name__
-        if classname.find("Linear") != -1:
-            torch.nn.init.xavier_uniform(m.weight)
-            print(m)
-        elif classname.find("Conv") != -1:
-            torch.nn.init.xavier_uniform(m.weight)
-            print(m)
-
-    # after some time interval update the target model to be same with model
-    def update_target_model(self):
-        self.target_model.load_state_dict(self.model.state_dict())
-
-    #  get action from model using epsilon-greedy policy
-    def get_action(self, state):
-        if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
-        else:
-            state = torch.from_numpy(state).unsqueeze(0)
-            state = Variable(state).float()  # .cuda()
-            action = self.model(state).data.cpu().max(1)[1]
-            return int(action)
-
-    # save sample <s,a,r,s'> to the replay memory
-    def append_sample(self, history, action, reward, done):
-        self.memory.append((history, action, reward, done))
-
-    def get_sample(self, frame):
-        mini_batch = []
-        if frame >= self.memory_size:
-            sample_range = self.memory_size
-        else:
-            sample_range = frame
-
-        # history size
-        sample_range -= HISTORY_SIZE + 1
-
-        idx_sample = random.sample(range(sample_range), self.batch_size)
-        for i in idx_sample:
-            sample = []
-            for j in range(HISTORY_SIZE + 1):
-                sample.append(self.memory[i + j])
-
-            sample = np.array(sample)
-            mini_batch.append(
-                (
-                    np.stack(sample[:, 0], axis=0),
-                    sample[3, 1],
-                    sample[3, 2],
-                    sample[3, 3],
-                )
+        if step % config["EVALUATE_FREQ"] == 0:
+            last_reward = evaluate(
+                step,
+                policy_net,
+                device,
+                env_raw,
+                n_actions,
+                config=config,
+                eps=0.05,
+                num_episode=15,
+                train=train,
             )
 
-        return mini_batch
-
-    # pick samples randomly from replay memory (with batch_size)
-    def train_model(self, frame):
-        if self.epsilon > self.epsilon_min:
-            self.epsilon -= self.epsilon_decay
-
-        mini_batch = self.get_sample(frame)
-        mini_batch = np.array(mini_batch).transpose()
-
-        history = np.stack(mini_batch[0], axis=0)
-        states = np.float32(history[:, :4, :, :]) / 255.0
-        actions = list(mini_batch[1])
-        rewards = list(mini_batch[2])
-        next_states = np.float32(history[:, 1:, :, :]) / 255.0
-        dones = mini_batch[3]
-
-        # bool to binary
-        dones = dones.astype(int)
-
-        # Q function of current state
-        states = torch.Tensor(states)
-        states = Variable(states).float()  # .cuda()
-        pred = self.model(states)
-
-        # one-hot encoding
-        a = torch.LongTensor(actions).view(-1, 1)
-
-        one_hot_action = torch.FloatTensor(self.batch_size, self.action_size).zero_()
-        one_hot_action.scatter_(1, a, 1)
-
-        pred = torch.sum(pred.mul(Variable(one_hot_action).cuda()), dim=1)
-
-        # Q function of next state
-        next_states = torch.Tensor(next_states)
-        next_states = Variable(next_states).float().cuda()
-        next_pred = self.target_model(next_states).data.cpu()
-
-        rewards = torch.FloatTensor(rewards)
-        dones = torch.FloatTensor(dones)
-
-        # Q Learning: get maximum Q value at s' from target model
-        target = rewards + (1 - dones) * self.discount_factor * next_pred.max(1)[0]
-        target = Variable(target).cuda()
-
-        self.optimizer.zero_grad()
-
-        # MSE Loss function
-        loss = F.smooth_l1_loss(pred, target)
-        loss.backward()
-
-        # and train
-        self.optimizer.step()
+        progressive.set_description(f"Step {step}, Rewards {last_reward:.2f}")
 
 
 if __name__ == "__main__":
-    EPISODES = 500000
-    HEIGHT = 84
-    WIDTH = 84
-    HISTORY_SIZE = 4
-
-    env = gym.make("BreakoutDeterministic-v4")
-    max_life = find_max_lifes(env)
-    state_size = env.observation_space.shape
-    # action_size = env.action_space.n
-    action_size = 3
-    scores, episodes = [], []
-    agent = DQNAgent(action_size)
-    recent_reward = deque(maxlen=100)
-    frame = 0
-    memory_size = 0
-    for e in range(EPISODES):
-        done = False
-        score = 0
-
-        history = np.zeros([5, 84, 84], dtype=np.uint8)
-        step = 0
-        d = False
-        state = env.reset()
-        life = max_life
-
-        get_init_state(history, state)
-
-        while not done:
-            step += 1
-            frame += 1
-            if agent.render:
-                env.render()
-
-            # get action for the current state and go one step in environment
-            action = agent.get_action(np.float32(history[:4, :, :]) / 255.0)
-
-            next_state, reward, done, info = env.step(action + 1)
-
-            pre_proc_next_state = pre_proc(next_state)
-            history[4, :, :] = pre_proc_next_state
-            ter = check_live(life, info["ale.lives"])
-
-            life = info["ale.lives"]
-            r = np.clip(reward, -1, 1)
-
-            # save the sample <s, a, r, s'> to the replay memory
-            agent.append_sample(deepcopy(pre_proc_next_state), action, r, ter)
-            # every time step do the training
-            if frame >= agent.train_start:
-                agent.train_model(frame)
-                if frame % agent.update_target == 0:
-                    agent.update_target_model()
-            score += reward
-            history[:4, :, :] = history[1:, :, :]
-
-            if frame % 50000 == 0:
-                print("now time : ", datetime.now())
-                scores.append(score)
-                episodes.append(e)
-                pylab.plot(episodes, scores, "b")
-                pylab.savefig("breakout_dqn.png")
-
-            if done:
-                recent_reward.append(score)
-                # every episode, plot the play time
-                print(
-                    "episode:",
-                    e,
-                    "  score:",
-                    score,
-                    "  memory length:",
-                    len(agent.memory),
-                    "  epsilon:",
-                    agent.epsilon,
-                    "   steps:",
-                    step,
-                    "    recent reward:",
-                    np.mean(recent_reward),
-                )
-
-                # if the mean of scores of last 10 episode is bigger than 400
-                # stop training
-                if np.mean(recent_reward) > 50:
-                    torch.save(agent.model, "breakout_dqn")
-                    sys.exit()
+    main()
