@@ -129,11 +129,14 @@ def main():
         unit="b",
     )
     rewards = []
+    e_reward = 0
     for step in progressive:
         if done:  # life reset !!!
             episode += 1
             env.reset()
-            sum_reward = 0
+
+            rewards.append(e_reward)
+            e_reward = 0
             episode_len = 0
             img, _, _, _ = env.step(1)  # BREAKOUT specific !!!
             for i in range(10):  # no-op
@@ -146,7 +149,7 @@ def main():
         state = torch.cat(list(q))[1:].unsqueeze(0)
         action, eps = sa.select_action(state, train)
         n_frame, reward, done, info = env.step(action)
-        rewards.append(reward)
+        e_reward += reward
         n_frame = fp(n_frame)
 
         # 5 frame as memory
@@ -177,7 +180,9 @@ def main():
                 train=train,
             )
 
-        progressive.set_description(f"Step {step}, Last test reward {last_reward}")
+        progressive.set_description(
+            f"Step {step}, Train reward: {np.mean(rewards[-10:]):.2f} Test reward: {last_reward}"
+        )
 
 
 if __name__ == "__main__":
