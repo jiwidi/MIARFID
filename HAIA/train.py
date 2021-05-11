@@ -119,7 +119,7 @@ def main():
 
     q = deque(maxlen=5)
     done = True
-    eps = 0
+    episode = 0
     episode_len = 0
 
     progressive = tqdm(
@@ -131,7 +131,7 @@ def main():
     rewards = []
     for step in progressive:
         if done:  # life reset !!!
-            eps += 1
+            episode += 1
             env.reset()
             sum_reward = 0
             episode_len = 0
@@ -173,7 +173,7 @@ def main():
                 n_actions,
                 config=config,
                 eps=0.05,
-                num_episode=15,
+                num_episode=episode,
                 train=train,
             )
 
