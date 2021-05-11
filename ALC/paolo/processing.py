@@ -146,13 +146,14 @@ def process_csv(filename,
     :param bool demoji
         Flag to indicate whether to replace emojis with their textual description.
 
-    :return list X, Y
-        Two lists with the tweets in X and the labels in Y
+    :return list X, Y, U
+        Three lists with the tweets in X, the labels in Y and the user ids in U
 
     """
 
     X = []
     Y = []
+    U = []
     data = pd.read_csv(filename)
 
     for usr in tqdm(data["author_id"].unique()):
@@ -175,8 +176,10 @@ def process_csv(filename,
         #
         X.append(user_tweets)
         Y.append(user_label)
+        U.append(usr)
+
     #
-    return X, Y
+    return X, Y, U
 
 def process_csv_tweet_by_tweet(filename,
                 lan="en",
@@ -206,13 +209,14 @@ def process_csv_tweet_by_tweet(filename,
     :param bool demoji
         Flag to indicate whether to replace emojis with their textual description.
 
-    :return list X, Y
-        Two lists with the tweets in X and the labels in Y
+    :return list X, Y, U
+        Three lists with the tweets in X, the labels in Y and the user ids in U
 
     """
 
     X = []
     Y = []
+    U = []
     data = pd.read_csv(filename)
 
     for usr in tqdm(data["author_id"].unique()):
@@ -235,8 +239,9 @@ def process_csv_tweet_by_tweet(filename,
         for t in user_tweets:
             X.append(t)
             Y.append(user_label)
+        U.append(usr)
     #
-    return X, Y
+    return X, Y, U
 
 
 if __name__ == "__main__":
