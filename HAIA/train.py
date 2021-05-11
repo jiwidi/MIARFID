@@ -177,9 +177,7 @@ def main():
                 train=train,
             )
 
-        progressive.set_description(
-            f"Step {step}, Mean training rewards {np.mean(rewards[-10:]):.2f}, Test reward {last_reward}"
-        )
+        progressive.set_description(f"Step {step}, Last test reward {last_reward}")
 
 
 if __name__ == "__main__":
