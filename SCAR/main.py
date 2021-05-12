@@ -2,6 +2,7 @@ from os import sep
 import pandas as pd
 import numpy as np
 from classes import User, Movie
+from scipy.stats.stats import pearsonr
 
 
 # Genres
@@ -31,8 +32,10 @@ ratings = pd.read_csv(
 )
 
 ratings = ratings.merge(users_df, on="user_id")
-print(len(ratings))
+print(f"Data: {len(users_df)} users, {len(films_df)} movies, {len(ratings)} ratings")
 
+
+# -------------------------
 # Demographic recos
 def recommend_me_demographic(user):
     occupation = user.occupation
@@ -72,15 +75,55 @@ preference_matrix = (
     .mean()
 )
 
+print(ratings[["user_id", "movie_id", "rating"]])
 items_matrix = (
-    ratings.pivot(index="user_id", columns="movie_id", values="rating")
-    .reset_index()
+    ratings[["user_id", "movie_id", "rating"]]
+    .pivot(index="user_id", columns="movie_id", values="rating")
     .fillna(0)
 )
 
 
-def neighbors(preference_matrix, user_id):
+def collaborative(
+    preference_matrix,
+    user_id,
+):
     user = preference_matrix[preference_matrix["user_id"] == user_id].values
     other_users = preference_matrix[preference_matrix["user_id"] != user_id]
-    for idx, other_user in other_users.iterrows():
-        s = user.values - other_user.values
+
+    items = []
+    score = []
+    for film in films_df["movie_id"]:
+        pass
+    # Recommendation formula
+    # P(u,i) = E [r(v,i) * s(u,v)] / E [S(u,v)]
+    # P(u,i) is the prediction of an item
+    # R(v,i) is the rating given by a user v to a movie i
+    # S(u,v) is the similarity between users
+
+
+def calculate_distances(item_matrix, mode="pearson"):
+    if mode == "variance":
+        measure = np.var
+    elif mode == "pearson":
+        measure = pearsonr
+
+    base_columns = item_matrix.columns
+
+    def measure_func(row, i):
+        target = item_matrix.loc[[i]][base_columns].values[0]
+        row = row[base_columns].values
+        return measure(row, target)[0]
+
+    for i in items_matrix.index.values:
+        item_matrix[f"distance to {i})"] = item_matrix.apply(
+            lambda row: measure_func(row, i), axis=1
+        )
+
+    return item_matrix
+
+
+items_matrix = calculate_distances(items_matrix)
+items_matrix.to_csv("data/item_matrix_distances.csv")
+
+items_matrix = pd.read_csv("data/item_matrix_distances.csv", index_col="user_id")
+print(items_matrix)
