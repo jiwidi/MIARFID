@@ -71,7 +71,6 @@ preference_matrix = (
     .groupby("user_id")
     .mean()
 )
-print(preference_matrix)
 
 items_matrix = (
     ratings.pivot(index="user_id", columns="movie_id", values="rating")
@@ -80,4 +79,8 @@ items_matrix = (
 )
 
 
-print(items_matrix)
+def neighbors(preference_matrix, user_id):
+    user = preference_matrix[preference_matrix["user_id"] == user_id].values
+    other_users = preference_matrix[preference_matrix["user_id"] != user_id]
+    for idx, other_user in other_users.iterrows():
+        s = user.values - other_user.values
