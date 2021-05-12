@@ -163,7 +163,7 @@ def main():
     args = parser.parse_args()
 
     random.seed(args.seed)
-    os.environ['PYTHONHASHSEED'] = str(args.seed)
+    os.environ["PYTHONHASHSEED"] = str(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed(args.seed)
@@ -176,21 +176,6 @@ def main():
         train_kwargs.update(cuda_kwargs)
         test_kwargs.update(cuda_kwargs)
 
-    train_transforms = transforms.Compose(
-        [
-            transforms.RandomCrop(64, padding=2),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        ]
-    )
-
-    test_transforms = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        ]
-    )
     # Load
     x_train = np.load("data/x_train.npy")
     x_test = np.load("data/x_test.npy")

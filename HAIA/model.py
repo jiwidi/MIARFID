@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 
 class DQN(nn.Module):
-    def __init__(self, outputs, device):
+    def __init__(self, h, w, outputs, device):
         super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4, bias=False)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2, bias=False)
@@ -36,13 +36,7 @@ class DQN(nn.Module):
 
 class ActionSelector(object):
     def __init__(
-        self,
-        INITIAL_EPSILON,
-        FINAL_EPSILON,
-        policy_net,
-        EPS_DECAY,
-        n_actions,
-        device,
+        self, INITIAL_EPSILON, FINAL_EPSILON, policy_net, EPS_DECAY, n_actions, device
     ):
         self._eps = INITIAL_EPSILON
         self._FINAL_EPSILON = FINAL_EPSILON
