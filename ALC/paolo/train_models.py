@@ -67,12 +67,12 @@ if __name__ == "__main__":
         #X_train, Y_train = load_data('dataset/pan21-author-profiling-training-2021-03-14/en')
         #X_train, Y_train = process_csv('dataset/data_en.csv', lan = 'en')
         with open('dataset/processed_text_en.pkl','rb') as f:
-            X_train, Y_train = pickle.load(f)
+            X_train, Y_train, User_ids = pickle.load(f)
 
     elif args.lan == 'es':
         #X_train, Y_train = process_csv('dataset/data_es.csv', lan = 'es')
         with open('dataset/processed_text_es.pkl','rb') as f:
-            X_train, Y_train = pickle.load(f)
+            X_train, Y_train, User_ids = pickle.load(f)
     
     if args.vec == 0:
         vectorizador = CountVectorizer(tokenizer=casual_tokenize, max_df=0.8)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     matriz_train = vectorizador.transform(X_train)
 
     if args.model == 0:
-        modelo =    (loss="deviance", learning_rate=0.1, n_estimators=150, verbose=0)
+        modelo = GradientBoostingClassifier(loss="deviance", learning_rate=0.1, n_estimators=150, verbose=0)
     elif args.model == 1:
         modelo = svm.LinearSVC(C=100, tol=0.01, loss='hinge', max_iter=500)
     elif args.model == 2:

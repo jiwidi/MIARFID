@@ -33,12 +33,12 @@ def select_model(model):
         modelo = SGDClassifier(alpha=1e-5, loss='squared_hinge', n_jobs=-1, tol=20)
     elif model == 4:
         modelo = MLPClassifier(hidden_layer_sizes=(16),
-                                solver='sgd',
+                                solver='adam',
                                 alpha=0.0001, 
                                 batch_size=100, 
                                 learning_rate='constant', 
                                 learning_rate_init=0.1, 
-                                max_iter=500 
+                                max_iter=500,
                                 verbose=True, 
                                 warm_start=True,
                                 activation='logistic')
