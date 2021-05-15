@@ -9,6 +9,9 @@ from sklearn.ensemble import (
     RandomForestClassifier,
     VotingClassifier,
 )
+from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import classification_report
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV, cross_val_score
@@ -149,14 +152,15 @@ if __name__ == "__main__":
                 "activation": ["relu"],
                 "alpha": [1e-05],
                 "hidden_layer_sizes": [
-                    (16, 16),
-                    (32),
-                    (32, 32),
-                    (64, 64),
+                    # (16, 16),
+                    # (32),
+                    # (32, 32),
+                    # (64, 64),
+                    (128, 128)(256, 256)
                 ],
                 "learning_rate": ["constant"],
-                "learning_rate_init": [0.001, 0.01, 0.1],
-                "solver": ["sgd", "adam"],
+                "learning_rate_init": [0.01],  # [0.001, 0.01, 0.1],
+                "solver": ["sgd"],  # ["sgd", "adam"],
                 "random_state": [RANDOM_STATE],
                 "max_iter": [1000],
                 "batch_size": [32],
@@ -208,6 +212,11 @@ if __name__ == "__main__":
     test_matrix = vect.transform(test["text"]).toarray()
     test["target"] = best_model.predict(test_matrix)
     test[["id", "target"]].to_csv("data/predict_test.csv", sep="\t", index=False)
+
+    y_pred = cross_val_predict(best_model, train_matrix, train["target"], cv=5)
+
+    # generate report
+    print(classification_report(train["target"], y_pred))
 
     print(f"Ensembling top estimators")
     ensemble_estimators = [(key, value) for key, value in estimators.items()]
