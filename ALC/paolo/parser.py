@@ -50,10 +50,12 @@ for file in os.listdir(root_folder):
 
 print("Saving to files")
 data_en = pd.DataFrame(data_en, columns=["author_id", "tweet", "tag"])
-data_en.to_csv("dataset/data_en.csv", index=False)
+data_en.to_csv("dataset/train_en.csv", index=False)
 
 data_es = pd.DataFrame(data_es, columns=["author_id", "tweet", "tag"])
-data_es.to_csv("dataset/data_es.csv", index=False)
+data_es.to_csv("dataset/train_es.csv", index=False)
 
 print("Done")
 
+
+root_folder = "dataset/pan21-author-profiling-training-2021-03-14/en/"

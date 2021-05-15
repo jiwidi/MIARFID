@@ -43,6 +43,18 @@ master_regex = (
 master_regex = "|".join(master_regex)
 
 
+def tokenize_single_sentence(sentence):
+    tokenizer = re.compile(master_regex)
+    output = ""
+    output += sentence.replace("\n", "") + "\n"  # Some lines are missing \n
+    res = tokenizer.finditer(sentence)
+    for i in res:
+        output += "\n" + str(i.group())
+    output += "\n"
+
+    return output
+
+
 def tokenize(sentences):
     tokenizer = re.compile(master_regex)
     output = ""
@@ -70,4 +82,3 @@ if __name__ == "__main__":
         test = f.readlines()
 
     assert "".join(test) == result
-

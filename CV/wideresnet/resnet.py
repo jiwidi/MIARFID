@@ -17,7 +17,13 @@ class ResBlock(nn.Module):
 
         if shorcut:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_size, out_size, kernel_size=1, stride=stride, bias=False,),
+                nn.Conv2d(
+                    in_size,
+                    out_size,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False,
+                ),
                 nn.BatchNorm2d(out_size),
             )
         else:
@@ -31,25 +37,66 @@ class ResBlock(nn.Module):
         return out
 
 
-class ResNet(nn.Module):
-    def __init__(self):
-        super(ResNet, self).__init__()
-        self.in_size = 64
+class WideResNet(nn.Module):
+    def __init__(self, i_channels=3, o_channels=64, scale_factor=1, n_classes=10):
+        super(WideResNet, self).__init__()
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(
+            i_channels,
+            o_channels * scale_factor,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False,
+        )
+        self.bn1 = nn.BatchNorm2d(o_channels * scale_factor)
 
         self.blocks = nn.Sequential(
-            ResBlock(64 * 10, 64 * 10, 1,),
-            ResBlock(64 * 10, 64 * 10, 1,),
-            ResBlock(64 * 10, 128 * 10, 2, shorcut=True),
-            ResBlock(128 * 10, 128 * 10, 1,),
-            ResBlock(128 * 10, 256 * 10, 2, shorcut=True),
-            ResBlock(256 * 10, 256 * 10, 1,),
-            ResBlock(256 * 10, 512 * 10, 2, shorcut=True),
-            ResBlock(512 * 10, 512 * 10, 1,),
+            ResBlock(
+                o_channels * scale_factor,
+                o_channels * scale_factor,
+                1,
+            ),
+            ResBlock(
+                o_channels * scale_factor,
+                o_channels * scale_factor,
+                1,
+            ),
+            ResBlock(
+                o_channels * scale_factor,
+                o_channels * 2 * scale_factor,
+                2,
+                shorcut=True,
+            ),
+            ResBlock(
+                o_channels * 2 * scale_factor,
+                o_channels * 2 * scale_factor,
+                1,
+            ),
+            ResBlock(
+                o_channels * 2 * scale_factor,
+                o_channels * 4 * scale_factor,
+                2,
+                shorcut=True,
+            ),
+            ResBlock(
+                o_channels * 4 * scale_factor,
+                o_channels * 4 * scale_factor,
+                1,
+            ),
+            ResBlock(
+                o_channels * 4 * scale_factor,
+                o_channels * 8 * scale_factor,
+                2,
+                shorcut=True,
+            ),
+            ResBlock(
+                o_channels * 8 * scale_factor,
+                o_channels * 8 * scale_factor,
+                1,
+            ),
         )
-        self.fw = nn.Linear(512, 10)  # 10 Classes
+        self.fw = nn.Linear(o_channels * 8 * scale_factor, n_classes)  # 10 Classes
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -58,4 +105,3 @@ class ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.fw(out)
         return out
-

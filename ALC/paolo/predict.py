@@ -68,7 +68,6 @@ for author in tqdm(data_en["author_id"].unique()):
     true_y = data_author["tag"].iloc[0]
     author_negative = 0
     author_positive = 0
-
     for idx, row in data_author.iterrows():
         text = row["tweet"]
         encoded_input = tokenizer(text, return_tensors="pt")
@@ -97,6 +96,8 @@ for author in tqdm(data_en["author_id"].unique()):
 
 def evaluate_ratio(ratio):
     correct = 0
+    preds = []
+    user_ids = data_en["author_id"].unique()
     for author in data_en["author_id"].unique():
         data_author = data_en[data_en["author_id"] == author]
         true_y = data_author["tag"].iloc[0]
@@ -109,11 +110,24 @@ def evaluate_ratio(ratio):
 
         if true_y == author_y:
             correct += 1
+        preds.append(author_y)
+    for i in range(len(data_en["author_id"].unique())):
+        with open("predictions/" + "en_hugging" + "/" + user_ids[i] + ".xml", "w") as f:
+            f.write(
+                '<author id="'
+                + user_ids[i]
+                + '"\n    lang="'
+                + "en"
+                + '"\n    type="'
+                + str(preds[i])
+                + '"\n/>'
+            )
+            f.close()
+
     return correct / len(data_en["author_id"].unique())
 
 
-for ratio in np.arange(0, 4.2, 0.2):
-    print(f"Accuracy {evaluate_ratio(ratio):.2f} with sensitivity ratio {ratio:.2f}")
+print(f"Accuracy {evaluate_ratio(0.5):.2f} with sensitivity ratio {0.5:.2f}")
 
 
 df = pd.DataFrame(

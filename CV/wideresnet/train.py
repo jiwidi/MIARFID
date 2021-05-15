@@ -13,7 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
 writer = SummaryWriter()
-from resnet import ResNet
+from resnet import WideResNet
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
@@ -195,7 +195,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    model = ResNet().to(device)
+    model = WideResNet(i_channels=3, o_channels=64, scale_factor=10).to(device)
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), epochs=200
