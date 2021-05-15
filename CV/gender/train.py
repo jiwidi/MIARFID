@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 writer = SummaryWriter()
-from resnet import ResNet, ResNet_small
+from resnet import ResNet_small
 from torchsummary import summary
 
 use_cuda = torch.cuda.is_available()

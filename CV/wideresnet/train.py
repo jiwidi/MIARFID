@@ -195,7 +195,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    model = WideResNet(i_channels=3, o_channels=64, scale_factor=10).to(device)
+    model = WideResNet(i_channels=3, o_channels=64, scale_factor=4).to(device)
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), epochs=200
@@ -216,6 +216,7 @@ def main():
     l_train_acc = []
     l_test_acc = []
     l_lr = []
+    print("Beginning training")
     for epoch in range(epoch, args.epochs + 1):
         train_loss, train_acc = train(
             model, train_loader, optimizer, scheduler, loss, epoch

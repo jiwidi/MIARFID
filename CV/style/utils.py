@@ -29,7 +29,7 @@ def gram_matrix(input):
 
 
 def image_loader(image_name):
-    imsize = 512  # use small size if no gpu
+    imsize = 256  # use small size if no gpu
 
     loader = transforms.Compose(
         [transforms.Resize(imsize), transforms.ToTensor()]  # scale imported image
@@ -42,8 +42,7 @@ def image_loader(image_name):
 
 class ContentLoss(nn.Module):
     def __init__(
-        self,
-        target,
+        self, target,
     ):
         super(ContentLoss, self).__init__()
         # we 'detach' the target content from the tree used
@@ -53,7 +52,9 @@ class ContentLoss(nn.Module):
         self.target = target.detach()
 
     def forward(self, input):
-        self.loss = F.mse_loss(input, self.target)
+        self.loss = F.mse_loss(
+            input, self.target
+        )  # We increase loss artifically as the avg values are so low and we want the optimizer to be more agressive
         return input
 
 
@@ -85,11 +86,7 @@ class Normalization(nn.Module):
 
 
 def get_style_model_and_losses(
-    cnn,
-    normalization_mean,
-    normalization_std,
-    style_img,
-    content_img,
+    cnn, normalization_mean, normalization_std, style_img, content_img,
 ):
     # desired depth layers to compute style/content losses :
     content_layers = ["conv_4"]

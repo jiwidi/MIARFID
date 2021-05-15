@@ -12,7 +12,7 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 from PIL import Image
 
-from utils import *
+from utils import image_loader, run_style_transfer
 
 
 def main(args):
@@ -30,57 +30,52 @@ def main(args):
     cnn_normalization_mean = torch.tensor([0.485, 0.456, 0.406]).to(device)
     cnn_normalization_std = torch.tensor([0.229, 0.224, 0.225]).to(device)
 
-    output = run_style_transfer(
-        cnn,
-        cnn_normalization_mean,
-        cnn_normalization_std,
-        content_img,
-        style_img,
-        input_img,
-        num_steps=args.steps,
-        content_weight=args.content_weight,
-        style_weight=args.style_weight,
-    )
+    for i in [1, 1000, 1000000]:
+        output = run_style_transfer(
+            cnn,
+            cnn_normalization_mean,
+            cnn_normalization_std,
+            content_img,
+            style_img,
+            input_img,
+            num_steps=args.steps,
+            content_weight=args.content_weight,
+            style_weight=i,
+        )
 
-    plt.figure()
-    image = output.cpu().clone()  # we clone the tensor to not do changes on it
-    image = image.squeeze(0)  # remove the fake batch dimension
-    image = unloader(image)
-    plt.imshow(image)
-    plt.savefig("resultstyle.png")
+        plt.figure()
+        image = output.cpu().clone()  # we clone the tensor to not do changes on it
+        image = image.squeeze(0)  # remove the fake batch dimension
+        image = unloader(image)
+        aux = args.content_img.split("/")[1].split(".")[0]
+        image.save(f"images/resultstyle-{aux}-{args.content_weight}-{i}.png")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some integers.")
     parser.add_argument(
         "--style_img",
-        default="images/style.png",
+        default="images/night.jpeg",
         type=str,
         help="Style image to use in transfer style",
     )
     parser.add_argument(
         "--content_img",
-        default="images/upv.png",
+        default="images/mimi.jpg",
         type=str,
         help="Content image to use in transfer style",
     )
     parser.add_argument(
-        "--steps",
-        type=int,
-        default=300,
-        help="Content image to use in transfer style",
+        "--steps", type=int, default=200, help="Steps running the style transfer",
     )
     parser.add_argument(
         "--content_weight",
         type=int,
         default=1,
-        help="Content image to use in transfer style",
+        help="Content weight in  transfer style",
     )
     parser.add_argument(
-        "--style_weight",
-        type=int,
-        default=1000000,
-        help="Content image to use in transfer style",
+        "--style_weight", type=int, default=1, help="Style weight in transfer style",
     )
 
     args = parser.parse_args()

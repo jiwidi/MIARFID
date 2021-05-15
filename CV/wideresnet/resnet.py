@@ -4,12 +4,15 @@ import torch.nn.functional as F
 
 
 class ResBlock(nn.Module):
-    def __init__(self, in_size, out_size, stride=1, shorcut=False):
+    def __init__(self, in_size, out_size, stride=1, shorcut=False, dropout=0.0):
         super(ResBlock, self).__init__()
         self.conv1 = nn.Conv2d(
             in_size, out_size, kernel_size=3, stride=stride, padding=1, bias=False
         )
         self.bn1 = nn.BatchNorm2d(out_size)
+
+        self.drop1 = nn.Dropout(dropout)
+
         self.conv2 = nn.Conv2d(
             out_size, out_size, kernel_size=3, stride=1, padding=1, bias=False
         )
@@ -32,6 +35,7 @@ class ResBlock(nn.Module):
     def forward(self, x):
         out = self.bn1(self.conv1(x))
         out = F.relu(out)
+        out = self.drop1(out)
         out = self.bn2(self.conv2(out))
         out = F.relu(out + self.shortcut(x))  # SHORCUT
         return out
