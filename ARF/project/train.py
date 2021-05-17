@@ -20,7 +20,12 @@ checkpoint_callback = pl.callbacks.ModelCheckpoint(
 
 max_epochs = 50
 gpus = 1 if torch.cuda.is_available() else None
-trainer = pl.Trainer(gpus=gpus, precision=16 if gpus else 32, max_epochs=max_epochs)
+trainer = pl.Trainer(
+    gpus=gpus,
+    precision=16 if gpus else 32,
+    max_epochs=max_epochs,
+    checkpoint_callback=checkpoint_callback,
+)
 model = BigModel(train_df, test_df, IMAGE_DIR)
 
 trainer.fit(model)
