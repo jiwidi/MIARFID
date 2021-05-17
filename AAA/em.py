@@ -24,7 +24,6 @@ mixtura_original.weights_ = np.array([0.4, 0.6])
 mixtura_original.precisions_ = np.array([0.25, 0.25])
 mixtura_original.fit_ = True
 
-
 estim = mixture.GaussianMixture(
     n_components=3,
     covariance_type="spherical",
@@ -74,7 +73,7 @@ def experiment(samples, regul_param):
 
 
 if __name__ == "__main__":
-    n_experiments = 50
+    n_experiments = 100
     samples, _ = mixtura_original.sample(1000)
     r_1000_sinregu = (
         sum([experiment(samples, 0) for u in tqdm(range(n_experiments))])
@@ -82,6 +81,10 @@ if __name__ == "__main__":
     )
     r_100_regu = (
         sum([experiment(samples, 0.1) for u in tqdm(range(n_experiments))])
+        / n_experiments
+    )
+    r_100_regu_2 = (
+        sum([experiment(samples, 0.2) for u in tqdm(range(n_experiments))])
         / n_experiments
     )
 
@@ -94,8 +97,14 @@ if __name__ == "__main__":
         sum([experiment(samples, 0.1) for u in tqdm(range(n_experiments))])
         / n_experiments
     )
+    r_50_regu_2 = (
+        sum([experiment(samples, 0.2) for u in tqdm(range(n_experiments))])
+        / n_experiments
+    )
 
     print(f"50 Samples without regularization {r_50_sinregu:.4f}")
-    print(f"50 Samples with regularization {r_50_regu:.4f}")
+    print(f"50 Samples with regularization 0.1{r_50_regu:.4f}")
+    print(f"50 Samples with regularization 0.2{r_50_regu_2:.4f}")
     print(f"1000 Samples without regularization {r_1000_sinregu:.4f}")
-    print(f"1000 Samples with regularization {r_100_regu:.4f}")
+    print(f"1000 Samples with regularization 0.1{r_100_regu:.4f}")
+    print(f"1000 Samples with regularization 0.2{r_100_regu_2:.4f}")
