@@ -29,3 +29,15 @@ def bb_intersection_over_union(boxA, boxB):
 
     # return the intersection over union value
     return iou
+
+
+def output(inputsize, kernel_size, padding=0, stride=1, filtros="1"):
+    return f"{filtros}x{((inputsize + (2 * padding) - kernel_size) / stride) + 1}"
+
+
+def cost(channels, output_r, outpur_c, kernel_r, kernel_c, filtros):
+    return channels * output_r * outpur_c * kernel_r * kernel_c * filtros
+
+
+def parameters(channels, kernel_r, kernel_c, filtros):
+    return channels * kernel_r * kernel_c * filtros

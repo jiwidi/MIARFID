@@ -176,6 +176,7 @@ class BigModel(pl.LightningModule):
         )
 
     def test_dataloader(self):
+        ds_test = SIIMDataset(self.test_df, self.transform_test, self.image_dir,)
         return DataLoader(
             ds_test,
             batch_size=batch_size,

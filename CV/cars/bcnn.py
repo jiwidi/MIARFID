@@ -29,7 +29,8 @@ class BilinearModel(nn.Module):
         out1 = self.d1(outputs)
         out2 = self.d2(outputs.permute(0, 2, 1))
 
-        outputs = torch.bmm(out1, out2)  # bilinear product
+        # bilinear product
+        outputs = torch.bmm(out1, out2)
         outputs = torch.div(outputs, 15 ** 2)  # divide by 225 to normalize
         outputs = outputs.view(-1, 512 ** 2)  # reshape to batchsize * 512 * 512
         outputs = torch.sign(outputs) * torch.sqrt(
