@@ -6,26 +6,34 @@ import torch
 
 from dataset import SIIMDataset
 from model import BigModel
+from pytorch_lightning import loggers as pl_loggers
 
-CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
+
+CSV_DIR = Path("/Users/jaimeferrando/Downloads/siim-isic-melanoma-classification")
 train_df = pd.read_csv(CSV_DIR / "train.csv")
 test_df = pd.read_csv(CSV_DIR / "test.csv")
 # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-IMAGE_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
-
-
-checkpoint_callback = pl.callbacks.ModelCheckpoint(
-    "{epoch:02d}_{val_auc:.4f}", save_top_k=1, monitor="val_auc", mode="max"
+IMAGE_DIR = Path(
+    "/Users/jaimeferrando/Downloads/siim-isic-melanoma-classification/jpeg"
 )
 
-max_epochs = 50
-gpus = 1 if torch.cuda.is_available() else None
-trainer = pl.Trainer(
-    gpus=gpus,
-    precision=16 if gpus else 32,
-    max_epochs=max_epochs,
-    checkpoint_callback=checkpoint_callback,
-)
-model = BigModel(train_df, test_df, IMAGE_DIR)
+for u in range(3, 7):
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(
+        "{epoch:02d}_{val_auc:.4f}", save_top_k=1, monitor="val_auc", mode="max"
+    )
 
-trainer.fit(model)
+    max_epochs = 50
+    arch = f"efficientnet-b{u}"
+    gpus = 1 if torch.cuda.is_available() else None
+    tb_logger = pl_loggers.TensorBoardLogger(f"lightning_logs/", name=arch)
+
+    trainer = pl.Trainer(
+        gpus=gpus,
+        precision=16 if gpus else 32,
+        max_epochs=max_epochs,
+        checkpoint_callback=checkpoint_callback,
+        logger=tb_logger,
+    )
+    model = BigModel(train_df, test_df, IMAGE_DIR, arch)
+
+    trainer.fit(model)

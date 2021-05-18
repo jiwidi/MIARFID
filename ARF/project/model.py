@@ -23,9 +23,8 @@ pos_weight = 3.2
 
 
 class BigModel(pl.LightningModule):
-    def __init__(self, train_df, test_df, image_dir):
+    def __init__(self, train_df, test_df, image_dir, arch):
         super().__init__()
-        arch = "efficientnet-b5"
         self.net = EfficientNet.from_pretrained(arch, advprop=True)
         self.net._fc = torch.nn.Linear(
             in_features=self.net._fc.in_features, out_features=1, bias=True
@@ -176,7 +175,11 @@ class BigModel(pl.LightningModule):
         )
 
     def test_dataloader(self):
-        ds_test = SIIMDataset(self.test_df, self.transform_test, self.image_dir,)
+        ds_test = SIIMDataset(
+            self.test_df,
+            self.transform_test,
+            self.image_dir,
+        )
         return DataLoader(
             ds_test,
             batch_size=batch_size,
