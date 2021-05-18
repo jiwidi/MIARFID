@@ -1,12 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.random
-import scipy.stats as ss
 from sklearn import mixture
-import sklearn
-from mixture import MixtureModel
-from scipy.stats import norm
 from tqdm import tqdm
+import seaborn as sns
 
 np.random.seed(17)
 
@@ -72,7 +68,78 @@ def experiment(samples, regul_param):
     )
 
 
+def plot():
+    regul_param = 0.2
+    sampled_50 = []
+    sampled_1000 = []
+    for n_samples in [50, 1000]:
+        samples, _ = mixtura_original.sample(n_samples)
+
+        estim.covariances_ = np.array([4, 4, 4])
+        estim.means_ = np.array([[-6], [2], [0]])
+        estim.weights_ = np.array([0.7, 0.1, 0.2])
+        estim.precisions_cholesky_ = np.array([0.5, 0.5, 0.5])
+        estim.fit_ = True
+
+        avg_log_likelihood_prev = -10e9
+
+        # 1000 iteraciones máximo
+        for i in range(1, 1000):
+            probs_act = estim.predict_proba(samples)
+            numerador_1 = 0
+            numerador_2 = 0
+            numerador_3 = 0
+            for p in probs_act:  # sum over M, number of samples
+                numerador_1 += p[0] * (1 + regul_param * p[0])
+                numerador_2 += p[1] * (1 + regul_param * p[1])
+                numerador_3 += p[2] * (1 + regul_param * p[2])
+            pi_1 = numerador_1 / (numerador_1 + numerador_2 + numerador_3)
+
+            pi_2 = numerador_2 / (numerador_1 + numerador_2 + numerador_3)
+
+            pi_3 = numerador_3 / (numerador_1 + numerador_2 + numerador_3)
+
+            estim.weights_ = [pi_1, pi_2, pi_3]
+
+            avg_log_likelihood_act = estim.score(samples)
+            if avg_log_likelihood_act < avg_log_likelihood_prev:
+                break
+            avg_log_likelihood_prev = avg_log_likelihood_act
+
+            if n_samples == 50:
+                sampled_50, _ = estim.sample(10000)
+            else:
+                sampled_1000, _ = estim.sample(10000)
+        print(f"For sample{n_samples} pi {estim.weights_}")
+
+    sampled_original, _ = mixtura_original.sample(10000)
+    sns.distplot(
+        sampled_50,
+        rug_kws={"color": "g"},
+        hist=False,
+        label="50 samples",
+        kde_kws={"linestyle": "--"},
+    )
+    sns.distplot(
+        sampled_1000,
+        rug_kws={"color": "b"},
+        hist=False,
+        label="1000 samples",
+        kde_kws={"linestyle": ":"},
+    )
+    sns.distplot(
+        sampled_original,
+        rug_kws={"color": "r"},
+        hist=False,
+        label="Original mixture",
+        kde_kws={"linestyle": "dashdot"},
+    )
+    plt.legend()
+    plt.savefig("pdf.png")
+
+
 if __name__ == "__main__":
+    plot()
     n_experiments = 100
     samples, _ = mixtura_original.sample(1000)
     r_1000_sinregu = (
