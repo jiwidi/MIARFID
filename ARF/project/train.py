@@ -36,7 +36,7 @@ for u in range(3, 8):
         precision=16 if gpus else 32,
         max_epochs=max_epochs,
         checkpoint_callback=checkpoint_callback,
-        early_stop_callback=early_stop_callback,
+        callbacks=[early_stop_callback],
         logger=tb_logger,
     )
     model = BigModel(train_df, test_df, IMAGE_DIR, arch)
