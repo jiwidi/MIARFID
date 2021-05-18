@@ -21,6 +21,9 @@ for u in range(3, 8):
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         "{epoch:02d}_{val_auc:.4f}", save_top_k=1, monitor="val_auc", mode="max"
     )
+    early_stop_callback = EarlyStopping(
+        monitor="val_auc", min_delta=0.00, patience=5, verbose=False, mode="max"
+    )
 
     max_epochs = 50
     arch = f"efficientnet-b{u}"
@@ -32,6 +35,7 @@ for u in range(3, 8):
         precision=16 if gpus else 32,
         max_epochs=max_epochs,
         checkpoint_callback=checkpoint_callback,
+        early_stop_callback=early_stop_callback,
         logger=tb_logger,
     )
     model = BigModel(train_df, test_df, IMAGE_DIR, arch)
