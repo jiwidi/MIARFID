@@ -7,6 +7,7 @@ import torch
 from dataset import SIIMDataset
 from model import BigModel
 from pytorch_lightning import loggers as pl_loggers
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
 CSV_DIR = Path("/Users/jaimeferrando/Downloads/siim-isic-melanoma-classification")
