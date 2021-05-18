@@ -10,12 +10,12 @@ from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
-CSV_DIR = Path("/Users/jaimeferrando/Downloads/siim-isic-melanoma-classification")
+CSV_DIR = Path("data")
 train_df = pd.read_csv(CSV_DIR / "train.csv")
 test_df = pd.read_csv(CSV_DIR / "test.csv")
 # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
 IMAGE_DIR = Path(
-    "/Users/jaimeferrando/Downloads/siim-isic-melanoma-classification/jpeg"
+    "data"
 )
 
 for u in range(3, 8):

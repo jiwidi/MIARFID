@@ -92,8 +92,8 @@ class BigModel(pl.LightningModule):
         # hardware agnostic training
         loss, y, y_hat = self.step(batch)
         acc = (y_hat.round() == y).float().mean().item()
-        tensorboard_logs = {"train_loss": loss, "acc": acc}
-        return {"loss": loss, "acc": acc, "log": tensorboard_logs}
+        self.log("acc", acc, on_step=True, on_epoch=True, prog_bar=True)
+        return {"loss": loss, "acc": acc}
 
     def validation_step(self, batch, batch_nb):
         loss, y, y_hat = self.step(batch)
@@ -108,12 +108,14 @@ class BigModel(pl.LightningModule):
         )  # skip sanity check
         acc = (y_hat.round() == y).float().mean().item()
         print(f"Epoch {self.current_epoch} acc:{acc} auc:{auc}")
-        tensorboard_logs = {"val_loss": avg_loss, "val_auc": auc, "val_acc": acc}
+        self.log("avg_val_loss", avg_loss, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("val_auc", auc, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
+
         return {
             "avg_val_loss": avg_loss,
             "val_auc": auc,
-            "val_acc": acc,
-            "log": tensorboard_logs,
+            "val_acc": acc
         }
 
     def test_step(self, batch, batch_nb):
