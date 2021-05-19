@@ -20,7 +20,11 @@ IMAGE_DIR = Path(
 
 for u in range(3, 8):
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        "{epoch:02d}_{val_auc:.4f}", save_top_k=1, monitor="val_auc", mode="max"
+        dirpath="models/" + "efficientnet-b" + str(u),
+        filename="{epoch:02d}_{val_auc:.4f}",
+        save_top_k=1,
+        monitor="val_auc",
+        mode="max"
     )
     early_stop_callback = EarlyStopping(
         monitor="val_auc", min_delta=0.00, patience=5, verbose=False, mode="max"
