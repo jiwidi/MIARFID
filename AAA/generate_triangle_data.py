@@ -7,7 +7,10 @@ raw_equil = open("DATA/Tr-equil").readlines()
 raw_isosc = open("DATA/Tr-isosc").readlines()
 raw_right = open("DATA/Tr-right").readlines()
 
-N = 3000  # number of extra samples
+N = 1000  # number of extra samples
+MIN_LEN = 1
+MAX_LEN = 20
+SEED = 1
 
 
 def triangle_side(lenght, letter):
@@ -25,7 +28,19 @@ def check_triangle(a, b, c):
 print(f"Equil data has {len(raw_equil)} samples")
 aux_triangles = (
     subprocess.check_output(
-        ["scfg-toolkit/genFig", "-F", "1", "-c", str(N), "-l", "1", "-L", "50"]
+        [
+            "scfg-toolkit/genFig",
+            "-F",
+            "1",
+            "-s",
+            str(SEED),
+            "-c",
+            str(N),
+            "-l",
+            str(MIN_LEN),
+            "-L",
+            str(MAX_LEN),
+        ]
     )
     .decode("utf-8")
     .split("\n")
@@ -43,7 +58,19 @@ print(f"Isosc data has {len(raw_isosc)} samples")
 # Isosceles
 aux_triangles = (
     subprocess.check_output(
-        ["scfg-toolkit/genFig", "-F", "2", "-c", str(N), "-l", "1", "-L", "50"]
+        [
+            "scfg-toolkit/genFig",
+            "-F",
+            "2",
+            "-s",
+            str(SEED),
+            "-c",
+            str(N),
+            "-l",
+            str(MIN_LEN),
+            "-L",
+            str(MAX_LEN),
+        ]
     )
     .decode("utf-8")
     .split("\n")
@@ -60,7 +87,19 @@ print(f"Isosc data has {len(raw_right)} samples")
 # Isosceles
 aux_triangles = (
     subprocess.check_output(
-        ["scfg-toolkit/genFig", "-F", "0", "-c", str(N), "-l", "1", "-L", "50"]
+        [
+            "scfg-toolkit/genFig",
+            "-F",
+            "0",
+            "-s",
+            str(SEED),
+            "-c",
+            str(N),
+            "-l",
+            str(MIN_LEN),
+            "-L",
+            str(MAX_LEN),
+        ]
     )
     .decode("utf-8")
     .split("\n")
