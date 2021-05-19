@@ -69,6 +69,7 @@ def experiment(samples, regul_param):
 
 
 def plot():
+    # 50vs1000vsoriginal
     regul_param = 0.2
     sampled_50 = []
     sampled_1000 = []

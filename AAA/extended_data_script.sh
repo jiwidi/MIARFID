@@ -1,6 +1,6 @@
 #Make sure you have scfg compiled frist
 
-for ratio in {0.1,0.2,0.3}
+for ratio in {0.01,0.05,0.1,0.2,0.3}
   do
     echo "Evaluating negative ratio $ratio"
     # train models
