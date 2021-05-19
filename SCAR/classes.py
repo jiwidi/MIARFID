@@ -2,7 +2,7 @@ class User:
     def __init__(self, id, age, gender, occupation):
         self.id = id
         self.age = age
-        self.genre = gender
+        self.gender = gender
         self.occupation = occupation
 
 

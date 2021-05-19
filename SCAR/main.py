@@ -41,7 +41,9 @@ def recommend_me_demographic(user):
     occupation = user.occupation
 
     # Search for films seen by this profession
-    aux_ratings = ratings[ratings["occupation"] == occupation]
+    aux_ratings = ratings[ratings["occupation"] == occupation][
+        ratings["sexo"] == user.gender
+    ]
     aux_ratings = (
         aux_ratings[["movie_id", "rating"]]
         .groupby("movie_id")
@@ -63,7 +65,7 @@ def recommend_me_demographic(user):
     return aux_ratings.sort_values("score")
 
 
-recommend_me_demographic(users[5])
+print(recommend_me_demographic(users[5])["movie_id"].values[:10])
 
 
 # Collaborative recos
@@ -75,7 +77,6 @@ preference_matrix = (
     .mean()
 )
 
-print(ratings[["user_id", "movie_id", "rating"]])
 items_matrix = (
     ratings[["user_id", "movie_id", "rating"]]
     .pivot(index="user_id", columns="movie_id", values="rating")
@@ -115,15 +116,29 @@ def calculate_distances(item_matrix, mode="pearson"):
         return measure(row, target)[0]
 
     for i in items_matrix.index.values:
-        item_matrix[f"distance to {i})"] = item_matrix.apply(
+        item_matrix[f"distance to {i}"] = item_matrix.apply(
             lambda row: measure_func(row, i), axis=1
         )
 
     return item_matrix
 
 
-items_matrix = calculate_distances(items_matrix)
-items_matrix.to_csv("data/item_matrix_distances.csv")
+def get_neighbors(user_id, item_matrix_distances):
+    user_row = items_matrix.loc[user_id]
+    distance_columns = [i for i in item_matrix_distances.columns if "distance" in i]
+    row = user_row[distance_columns].values
+    # Remove itself
+    row[int(user_id) - 1] = -10e9
+    r = np.argwhere(row > 0.9)
+    if len(r) < 10:
+        r = row.argsort()[-10:]
+    return r + 1  # Correct index/id missmatch
+
+
+# items_matrix = calculate_distances(items_matrix)
+# items_matrix.to_csv("data/item_matrix_distances.csv")
 
 items_matrix = pd.read_csv("data/item_matrix_distances.csv", index_col="user_id")
+aux = get_neighbors(1, items_matrix)
+print(aux)
 print(items_matrix)
