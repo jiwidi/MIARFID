@@ -5,14 +5,14 @@ import pytorch_lightning as pl
 import torch
 
 from dataset import SIIMDataset
-from model import BigModel
+from model import BigModel, Model2Branches
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
 CSV_DIR = Path("data")
-train_df = pd.read_csv(CSV_DIR / "train.csv")
-test_df = pd.read_csv(CSV_DIR / "test.csv")
+train_df = pd.read_csv(CSV_DIR / "train_clean.csv")
+test_df = pd.read_csv(CSV_DIR / "test_clean.csv")
 # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
 IMAGE_DIR = Path(
     "data"
@@ -44,5 +44,6 @@ for u in range(3, 8):
         logger=tb_logger,
     )
     model = BigModel(train_df, test_df, IMAGE_DIR, arch)
+    #model = Model2Branches(train_df, test_df, IMAGE_DIR, arch, n_meta_features=9)
 
     trainer.fit(model)
