@@ -16,15 +16,16 @@ from dataset import SIIMDataset
 
 lr = 0.00005
 max_epochs = 50
-batch_size = 16
+batch_size = 8
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
 
 
 class BigModel(pl.LightningModule):
-    def __init__(self, train_df, test_df, image_dir, arch):
+    def __init__(self, train_df, test_df, image_dir_training, image_dir_test, arch):
         super().__init__()
+        self.arch = arch
         self.net = EfficientNet.from_pretrained(arch, advprop=True)
         self.net._fc = torch.nn.Linear(
             in_features=self.net._fc.in_features, out_features=1, bias=True
@@ -32,13 +33,14 @@ class BigModel(pl.LightningModule):
 
         self.train_df = train_df
         self.test_df = test_df
-        self.image_dir = image_dir
+        self.image_dir_training = image_dir_training
+        self.image_dir_test = image_dir_test
 
         # Split
         patient_means = train_df.groupby(["patient_id"])["target"].mean()
         patient_ids = train_df["patient_id"].unique()
         train_idx, val_idx = train_test_split(
-            np.arange(len(patient_ids)), stratify=(patient_means > 0), test_size=0.2
+            np.arange(len(patient_ids)), test_size=0.2
         )
 
         self.pid_train = patient_ids[train_idx]
@@ -112,29 +114,25 @@ class BigModel(pl.LightningModule):
         self.log("val_auc", auc, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
 
-        return {
-            "avg_val_loss": avg_loss,
-            "val_auc": auc,
-            "val_acc": acc
-        }
+        return {"avg_val_loss": avg_loss, "val_auc": auc, "val_acc": acc}
 
     def test_step(self, batch, batch_nb):
-        x, _ = batch
+        x = batch
         y_hat = self(x).flatten().sigmoid()
         return {"y_hat": y_hat}
 
     def test_epoch_end(self, outputs):
         y_hat = torch.cat([x["y_hat"] for x in outputs])
-        df_test["target"] = y_hat.tolist()
-        N = len(glob("submission*.csv"))
-        df_test.target.to_csv(f"submission{N}.csv")
-        return {"tta": N}
+        self.test_df["target"] = y_hat.tolist()
+        self.test_df[["image_name", "target"]].to_csv(
+            f"runs/predictions/submission_{self.arch}.csv", index=False
+        )
 
     def train_dataloader(self):
         ds_train = SIIMDataset(
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
-            self.image_dir,
+            self.image_dir_training,
         )
 
         classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
@@ -149,7 +147,7 @@ class BigModel(pl.LightningModule):
         samples_weight = np.array([weight[t] for t in classes])
 
         samples_weight = torch.from_numpy(samples_weight)
-        samples_weigth = samples_weight.double()
+        samples_weight = samples_weight.double()
         sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
 
         return DataLoader(
@@ -165,7 +163,7 @@ class BigModel(pl.LightningModule):
         ds_val = SIIMDataset(
             self.train_df[self.train_df["patient_id"].isin(self.pid_val)],
             self.transform_test,
-            self.image_dir,
+            self.image_dir_training,
         )
         return DataLoader(
             ds_val,
@@ -178,9 +176,7 @@ class BigModel(pl.LightningModule):
 
     def test_dataloader(self):
         ds_test = SIIMDataset(
-            self.test_df,
-            self.transform_test,
-            self.image_dir,
+            self.test_df, self.transform_test, self.image_dir_test, test=True
         )
         return DataLoader(
             ds_test,
@@ -191,6 +187,7 @@ class BigModel(pl.LightningModule):
             pin_memory=False,
         )
 
+
 class Model2Branches(pl.LightningModule):
     def __init__(self, train_df, test_df, image_dir, arch, n_meta_features):
         super().__init__()
@@ -199,14 +196,16 @@ class Model2Branches(pl.LightningModule):
             in_features=self.net._fc.in_features, out_features=500, bias=True
         )
 
-        self.meta = nn.Sequential(nn.Linear(n_meta_features, 500),
-                                  nn.BatchNorm1d(500),
-                                  nn.ReLU(),
-                                  nn.Dropout(p=0.2),
-                                  nn.Linear(500, 250),
-                                  nn.BatchNorm1d(250),
-                                  nn.ReLU(),
-                                  nn.Dropout(p=0.2))
+        self.meta = nn.Sequential(
+            nn.Linear(n_meta_features, 500),
+            nn.BatchNorm1d(500),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+            nn.Linear(500, 250),
+            nn.BatchNorm1d(250),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+        )
         self.output = nn.Linear(500 + 250, 1)
 
         self.train_df = train_df
@@ -217,7 +216,7 @@ class Model2Branches(pl.LightningModule):
         patient_means = train_df.groupby(["patient_id"])["target"].mean()
         patient_ids = train_df["patient_id"].unique()
         train_idx, val_idx = train_test_split(
-            np.arange(len(patient_ids)), stratify=(patient_means > 0), test_size=0.2
+            np.arange(len(patient_ids)), test_size=0.2
         )
 
         self.pid_train = patient_ids[train_idx]
@@ -255,7 +254,7 @@ class Model2Branches(pl.LightningModule):
         meta_output = self.meta(metadata.float())
         concat = torch.cat((cnn_output, meta_output), dim=1)
         output = self.output(concat)
-        
+
         return output
 
     def configure_optimizers(self):
@@ -298,7 +297,7 @@ class Model2Branches(pl.LightningModule):
         self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
 
     def test_step(self, batch, batch_nb):
-        x, _ = batch
+        x = batch
         y_hat = self(x).flatten().sigmoid()
         return {"y_hat": y_hat}
 
@@ -314,7 +313,7 @@ class Model2Branches(pl.LightningModule):
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
             self.image_dir,
-            use_metadata = True
+            use_metadata=True,
         )
 
         classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
@@ -346,7 +345,7 @@ class Model2Branches(pl.LightningModule):
             self.train_df[self.train_df["patient_id"].isin(self.pid_val)],
             self.transform_test,
             self.image_dir,
-            use_metadata = True
+            use_metadata=True,
         )
         return DataLoader(
             ds_val,
@@ -358,11 +357,7 @@ class Model2Branches(pl.LightningModule):
         )
 
     def test_dataloader(self):
-        ds_test = SIIMDataset(
-            self.test_df,
-            self.transform_test,
-            self.image_dir,
-        )
+        ds_test = SIIMDataset(self.test_df, self.transform_test, self.image_dir,)
         return DataLoader(
             ds_test,
             batch_size=batch_size,
