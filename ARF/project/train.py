@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 import torch
 
 from dataset import SIIMDataset
-from model import BigModel, Model2Branches
+from model import BigModel, Model2Branches, Model9Features
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning import Trainer, seed_everything
@@ -13,13 +13,18 @@ from pytorch_lightning import Trainer, seed_everything
 seed_everything(17)
 
 CSV_DIR = Path("data")
-train_df = pd.read_csv(CSV_DIR / "train_concat.csv")
+#train_df = pd.read_csv(CSV_DIR / "train_concat.csv")
+train_df = pd.read_csv(CSV_DIR / "train_full.csv")
+
 IMAGE_DIR_TRAINING = Path("data")
 
-CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
-test_df = pd.read_csv(CSV_DIR / "test.csv")
-# IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-IMAGE_DIR_TEST = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
+#CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
+CSV_DIR = Path("data")
+#test_df = pd.read_csv(CSV_DIR / "test.csv")
+test_df = pd.read_csv(CSV_DIR / "test_full.csv")
+
+#IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
+#IMAGE_DIR_TEST = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
 
 
 for u in range(3, 8):
@@ -47,7 +52,8 @@ for u in range(3, 8):
         callbacks=[early_stop_callback],
         logger=tb_logger,
     )
-    model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
-    # model = Model2Branches(train_df, test_df, IMAGE_DIR, arch, n_meta_features=12)
+    #model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
+    #model = Model2Branches(train_df, test_df, IMAGE_DIR, arch, n_meta_features=12)
+    model = Model9Features(train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12)
 
     trainer.fit(model)

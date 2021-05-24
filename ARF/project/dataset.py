@@ -6,14 +6,14 @@ import torch.utils.data as pytorch_data
 from torchvision import transforms
 import time
 
-
 class SIIMDataset(pytorch_data.Dataset):
-    def __init__(self, df, transform, image_dir, test=False, use_metadata=False):
+    def __init__(self, df, transform, image_dir, test=False, use_metadata=False, include_2019 = False):
         self.df = df
         self.transform = transform
         self.test = test
         self.image_dir = image_dir
         self.use_metadata = use_metadata
+        self.include_2019 = include_2019
 
         if self.use_metadata:
             # Transform dataframe
@@ -42,11 +42,21 @@ class SIIMDataset(pytorch_data.Dataset):
             img = Image.open(str(self.image_dir / "test") + "/" + image_fn).convert("RGB")
             #img = Image.open(self.image_dir + "/test" + "/" + image_fn).convert("RGB")
         else:
-            img = Image.open(str(self.image_dir / "train") + "/" + image_fn).convert("RGB")
-            #img = Image.open(self.image_dir + "/train" + "/" + image_fn).convert("RGB")
+            if self.include_2019 and meta['patient_id'].startswith('IP_2019_'):
+                img = Image.open(str(self.image_dir / "2019") + "/" + image_fn).convert("RGB")
+                #img = Image.open(self.image_dir + "/2019" + "/" + image_fn).convert("RGB")
+            else:
+                img = Image.open(str(self.image_dir / "train") + "/" + image_fn).convert("RGB")
+                #img = Image.open(self.image_dir + "/train" + "/" + image_fn).convert("RGB")
 
         if self.transform is not None:
             img = self.transform(img)
+
+        if self.include_2019:
+            # Now target will be a vector of size 9
+            target = meta[['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']].tolist()
+        else:
+            target = meta['target']
 
         if self.use_metadata:
             metadata = ["sex", "age_approx"] + [
@@ -55,17 +65,17 @@ class SIIMDataset(pytorch_data.Dataset):
             metadata.remove("anatom_site_general_challenge")
             metadata = numpy.array(meta[metadata], dtype=numpy.float64)
             # print(type(img) ,type(metadata.values), type(meta["target"]))
-            return img, torch.from_numpy(metadata), meta["target"]
+            return img, torch.from_numpy(metadata), torch.Tensor(target).long()
         #
         # print(time.time() - start)
         if self.test:
             return img
-        return img, meta["target"]
+        return img, target
 
 
 if __name__ == "__main__":
-    train_df = pd.read_csv("data/train_clean.csv")
-    train_dataset = SIIMDataset(train_df, None, image_dir='data', use_metadata=True)
+    train_df = pd.read_csv("data/train_full.csv")
+    train_dataset = SIIMDataset(train_df, None, image_dir='data', use_metadata=True, include_2019=True)
     for img, met, y in train_dataset:
         print(img)
         print(met)
