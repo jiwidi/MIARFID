@@ -40,8 +40,10 @@ class SIIMDataset(pytorch_data.Dataset):
         #         image_fn = meta['image_name'] + '.png'
         if self.test:
             img = Image.open(str(self.image_dir / "test") + "/" + image_fn).convert("RGB")
+            #img = Image.open(self.image_dir + "/test" + "/" + image_fn).convert("RGB")
         else:
             img = Image.open(str(self.image_dir / "train") + "/" + image_fn).convert("RGB")
+            #img = Image.open(self.image_dir + "/train" + "/" + image_fn).convert("RGB")
 
         if self.transform is not None:
             img = self.transform(img)
@@ -49,6 +51,7 @@ class SIIMDataset(pytorch_data.Dataset):
         if self.use_metadata:
             metadata = ['sex', 'age_approx'] + [col for col in meta.index if 'site_' in col]
             metadata.remove('anatom_site_general_challenge')
+            print(meta[metadata])
             metadata = numpy.array(meta[metadata], dtype=numpy.float64)
             #print(type(img) ,type(metadata.values), type(meta["target"]))
             return img, torch.from_numpy(metadata), meta["target"]
@@ -59,11 +62,8 @@ class SIIMDataset(pytorch_data.Dataset):
 if __name__=='__main__':
     train_df = pd.read_csv("data/train_clean.csv")
     train_dataset = SIIMDataset(train_df, None, image_dir='data', use_metadata=True)
-    for x, y in train_dataset:
-        img, metadata = x
+    for img, met, y in train_dataset:
         print(img)
-        print(metadata)
+        print(met)
         print(y)
         break
-        
-    
