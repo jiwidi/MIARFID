@@ -12,17 +12,14 @@ from pytorch_lightning import Trainer, seed_everything
 
 seed_everything(17)
 
-# CSV_DIR = Path("data")
-# train_df = pd.read_csv(CSV_DIR / "train_concat.csv")
-# test_df = pd.read_csv(CSV_DIR / "train_concat.csv")
-# # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-# IMAGE_DIR = Path("data")
+CSV_DIR = Path("data")
+train_df = pd.read_csv(CSV_DIR / "train_concat.csv")
+IMAGE_DIR_TRAINING = Path("data")
 
 CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
-train_df = pd.read_csv(CSV_DIR / "train.csv")
 test_df = pd.read_csv(CSV_DIR / "test.csv")
 # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-IMAGE_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
+IMAGE_DIR_TEST = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
 
 
 for u in range(3, 8):
@@ -49,9 +46,8 @@ for u in range(3, 8):
         checkpoint_callback=checkpoint_callback,
         callbacks=[early_stop_callback],
         logger=tb_logger,
-        profiler="simple",
     )
-    model = BigModel(train_df, test_df, IMAGE_DIR, arch)
+    model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
     # model = Model2Branches(train_df, test_df, IMAGE_DIR, arch, n_meta_features=12)
 
     trainer.fit(model)
