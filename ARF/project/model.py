@@ -23,7 +23,7 @@ pos_weight = 3.2
 
 
 class BigModel(pl.LightningModule):
-    def __init__(self, train_df, test_df, image_dir, arch):
+    def __init__(self, train_df, test_df, image_dir_training, image_dir_test, arch):
         super().__init__()
         self.arch = arch
         self.net = EfficientNet.from_pretrained(arch, advprop=True)
@@ -33,7 +33,8 @@ class BigModel(pl.LightningModule):
 
         self.train_df = train_df
         self.test_df = test_df
-        self.image_dir = image_dir
+        self.image_dir_training = image_dir_training
+        self.image_dir_test = image_dir_test
 
         # Split
         patient_means = train_df.groupby(["patient_id"])["target"].mean()
@@ -131,7 +132,7 @@ class BigModel(pl.LightningModule):
         ds_train = SIIMDataset(
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
-            self.image_dir,
+            self.image_dir_training,
         )
 
         classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
@@ -162,7 +163,7 @@ class BigModel(pl.LightningModule):
         ds_val = SIIMDataset(
             self.train_df[self.train_df["patient_id"].isin(self.pid_val)],
             self.transform_test,
-            self.image_dir,
+            self.image_dir_training,
         )
         return DataLoader(
             ds_val,
@@ -175,7 +176,7 @@ class BigModel(pl.LightningModule):
 
     def test_dataloader(self):
         ds_test = SIIMDataset(
-            self.test_df, self.transform_test, self.image_dir, test=True
+            self.test_df, self.transform_test, self.image_dir_test, test=True
         )
         return DataLoader(
             ds_test,
