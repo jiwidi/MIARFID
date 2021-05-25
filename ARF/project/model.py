@@ -17,7 +17,7 @@ from dataset import SIIMDataset
 
 lr = 3e-5
 max_epochs = 50
-batch_size = 32
+batch_size = 8
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
@@ -391,7 +391,7 @@ class Model9Features(pl.LightningModule):
 
         self.train_df = train_df
         self.test_df = test_df
-        self.image_dir = image_dir 
+        self.image_dir = image_dir
 
         # Split
         patient_means = train_df.groupby(["patient_id"])["MEL"].mean()
@@ -447,12 +447,12 @@ class Model9Features(pl.LightningModule):
         # return batch loss
         x, metadata, y = batch
         y_hat = self((x, metadata))
-        #y_smo = y.float() * (1 - label_smoothing) + 0.5 * label_smoothing
-        #loss = F.binary_cross_entropy_with_logits(
+        # y_smo = y.float() * (1 - label_smoothing) + 0.5 * label_smoothing
+        # loss = F.binary_cross_entropy_with_logits(
         #    y_hat, y_smo.type_as(y_hat), pos_weight=torch.tensor(pos_weight)
-        #)
-        #return loss, y, y_hat.sigmoid()
-        loss = F.cross_entropy(y_hat, torch.argmax(y,1))
+        # )
+        # return loss, y, y_hat.sigmoid()
+        loss = F.cross_entropy(y_hat, torch.argmax(y, 1))
         return loss, y, y_hat
 
     def training_step(self, batch, batch_nb):
@@ -470,17 +470,24 @@ class Model9Features(pl.LightningModule):
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
         y = torch.cat([x["y"] for x in outputs])
         y_hat = torch.cat([x["y_hat"] for x in outputs])
-        #auc = (
+        # auc = (
         #    AUROC()(preds=y_hat.argmax(dim=1), target=y.argmax(dim=1)) #if y.float().mean() > 0 else 0.5
-        #)  # skip sanity check
+        # )  # skip sanity check
 
-        print(y.argmax(dim=1),list(range(9)))
-        auc = roc_auc_score(y.argmax(dim=1).cpu(), F.softmax(y_hat,dim=1).cpu(), multi_class='ovr', labels=list(range(9)))
-        
         accuracy = torchmetrics.Accuracy()
+
+        class_indexes = (y == 0).nonzero().flatten()
+        y_classzero = torch.index_select(y, 0, class_indexes)
+        yhat_classzero = torch.index_select(y_hat, 0, class_indexes)
+
+        auc = accuracy(
+            yhat_classzero.argmax(dim=1).cpu(), y_classzero.argmax(dim=1).cpu()
+        )
+        # or (yhat_classzero.round() == y_classzero).float().mean().item()
+
         acc = accuracy(y_hat.argmax(dim=1).cpu(), y.argmax(dim=1).cpu())
 
-        #acc = (y_hat.round() == y).float().mean().item()
+        # acc = (y_hat.round() == y).float().mean().item()
         print(f"Epoch {self.current_epoch} acc:{acc} auc:{auc}")
         self.log("avg_val_loss", avg_loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val_auc", auc, on_step=False, on_epoch=True, prog_bar=False)
@@ -503,32 +510,35 @@ class Model9Features(pl.LightningModule):
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
             self.image_dir,
-            use_metadata = True,
-            include_2019 = True
+            use_metadata=True,
+            include_2019=True,
         )
 
-        #classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
-        #    "target"
-        #].to_numpy()
+        # classes = (
+        #     self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
+        #         ["MEL", "NV", "BCC", "AK", "BKL", "DF", "VASC", "SCC", "UNK"]
+        #     ]
+        #     .to_numpy()
+        #     .astype(int)
+        # )
 
-        #class_sample_count = np.array(
-        #    [len(np.where(classes == t)[0]) for t in np.unique(classes)]
-        #)
-        #weight = 1.0 / class_sample_count
+        # class_sample_count = np.array(
+        #     [len(np.where(classes == t)[0]) for t in np.unique(classes)]
+        # )
+        # weight = 1.0 / class_sample_count
+        # samples_weight = np.array([weight[t] for t in classes])
 
-        #samples_weight = np.array([weight[t] for t in classes])
-
-        #samples_weight = torch.from_numpy(samples_weight)
-        #samples_weigth = samples_weight.double()
-        #sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
+        # samples_weight = torch.from_numpy(samples_weight)
+        # samples_weight = samples_weight.double()
+        # sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
 
         return DataLoader(
             ds_train,
             batch_size=batch_size,
             num_workers=num_workers,
             drop_last=True,
-            pin_memory=True
-            #sampler=sampler
+            pin_memory=True,
+            # sampler=sampler,
         )
 
     def val_dataloader(self):
@@ -537,7 +547,7 @@ class Model9Features(pl.LightningModule):
             self.transform_test,
             self.image_dir,
             use_metadata=True,
-            include_2019 = True
+            include_2019=True,
         )
         return DataLoader(
             ds_val,
@@ -545,7 +555,7 @@ class Model9Features(pl.LightningModule):
             num_workers=num_workers,
             drop_last=False,
             shuffle=False,
-            pin_memory=True
+            pin_memory=True,
         )
 
     def test_dataloader(self):
@@ -556,5 +566,6 @@ class Model9Features(pl.LightningModule):
             num_workers=num_workers,
             drop_last=False,
             shuffle=False,
-            pin_memory=False
+            pin_memory=False,
         )
+

@@ -17,11 +17,13 @@ def main():
     train_df = pd.read_csv(CSV_DIR / "train.csv")
     test_df = pd.read_csv(CSV_DIR / "test.csv")
     # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-    IMAGE_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg")
-
+    IMAGE_DIR_TEST = Path(
+        "/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg"
+    )
+    IMAGE_DIR_TRAINING = IMAGE_DIR_TEST
     run_folder = "runs/"
     predictions = None
-    for u in range(3, 5):
+    for u in range(3, 8):
         arch = f"efficientnet-b{u}"
         best_checkpoint = None
         best_checkpoint_auc = 0
@@ -31,12 +33,13 @@ def main():
                 best_checkpoint = checkpoint
                 best_checkpoint_auc = auc
         print(f"For arch {arch} loading checkpoint {best_checkpoint}")
-        model = BigModel(train_df, test_df, IMAGE_DIR, arch)
+        model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
         model = model.load_from_checkpoint(
             run_folder + arch + "/" + best_checkpoint,
             train_df=train_df,
             test_df=test_df,
-            image_dir=IMAGE_DIR,
+            image_dir_training=IMAGE_DIR_TRAINING,
+            image_dir_test=IMAGE_DIR_TEST,
             arch=arch,
         )
 
