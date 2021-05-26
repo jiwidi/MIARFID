@@ -4,7 +4,7 @@ import torch
 import os
 import re
 from pathlib import Path
-from model import BigModel, Model2Branches
+from model import BigModel, Model2Branches, Model9Features
 
 
 def main():
@@ -12,15 +12,20 @@ def main():
     dir = os.path.dirname("runs/predictions/")
     if not os.path.exists(dir):
         os.makedirs(dir)
-    # test_df = pd.read_csv(CSV_DIR / "train_concat.csv")
-    CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
-    train_df = pd.read_csv(CSV_DIR / "train.csv")
-    test_df = pd.read_csv(CSV_DIR / "test.csv")
-    # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
-    IMAGE_DIR_TEST = Path(
-        "/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg"
-    )
-    IMAGE_DIR_TRAINING = IMAGE_DIR_TEST
+    # # test_df = pd.read_csv(CSV_DIR / "train_concat.csv")
+    # CSV_DIR = Path("/mnt/kingston/datasets/siim-isic-melanoma-classification")
+    # train_df = pd.read_csv(CSV_DIR / "train.csv")
+    # test_df = pd.read_csv(CSV_DIR / "test.csv")
+    # # IMAGE_DIR = Path('/kaggle/input/siim-isic-melanoma-classification/jpeg')  # Use this when training with original images
+    # IMAGE_DIR_TEST = Path(
+    #     "/mnt/kingston/datasets/siim-isic-melanoma-classification/jpeg"
+    # )
+
+    IMAGE_DIR_TRAINING = Path("data")
+    CSV_DIR = Path("data")
+    train_df = pd.read_csv(CSV_DIR / "train_full.csv")
+    test_df = pd.read_csv(CSV_DIR / "test_full.csv")
+
     run_folder = "runs/"
     predictions = None
     for u in range(3, 8):
@@ -33,14 +38,16 @@ def main():
                 best_checkpoint = checkpoint
                 best_checkpoint_auc = auc
         print(f"For arch {arch} loading checkpoint {best_checkpoint}")
-        model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
+        model = Model9Features(
+            train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12
+        )
         model = model.load_from_checkpoint(
             run_folder + arch + "/" + best_checkpoint,
             train_df=train_df,
             test_df=test_df,
-            image_dir_training=IMAGE_DIR_TRAINING,
-            image_dir_test=IMAGE_DIR_TEST,
+            image_dir=IMAGE_DIR_TRAINING,
             arch=arch,
+            n_meta_features=12,
         )
 
         gpus = 1 if torch.cuda.is_available() else None

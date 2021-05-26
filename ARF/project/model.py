@@ -559,7 +559,14 @@ class Model9Features(pl.LightningModule):
         )
 
     def test_dataloader(self):
-        ds_test = SIIMDataset(self.test_df, self.transform_test, self.image_dir,)
+        ds_test = SIIMDataset(
+            self.test_df,
+            self.transform_test,
+            self.image_dir,
+            test=True,
+            include_2019=True,
+            use_metadata=True,
+        )
         return DataLoader(
             ds_test,
             batch_size=batch_size,
