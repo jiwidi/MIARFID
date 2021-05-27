@@ -12,6 +12,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from torchvision import transforms
+import albumentations as A
 
 from dataset import SIIMDataset
 
@@ -21,6 +22,7 @@ batch_size = 8
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
+weights = [2, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125]
 
 
 class BigModel(pl.LightningModule):
@@ -370,8 +372,9 @@ class Model2Branches(pl.LightningModule):
 
 
 class Model9Features(pl.LightningModule):
-    def __init__(self, train_df, test_df, image_dir, arch, n_meta_features):
+    def __init__(self, train_df, test_df, image_dir, arch, n_meta_features, image_size = 224):
         super().__init__()
+        self.arch = arch
         self.net = EfficientNet.from_pretrained(arch, advprop=True)
         self.net._fc = torch.nn.Linear(
             in_features=self.net._fc.in_features, out_features=500, bias=True
@@ -392,6 +395,7 @@ class Model9Features(pl.LightningModule):
         self.train_df = train_df
         self.test_df = test_df
         self.image_dir = image_dir
+        self.image_size = image_size
 
         # Split
         patient_means = train_df.groupby(["patient_id"])["MEL"].mean()
@@ -404,28 +408,40 @@ class Model9Features(pl.LightningModule):
         self.pid_val = patient_ids[val_idx]
 
         # Transforms
-        self.transform_train = transforms.Compose(
+        self.transform_train = A.Compose([
+            A.Transpose(p=0.5),
+            A.VerticalFlip(p=0.5),
+            A.HorizontalFlip(p=0.5),
+            A.RandomBrightness(limit=0.2, p=0.75),
+            A.RandomContrast(limit=0.2, p=0.75),
+            A.OneOf([
+                A.MotionBlur(blur_limit=5),
+                A.MedianBlur(blur_limit=5),
+                A.GaussianBlur(blur_limit=5),
+                A.GaussNoise(var_limit=(5.0, 30.0)),
+            ], p=0.7),
+
+            A.OneOf([
+                A.OpticalDistortion(distort_limit=1.0),
+                A.GridDistortion(num_steps=5, distort_limit=1.),
+                A.ElasticTransform(alpha=3),
+            ], p=0.7),
+
+            A.CLAHE(clip_limit=4.0, p=0.7),
+            A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
+            A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=0.85),
+            A.Resize(self.image_size, self.image_size),
+            A.Cutout(max_h_size=int(self.image_size * 0.375), max_w_size=int(self.image_size * 0.375), num_holes=1, p=0.7),    
+            A.Normalize()
+        ])
+
+        self.transform_test = A.Compose(
             [
-                transforms.Resize(
-                    (224, 224)
+                A.Resize(
+                    self.image_size,
+                    self.image_size
                 ),  # Use this when training with original images
-                transforms.RandomHorizontalFlip(0.5),
-                transforms.RandomVerticalFlip(0.5),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
-        self.transform_test = transforms.Compose(
-            [
-                transforms.Resize(
-                    (224, 224)
-                ),  # Use this when training with original images
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                A.Normalize()
             ]
         )
 
@@ -452,7 +468,7 @@ class Model9Features(pl.LightningModule):
         #    y_hat, y_smo.type_as(y_hat), pos_weight=torch.tensor(pos_weight)
         # )
         # return loss, y, y_hat.sigmoid()
-        loss = F.cross_entropy(y_hat, torch.argmax(y, 1))
+        loss = F.cross_entropy(y_hat, torch.argmax(y, 1), weight=torch.tensor(weights).cuda())
         return loss, y, y_hat
 
     def training_step(self, batch, batch_nb):
@@ -494,16 +510,16 @@ class Model9Features(pl.LightningModule):
         self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
 
     def test_step(self, batch, batch_nb):
-        x = batch
-        y_hat = self(x).flatten().sigmoid()
+        x, metadata = batch
+        y_hat = self((x, metadata)).softmax(1)
         return {"y_hat": y_hat}
 
     def test_epoch_end(self, outputs):
-        y_hat = torch.cat([x["y_hat"] for x in outputs])
-        df_test["target"] = y_hat.tolist()
-        N = len(glob("submission*.csv"))
-        df_test.target.to_csv(f"submission{N}.csv")
-        return {"tta": N}
+        y_hat = torch.cat([x["y_hat"][:,0] for x in outputs])
+        self.test_df["target"] = y_hat.tolist()
+        self.test_df[["image_name", "target"]].to_csv(
+            f"runs/predictions/submission_{self.arch}.csv", index=False
+        )
 
     def train_dataloader(self):
         ds_train = SIIMDataset(
@@ -514,23 +530,25 @@ class Model9Features(pl.LightningModule):
             include_2019=True,
         )
 
-        # classes = (
-        #     self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
-        #         ["MEL", "NV", "BCC", "AK", "BKL", "DF", "VASC", "SCC", "UNK"]
-        #     ]
-        #     .to_numpy()
-        #     .astype(int)
-        # )
+        #classes = (
+        #    self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
+        #        ["MEL"]
+        #    ]
+        #    .to_numpy()
+        #    .astype(int)
+        #)
 
-        # class_sample_count = np.array(
-        #     [len(np.where(classes == t)[0]) for t in np.unique(classes)]
-        # )
-        # weight = 1.0 / class_sample_count
-        # samples_weight = np.array([weight[t] for t in classes])
+        #class_sample_count = np.array(
+        #    [len(np.where(classes == t)[0]) for t in np.unique(classes)]
+        #)
 
-        # samples_weight = torch.from_numpy(samples_weight)
-        # samples_weight = samples_weight.double()
-        # sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
+        #weight = 1.0 / class_sample_count
+
+        #samples_weight = np.array([weight[t] for t in classes])
+
+        #samples_weight = torch.from_numpy(samples_weight)
+        #samples_weight = samples_weight.double()
+        #sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
 
         return DataLoader(
             ds_train,
@@ -538,7 +556,7 @@ class Model9Features(pl.LightningModule):
             num_workers=num_workers,
             drop_last=True,
             pin_memory=True,
-            # sampler=sampler,
+            #sampler=sampler,
         )
 
     def val_dataloader(self):
