@@ -26,7 +26,7 @@ weights = [2, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125]
 
 
 class BigModel(pl.LightningModule):
-    def __init__(self, train_df, test_df, image_dir_training, image_dir_test, arch):
+    def __init__(self, train_df, test_df, image_dir_training, image_dir_test, arch, image_size = 224):
         super().__init__()
         self.arch = arch
         self.net = EfficientNet.from_pretrained(arch, advprop=True)
@@ -38,6 +38,7 @@ class BigModel(pl.LightningModule):
         self.test_df = test_df
         self.image_dir_training = image_dir_training
         self.image_dir_test = image_dir_test
+        self.image_size = image_size
 
         # Split
         patient_means = train_df.groupby(["patient_id"])["target"].mean()
@@ -175,7 +176,6 @@ class BigModel(pl.LightningModule):
             batch_size=batch_size,
             num_workers=num_workers,
             drop_last=True,
-            shuffle=True,
             pin_memory=True,
             sampler=sampler,
         )
