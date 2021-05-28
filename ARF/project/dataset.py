@@ -69,8 +69,11 @@ class SIIMDataset(pytorch_data.Dataset):
 
         if not self.test:
             if self.include_2019:
-                # Now target will be a vector of size 9
-                target = meta[['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']].tolist()
+                if self.use_metadata:
+                    # Now target will be a vector of size 9
+                    target = meta[['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']].tolist()
+                else:
+                    target = meta['MEL']
             else:
                 target = meta['target']
 
