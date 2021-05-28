@@ -29,13 +29,13 @@ test_df = pd.read_csv(CSV_DIR / "test_full.csv")
 for u in range(3, 8):
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath="runs/" + "efficientnet-b" + str(u),
-        filename="{epoch:02d}_{val_auc:.4f}",
+        filename="{epoch:02d}_{val_acc_mel:.4f}",
         save_top_k=3,
-        monitor="val_auc",
+        monitor="val_acc_mel",
         mode="max",
     )
     early_stop_callback = EarlyStopping(
-        monitor="val_auc", min_delta=0.00, patience=2, verbose=True, mode="max"
+        monitor="val_acc_mel", min_delta=0.00, patience=2, verbose=True, mode="max"
     )
 
     max_epochs = 20
@@ -51,13 +51,13 @@ for u in range(3, 8):
         checkpoint_callback=checkpoint_callback,
         callbacks=[early_stop_callback],
         logger=tb_logger,
-        #limit_train_batches=10,
-        #limit_val_batches=10,  # Debugging purposes
+        # limit_train_batches=10,
+        # limit_val_batches=10,  # Debugging purposes
     )
     # model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
-    #model = Model2Branches(train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12)
+    # model = Model2Branches(train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12)
     model = Model9Features(
-        train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12, image_size = 224
+        train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12, image_size=224
     )
 
     trainer.fit(model)
