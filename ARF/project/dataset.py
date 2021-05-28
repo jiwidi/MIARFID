@@ -73,7 +73,10 @@ class SIIMDataset(pytorch_data.Dataset):
                     # Now target will be a vector of size 9
                     target = meta[['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']].tolist()
                 else:
-                    target = meta['MEL']
+                    if meta['patient_id'].startswith('IP_2019_'):
+                        target = meta['MEL']
+                    else:
+                        target = meta['target']
             else:
                 target = meta['target']
 
