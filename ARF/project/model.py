@@ -18,7 +18,7 @@ from dataset import SIIMDataset
 
 lr = 3e-5
 max_epochs = 50
-batch_size = 8
+batch_size = 48
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
@@ -50,28 +50,44 @@ class BigModel(pl.LightningModule):
         self.pid_val = patient_ids[val_idx]
 
         # Transforms
-        self.transform_train = transforms.Compose(
+        # Transforms
+        self.transform_train = A.Compose([
+            A.Transpose(p=0.5),
+            A.VerticalFlip(p=0.5),
+            A.HorizontalFlip(p=0.5),
+            #A.RandomBrightness(limit=0.2, p=0.75),
+            #A.RandomContrast(limit=0.2, p=0.75),
+            A.GaussianBlur(blur_limit=5, p=0.3),
+            #A.ElasticTransform(alpha=3, p=0.3),
+            A.GridDistortion(num_steps=5, distort_limit=1., p=0.2),
+            #A.OneOf([
+            #    A.MotionBlur(blur_limit=5),
+            #    A.MedianBlur(blur_limit=5),
+            #    A.GaussianBlur(blur_limit=5),
+            #    A.GaussNoise(var_limit=(5.0, 30.0)),
+            #], p=0.7),
+
+            #A.OneOf([
+            #    A.OpticalDistortion(distort_limit=1.0),
+            #    A.GridDistortion(num_steps=5, distort_limit=1.),
+            #    A.ElasticTransform(alpha=3),
+            #], p=0.7),
+
+            #A.CLAHE(clip_limit=4.0, p=0.7),
+            #A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
+            A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=0.85),
+            A.Resize(self.image_size, self.image_size),
+            #A.Cutout(max_h_size=int(self.image_size * 0.375), max_w_size=int(self.image_size * 0.375), num_holes=1, p=0.7),    
+            A.Normalize()
+        ])
+
+        self.transform_test = A.Compose(
             [
-                transforms.Resize(
-                    (224, 224)
+                A.Resize(
+                    self.image_size,
+                    self.image_size
                 ),  # Use this when training with original images
-                transforms.RandomHorizontalFlip(0.5),
-                transforms.RandomVerticalFlip(0.5),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
-        self.transform_test = transforms.Compose(
-            [
-                transforms.Resize(
-                    (224, 224)
-                ),  # Use this when training with original images
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                A.Normalize()
             ]
         )
 
@@ -158,6 +174,7 @@ class BigModel(pl.LightningModule):
             batch_size=batch_size,
             num_workers=num_workers,
             drop_last=True,
+            shuffle=True,
             pin_memory=True,
             sampler=sampler,
         )
@@ -412,26 +429,29 @@ class Model9Features(pl.LightningModule):
             A.Transpose(p=0.5),
             A.VerticalFlip(p=0.5),
             A.HorizontalFlip(p=0.5),
-            A.RandomBrightness(limit=0.2, p=0.75),
-            A.RandomContrast(limit=0.2, p=0.75),
-            A.OneOf([
-                A.MotionBlur(blur_limit=5),
-                A.MedianBlur(blur_limit=5),
-                A.GaussianBlur(blur_limit=5),
-                A.GaussNoise(var_limit=(5.0, 30.0)),
-            ], p=0.7),
+            #A.RandomBrightness(limit=0.2, p=0.75),
+            #A.RandomContrast(limit=0.2, p=0.75),
+            A.GaussianBlur(blur_limit=5, p=0.3),
+            #A.ElasticTransform(alpha=3, p=0.3),
+            A.GridDistortion(num_steps=5, distort_limit=1., p=0.2),
+            #A.OneOf([
+            #    A.MotionBlur(blur_limit=5),
+            #    A.MedianBlur(blur_limit=5),
+            #    A.GaussianBlur(blur_limit=5),
+            #    A.GaussNoise(var_limit=(5.0, 30.0)),
+            #], p=0.7),
 
-            A.OneOf([
-                A.OpticalDistortion(distort_limit=1.0),
-                A.GridDistortion(num_steps=5, distort_limit=1.),
-                A.ElasticTransform(alpha=3),
-            ], p=0.7),
+            #A.OneOf([
+            #    A.OpticalDistortion(distort_limit=1.0),
+            #    A.GridDistortion(num_steps=5, distort_limit=1.),
+            #    A.ElasticTransform(alpha=3),
+            #], p=0.7),
 
-            A.CLAHE(clip_limit=4.0, p=0.7),
-            A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
+            #A.CLAHE(clip_limit=4.0, p=0.7),
+            #A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
             A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=0.85),
             A.Resize(self.image_size, self.image_size),
-            A.Cutout(max_h_size=int(self.image_size * 0.375), max_w_size=int(self.image_size * 0.375), num_holes=1, p=0.7),    
+            #A.Cutout(max_h_size=int(self.image_size * 0.375), max_w_size=int(self.image_size * 0.375), num_holes=1, p=0.7),    
             A.Normalize()
         ])
 
@@ -470,7 +490,15 @@ class Model9Features(pl.LightningModule):
         # hardware agnostic training
         loss, y, y_hat = self.step(batch)
         acc = (y_hat.round() == y).float().mean().item()
+        accuracy = torchmetrics.Accuracy().to(torch.device("cuda", 0))
+        class_indexes = (y == 0).nonzero().flatten()
+        y_classzero = torch.index_select(y, 0, class_indexes)
+        yhat_classzero = torch.index_select(y_hat, 0, class_indexes)
+        acc_mel = accuracy(
+            yhat_classzero.argmax(dim=1), y_classzero.argmax(dim=1))
+
         self.log("acc", acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("acc_mel", acc_mel, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "acc": acc}
 
     def validation_step(self, batch, batch_nb):
@@ -491,16 +519,16 @@ class Model9Features(pl.LightningModule):
         y_classzero = torch.index_select(y, 0, class_indexes)
         yhat_classzero = torch.index_select(y_hat, 0, class_indexes)
 
-        auc = accuracy(
+        acc_mel = accuracy(
             yhat_classzero.argmax(dim=1), y_classzero.argmax(dim=1))
         # or (yhat_classzero.round() == y_classzero).float().mean().item()
 
         acc = accuracy(y_hat.argmax(dim=1), y.argmax(dim=1))
 
         # acc = (y_hat.round() == y).float().mean().item()
-        print(f"Epoch {self.current_epoch} acc:{acc} auc:{auc}")
+        print(f"Epoch {self.current_epoch} validation acc:{acc} acc_mel:{acc_mel}")
         self.log("avg_val_loss", avg_loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("val_auc", auc, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("val_acc_mel", acc_mel, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
 
     def test_step(self, batch, batch_nb):
