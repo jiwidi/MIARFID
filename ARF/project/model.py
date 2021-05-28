@@ -133,8 +133,6 @@ class BigModel(pl.LightningModule):
         self.log("val_auc", auc, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=False)
 
-        return {"avg_val_loss": avg_loss, "val_auc": auc, "val_acc": acc}
-
     def test_step(self, batch, batch_nb):
         x = batch
         y_hat = self(x).flatten().sigmoid()
