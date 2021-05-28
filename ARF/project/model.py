@@ -463,11 +463,6 @@ class Model9Features(pl.LightningModule):
         # return batch loss
         x, metadata, y = batch
         y_hat = self((x, metadata))
-        # y_smo = y.float() * (1 - label_smoothing) + 0.5 * label_smoothing
-        # loss = F.binary_cross_entropy_with_logits(
-        #    y_hat, y_smo.type_as(y_hat), pos_weight=torch.tensor(pos_weight)
-        # )
-        # return loss, y, y_hat.sigmoid()
         loss = F.cross_entropy(y_hat, torch.argmax(y, 1), weight=torch.tensor(weights).cuda())
         return loss, y, y_hat
 
@@ -490,18 +485,17 @@ class Model9Features(pl.LightningModule):
         #    AUROC()(preds=y_hat.argmax(dim=1), target=y.argmax(dim=1)) #if y.float().mean() > 0 else 0.5
         # )  # skip sanity check
 
-        accuracy = torchmetrics.Accuracy()
+        accuracy = torchmetrics.Accuracy().to(torch.device("cuda", 0))
 
         class_indexes = (y == 0).nonzero().flatten()
         y_classzero = torch.index_select(y, 0, class_indexes)
         yhat_classzero = torch.index_select(y_hat, 0, class_indexes)
 
         auc = accuracy(
-            yhat_classzero.argmax(dim=1).cpu(), y_classzero.argmax(dim=1).cpu()
-        )
+            yhat_classzero.argmax(dim=1), y_classzero.argmax(dim=1))
         # or (yhat_classzero.round() == y_classzero).float().mean().item()
 
-        acc = accuracy(y_hat.argmax(dim=1).cpu(), y.argmax(dim=1).cpu())
+        acc = accuracy(y_hat.argmax(dim=1), y.argmax(dim=1))
 
         # acc = (y_hat.round() == y).float().mean().item()
         print(f"Epoch {self.current_epoch} acc:{acc} auc:{auc}")
@@ -530,33 +524,13 @@ class Model9Features(pl.LightningModule):
             include_2019=True,
         )
 
-        #classes = (
-        #    self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
-        #        ["MEL"]
-        #    ]
-        #    .to_numpy()
-        #    .astype(int)
-        #)
-
-        #class_sample_count = np.array(
-        #    [len(np.where(classes == t)[0]) for t in np.unique(classes)]
-        #)
-
-        #weight = 1.0 / class_sample_count
-
-        #samples_weight = np.array([weight[t] for t in classes])
-
-        #samples_weight = torch.from_numpy(samples_weight)
-        #samples_weight = samples_weight.double()
-        #sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
-
         return DataLoader(
             ds_train,
             batch_size=batch_size,
             num_workers=num_workers,
             drop_last=True,
+            shuffle=True,
             pin_memory=True,
-            #sampler=sampler,
         )
 
     def val_dataloader(self):
