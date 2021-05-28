@@ -152,6 +152,7 @@ class BigModel(pl.LightningModule):
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
             self.image_dir_training,
+            include_2019 = True
         )
 
         classes = self.train_df[self.train_df["patient_id"].isin(self.pid_train)][
