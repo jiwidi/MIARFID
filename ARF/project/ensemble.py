@@ -69,7 +69,7 @@ def main():
             aux.append(column)
     print(f"Ensembling columns {aux}")
     predictions["target"] = predictions[aux].sum(axis=1) / len(aux)
-    predictions[["image_name", "target"]].round(0).to_csv(
+    predictions[["image_name", "target"]].round(6).to_csv(
         "runs/ensemble_prediction_mean.csv", index=False
     )
 
