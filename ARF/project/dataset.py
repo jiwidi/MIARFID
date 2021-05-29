@@ -8,13 +8,14 @@ import time
 import albumentations as A
 
 class SIIMDataset(pytorch_data.Dataset):
-    def __init__(self, df, transform, image_dir, test=False, use_metadata=False, include_2019 = False):
+    def __init__(self, df, transform, image_dir, test=False, use_metadata=False, include_2019 = False, use_9_classes=False):
         self.df = df
         self.transform = transform
         self.test = test
         self.image_dir = image_dir
         self.use_metadata = use_metadata
         self.include_2019 = include_2019
+        self.use_9_classes = use_9_classes
 
         if self.use_metadata:
             # Transform dataframe
@@ -69,14 +70,11 @@ class SIIMDataset(pytorch_data.Dataset):
 
         if not self.test:
             if self.include_2019:
-                if self.use_metadata:
+                if self.use_metadata or self.use_9_classes:
                     # Now target will be a vector of size 9
                     target = meta[['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']].tolist()
                 else:
-                    if meta['patient_id'].startswith('IP_2019_'):
-                        target = meta['MEL']
-                    else:
-                        target = meta['target']
+                    target = meta['target']
             else:
                 target = meta['target']
 
@@ -91,6 +89,9 @@ class SIIMDataset(pytorch_data.Dataset):
                 return img, torch.from_numpy(metadata)
             else:
                 return img, torch.from_numpy(metadata), torch.Tensor(target).long()
+        
+        if self.use_9_classes:
+            return img, torch.Tensor(target).long()
         #
         # print(time.time() - start)
         return img, target

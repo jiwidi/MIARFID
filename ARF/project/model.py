@@ -19,7 +19,7 @@ from dataset import SIIMDataset
 
 lr = 3e-5
 max_epochs = 50
-batch_size = 24
+batch_size = 12
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
@@ -225,7 +225,7 @@ class BigModel9Features(pl.LightningModule):
         self.image_size = image_size
 
         # Split
-        patient_means = train_df.groupby(["patient_id"])["target"].mean()
+        patient_means = train_df.groupby(["patient_id"])["MEL"].mean()
         patient_ids = train_df["patient_id"].unique()
         train_idx, val_idx = train_test_split(
             np.arange(len(patient_ids)), test_size=0.2
@@ -360,7 +360,8 @@ class BigModel9Features(pl.LightningModule):
             self.train_df[self.train_df["patient_id"].isin(self.pid_train)],
             self.transform_train,
             self.image_dir_training,
-            include_2019 = True
+            include_2019 = True,
+            use_9_classes = True
         )
 
         return DataLoader(
@@ -378,6 +379,7 @@ class BigModel9Features(pl.LightningModule):
             self.transform_test,
             self.image_dir_training,
             include_2019=True,
+            use_9_classes = True
         )
         return DataLoader(
             ds_val,
@@ -394,7 +396,8 @@ class BigModel9Features(pl.LightningModule):
             self.transform_test,
             self.image_dir_test,
             test=True,
-            include_2019=True
+            include_2019=True,
+            use_9_classes = True
         )
         return DataLoader(
             ds_test,
