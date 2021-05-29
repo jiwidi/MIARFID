@@ -5,6 +5,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from efficientnet_pytorch import EfficientNet
 from pytorch_lightning.metrics.classification import AUROC
 import torchmetrics
@@ -18,7 +19,7 @@ from dataset import SIIMDataset
 
 lr = 3e-5
 max_epochs = 50
-batch_size = 48
+batch_size = 24
 num_workers = os.cpu_count()
 label_smoothing = 0.03
 pos_weight = 3.2
@@ -475,8 +476,19 @@ class Model9Features(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=lr)
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            max_lr=lr,
+            epochs=max_epochs,
+            optimizer=optimizer,
+            steps_per_epoch=int(len(self.train_df) / batch_size),
+            pct_start=0.1,
+            div_factor=10,
+            final_div_factor=100,
+            base_momentum=0.90,
+            max_momentum=0.95,
+        )
 
-        return [optimizer]
+        return [optimizer], [scheduler]
 
     def step(self, batch):
         # return batch loss
