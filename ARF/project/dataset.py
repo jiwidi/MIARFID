@@ -90,6 +90,9 @@ class SIIMDataset(pytorch_data.Dataset):
             else:
                 return img, torch.from_numpy(metadata), torch.Tensor(target).long()
         
+        if self.test:
+            return img
+
         if self.use_9_classes:
             return img, torch.Tensor(target).long()
         #

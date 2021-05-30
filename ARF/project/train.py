@@ -55,9 +55,9 @@ for u in range(3, 8):
         # limit_val_batches=10,  # Debugging purposes
     )
     # model = BigModel(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TEST, arch)
-    model = BigModel9Features(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TRAINING, arch, include_2019=True, image_size=224)
-    #model = Model9Features(
-    #    train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12, image_size=224
-    #)
+    #model = BigModel9Features(train_df, test_df, IMAGE_DIR_TRAINING, IMAGE_DIR_TRAINING, arch, include_2019=True, image_size=224)
+    model = Model9Features(
+        train_df, test_df, IMAGE_DIR_TRAINING, arch, n_meta_features=12, image_size=224
+    )
 
     trainer.fit(model)
