@@ -1,0 +1,24 @@
+{% extends "index.html" %}
+{% block content %}
+
+<h1> Movie Recommender</h1>
+
+<h2>To get started, rate these movies if you have watched them before</h2>
+
+<form action="/action_page.php">
+	<label for="cars">I'm:</label>
+	<select name="sexo" id="sexo" multiple>
+		<option value="volvo">Female</option>
+		<option value="saab">Male</option>
+	</select>
+	<select name="cars" id="cars" multiple>
+		<option value="volvo">Female</option>
+		<option value="saab">Male</option>
+	</select>
+	<br><br>
+	<input type="submit" value="Submit">
+</form>
+
+</form>
+
+{% endblock %}

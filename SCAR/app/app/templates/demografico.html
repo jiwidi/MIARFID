@@ -1,0 +1,38 @@
+{% extends "_base.html" %}
+{% block content %}
+
+<h1> Movie Recommender</h1>
+
+<h2>Select what recommender you would like</h2>
+<!-- The navigation menu -->
+<div class="navbar">
+	<a href="{{ url_for('index') }}">Home</a>
+	<a class="active" href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('demografico') }}">Colaborativo</a>
+	<a href="{{ url_for('demografico') }}">Hibrido</a>
+</div>
+<form action="/rec_demo">
+	<label for="cars"></label>
+	I'm
+	<select name="sexo" id="sexo" multiple>
+		<option value="female">Female</option>
+		<option value="male">Male</option>
+	</select>
+	I work at
+	<select name="work" id="work" multiple>
+		<option value="female">Female</option>
+		<option value="male">Male</option>
+	</select>
+	<br><br>
+	<input type="submit" value="Submit">
+	<div id='info_section'>
+		<img src="{{ data.rec_one }}" alt="Girl in a jacket" width="500"
+			height="600">
+
+		{{ data.rec_one }}
+	</div>
+</form>
+
+</form>
+
+{% endblock %}

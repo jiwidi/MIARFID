@@ -1,0 +1,18 @@
+{% extends "_base.html" %}
+{% block content %}
+
+<h1> Movie Recommender</h1>
+
+<h2>Select what recommender you would like</h2>
+<!-- The navigation menu -->
+<div class="navbar">
+	<a class="active" href="#">Home</a>
+	<a href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('demografico') }}">Colaborativo</a>
+	<a href="{{ url_for('demografico') }}">Hibrido</a>
+</div>
+<form action="/recommendation" method="get">
+
+</form>
+
+{% endblock %}
