@@ -1,0 +1,6 @@
+tqdm==4.59.0
+gym==0.18.0
+matplotlib==3.4.2
+numpy==1.20.3
+PyYAML==5.4.1
+torch==1.8.1
