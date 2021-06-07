@@ -145,7 +145,7 @@ for i_episode in range(5000):
         episode_loss = episode_loss + float(optimize_model())
         if done:
             if(t==200):
-                print(f"Problem solved at Episode {} finished after {} timesteps".format(i_episode, t+1)")
+                print("Problem solved at Episode {} finished after {} timesteps".format(i_episode, t+1))
                 break
 
             points.append((i_episode, t+1))
