@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-from model import DQN, ReplayMemory, ActionSelector, FrameProcessor, fp
+from model_breakout import DQN, ReplayMemory, ActionSelector, FrameProcessor, fp
 from utils import wrap_deepmind, make_atari
 
 
@@ -30,6 +30,7 @@ def main():
 
     c, h, w = fp(env.reset()).shape
     n_actions = env.action_space.n
+
     print(f"Running {env_name} with {n_actions} actions")
 
     # 4. Network reset
@@ -44,10 +45,10 @@ def main():
     GAMMA = 0.99
     EPS_START = 1.0
     EPS_END = 0.1
-    EPS_DECAY = 1000000
+    EPS_DECAY = 500000
     TARGET_UPDATE = 10000
     NUM_STEPS = 50000000
-    M_SIZE = 1000000
+    M_SIZE = 500000
     POLICY_UPDATE = 4
     EVALUATE_FREQ = 200000
     optimizer = optim.Adam(policy_net.parameters(), lr=0.0000625, eps=1.5e-4)

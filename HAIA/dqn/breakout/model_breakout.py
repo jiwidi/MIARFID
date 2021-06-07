@@ -34,6 +34,7 @@ class DQN(nn.Module):
         return self.fc2(x)
 
 
+
 class ActionSelector(object):
     def __init__(
         self, INITIAL_EPSILON, FINAL_EPSILON, policy_net, EPS_DECAY, n_actions, device
