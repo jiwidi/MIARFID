@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% block content %}
+
+<h1> Movie Recommender</h1>
+
+<h2>Select what recommender you would like</h2>
+<!-- The navigation menu -->
+<div class="navbar">
+	<a href="{{ url_for('index') }}">Home</a>
+	<a class="active" href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('colaborativo') }}">Colaborativo</a>
+	<a href="{{ url_for('demografico') }}">Hibrido</a>
+</div>
+<form action="/rec_collaborative" method="POST">
+	<label for="cars"></label>
+	I'm
+	<input type="number" id="user_id" name="user_id" step=" 1" pattern="\d+" />
+	<br><br>
+	<input type="submit" value="Submit">
+	<div id='info_section'>
+		<img src="{{ data.rec_one }}" alt="{{ data.title_one }}" width="500"
+			height="600">
+
+		<img src="{{ data.rec_two }}" alt="{{ data.title_two }}" width="500"
+			height="600">
+
+		<img src="{{ data.rec_three }}" alt="{{ data.title_three }}" width="500"
+			height="600">
+
+		<img src="{{ data.rec_four }}" alt="{{ data.title_four }}" width="500"
+			height="600">
+
+		<img src="{{ data.rec_five }}" alt="{{ data.title_five }}" width="500"
+			height="600">
+	</div>
+</form>
+
+</form>
+
+{% endblock %}
