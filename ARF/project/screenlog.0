@@ -1,0 +1,123 @@
+Global seed set to 17
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+Using native 16bit precision.
+Loaded pretrained weights for efficientnet-b3
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+2021-05-30 18:29:43.542458: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+
+  | Name   | Type         | Params
+----------------------------------------
+0 | net    | EfficientNet | 11.5 M
+1 | meta   | Sequential   | 133 K 
+2 | output | Linear       | 6.8 K 
+----------------------------------------
+11.6 M    Trainable params
+0         Non-trainable params
+11.6 M    Total params
+46.419    Total estimated model params size (MB)
+Validation sanity check: 0it [00:00, ?it/s]Validation sanity check:   0%|                                                           | 0/2 [00:00<?, ?it/s]Validation sanity check:  50%|█████████████████████████▌                         | 1/2 [01:08<01:08, 68.87s/it]Validation sanity check: 100%|███████████████████████████████████████████████████| 2/2 [01:09<00:00, 48.26s/it]/mnt/kingston/github/MIARFID/ARF/project/model.py:606: UserWarning: This overload of nonzero is deprecated:
+        nonzero()
+Consider using one of the following signatures instead:
+        nonzero(*, bool as_tuple) (Triggered internally at  /opt/conda/conda-bld/pytorch_1607370156314/work/torch/csrc/utils/python_arg_parser.cpp:882.)
+  class_indexes = (y == 0).nonzero().flatten()
+Epoch 0 validation acc:0.05859375 acc_mel:0.029296875
+                                                                                                               Training: 0it [00:00, ?it/s]Training:   0%|                                                                        | 0/228 [00:00<?, ?it/s]Epoch 0:   0%|                                                                         | 0/228 [00:00<?, ?it/s]^C^C^CTraceback (most recent call last):
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 637, in run_train
+    self.train_loop.run_training_epoch()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/training_loop.py", line 484, in run_training_epoch
+    for batch_idx, (batch, is_last_batch) in train_dataloader:
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/profiler/profilers.py", line 82, in profile_iterable
+    value = next(iterator)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/connectors/data_connector.py", line 47, in _with_is_last
+    last = next(it)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/supporters.py", line 470, in __next__
+    return self.request_next_batch(self.loader_iters)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/supporters.py", line 484, in request_next_batch
+    return apply_to_collection(loader_iters, Iterator, next)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/utilities/apply_func.py", line 84, in apply_to_collection
+    return function(data, *args, **kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 435, in __next__
+^C  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 1068, in _next_data
+    idx, data = self._get_data()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 1024, in _get_data
+    success, data = self._try_get_data()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 872, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/queue.py", line 179, in get
+    self.not_empty.wait(remaining)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/threading.py", line 300, in wait
+    gotit = waiter.acquire(True, timeout)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 661, in run_train
+    rank_zero_warn('Detected KeyboardInterrupt, attempting graceful shutdown...')
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py", line 48, in wrapped_fn
+    return fn(*args, **kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py", line 68, in _warn
+    warnings.warn(*args, **kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/warnings.py", line 112, in _showwarnmsg
+    _showwarnmsg_impl(msg)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/warnings.py", line 28, in _showwarnmsg_impl
+    text = _formatwarnmsg(msg)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/warnings.py", line 128, in _formatwarnmsg
+    return _formatwarnmsg_impl(msg)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/warnings.py", line 42, in _formatwarnmsg_impl
+    line = linecache.getline(msg.filename, msg.lineno)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/linecache.py", line 16, in getline
+    lines = getlines(filename, module_globals)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/torch/_fx/graph_module.py", line 27, in patched_getline
+    return _orig_getlines(*args, **kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/linecache.py", line 47, in getlines
+    return updatecache(filename, module_globals)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/linecache.py", line 137, in updatecache
+    lines = fp.readlines()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/codecs.py", line 319, in decode
+    def decode(self, input, final=False):
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "train.py", line 63, in <module>
+    trainer.fit(model)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 499, in fit
+^C  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 546, in dispatch
+    self.accelerator.start_training(self)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 73, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 114, in start_training
+    self._results = trainer.run_train()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 670, in run_train
+    self.train_loop.on_train_end()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/training_loop.py", line 138, in on_train_end
+    self.trainer.call_hook("on_train_end")
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1095, in call_hook
+    trainer_hook(*args, **kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/trainer/callback_hook.py", line 125, in on_train_end
+    callback.on_train_end(self, self.lightning_module)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/pytorch_lightning/callbacks/progress.py", line 425, in on_train_end
+    self.main_progress_bar.close()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/tqdm/std.py", line 1341, in close
+    self.display(pos=0)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/tqdm/std.py", line 1520, in display
+    self.sp(self.__repr__() if msg is None else msg)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/tqdm/std.py", line 1131, in __repr__
+^C  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/site-packages/tqdm/std.py", line 341, in format_meter
+    @staticmethod
+KeyboardInterrupt
+^CError in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/multiprocessing/queues.py", line 202, in _finalize_close
+    notempty.notify()
+  File "/home/jiwidi/anaconda3/envs/cuda/lib/python3.7/threading.py", line 348, in notify
+    waiters_to_notify = _deque(_islice(all_waiters, n))
+KeyboardInterrupt
+^C
