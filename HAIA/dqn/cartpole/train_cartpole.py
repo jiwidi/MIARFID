@@ -128,6 +128,7 @@ env = gym.make('CartPole-v0')
 for i_episode in range(5000):
     observation = env.reset()
     episode_loss = 0
+    solved=False
     if i_episode % tau == 0:
         target_net.load_state_dict(model.state_dict())
     for t in range(1000):
@@ -144,9 +145,11 @@ for i_episode in range(5000):
         memory.push([state, action, reward, next_state, done])
         episode_loss = episode_loss + float(optimize_model())
         if done:
-            if(t==200):
+            if(t+1==200):
                 print("Problem solved at Episode {} finished after {} timesteps".format(i_episode, t+1))
+                solved=True
                 break
+
 
             points.append((i_episode, t+1))
             print("Episode {} finished after {} timesteps".format(i_episode, t+1))
@@ -160,6 +163,8 @@ for i_episode in range(5000):
                 save = {'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
                 torch.save(save, "models/DQN_target_" + str(i_episode // 5000) + ".pth")
             break
+    if solved:
+        break
 env.close()
 
 
