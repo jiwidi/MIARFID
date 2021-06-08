@@ -126,10 +126,11 @@ losspoints = []
 
 
 env = gym.make("CartPole-v0")
+solved = False
+solved_times = 0
 for i_episode in range(5000):
     observation = env.reset()
     episode_loss = 0
-    solved = False
     if i_episode % tau == 0:
         target_net.load_state_dict(model.state_dict())
     for t in range(1000):
@@ -151,6 +152,9 @@ for i_episode in range(5000):
             print("Avg Loss: ", episode_loss / (t + 1))
             losspoints.append((i_episode, episode_loss / (t + 1)))
             if t + 1 == 200:
+                solved_times += 1
+                print(f"Solved for the {solved_times} time")
+            if solved_times == 100:
                 print(
                     "Problem solved at Episode {} finished after {} timesteps".format(
                         i_episode, t + 1
