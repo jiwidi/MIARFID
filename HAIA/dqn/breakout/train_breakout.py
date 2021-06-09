@@ -9,7 +9,7 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
+import torch.nn.functional as FDQN
 
 from model_breakout import DQN, ReplayMemory, ActionSelector, FrameProcessor, fp
 from utils import wrap_deepmind, make_atari
