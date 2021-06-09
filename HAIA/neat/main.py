@@ -11,7 +11,7 @@ import cv2
 args = None
 
 # ********* GYM *********
-env_name = 'Breakout-ram-v0'
+env_name = 'CartPole-v1'
 env = gym.make(env_name)
 
 
@@ -54,7 +54,7 @@ def run_net(net, episodes=1, steps=5000, render=False):
         fitness_list.append(total_reward)
 
     fitness = np.array(fitness_list).mean()
-    print("Species fitness: %s" % str(fitness))
+    #print("Species fitness: %s" % str(fitness))
     return fitness
 
 def worker_eval_genome(genome, config):
@@ -113,24 +113,24 @@ def start_simulation():
 
 
     # Plot simulation stats
-    #node_names = {-1:'Cart Position', -2: 'Cart Velocity',
-    #              -3: 'Pole Angle', -4: 'Pole Angular Velocity', 0:'Push Left', 1: 'Push Right'}
+    node_names = {-1:'Cart Position', -2: 'Cart Velocity',
+                  -3: 'Pole Angle', -4: 'Pole Angular Velocity', 0:'Push Left', 1: 'Push Right'}
+    
+    visualize.draw_net(config, best_genome, True,
+    node_names=node_names, directory=out_dir)
     #
-    #visualize.draw_net(config, best_genome, True,
-    #node_names=node_names, directory=out_dir)
-    #
-    #visualize.plot_stats(stats, ylog=False, view=True,
-    #filename=os.path.join(out_dir, 'avg_fitness.svg'))
-    #
-    #visualize.plot_species(stats, view=True,
-    #filename=os.path.join(out_dir, 'speciation.svg'))
+    visualize.plot_stats(stats, ylog=False, view=True,
+    filename=os.path.join(out_dir, 'avg_fitness.svg'))
+    
+    visualize.plot_species(stats, view=True,
+    filename=os.path.join(out_dir, 'speciation.svg'))
 
     # Run best genome
     best_net = neat.nn.FeedForwardNetwork.create(best_genome, config)
     iterations = 100  # Number of iterations needed to check if problem is solved
     rewards = np.zeros(iterations)
     for i in range(iterations):
-        rewards[i] = run_net(best_net, 1, args.max_steps, render=True)
+        rewards[i] = run_net(best_net, 1, args.max_steps, render=False)
     print("Average reward over %i iterations: %.1d" % (iterations, rewards.mean()))
 
     # Save best genome
