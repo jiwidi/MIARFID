@@ -12,7 +12,10 @@ from surprise import SVD, Dataset, KNNBasic, Reader
 from surprise.model_selection import cross_validate
 from collections import defaultdict
 
+# API FOR POSTERS
 api = "591cd379"
+
+# READ DATA
 # Genres
 generos = pd.read_csv("../data/genre.txt", names=["genre_id", "genre_name"], sep="\t")
 
@@ -27,6 +30,11 @@ all_genre = generos.genre_name.values.tolist()
 all_genre = ["movie_id"] + all_genre + ["title"]
 films = []
 films_df = pd.read_csv("../data/items.txt", names=all_genre, sep="\t")
+
+# Id to title dictionary
+movie_id_title = {}
+for idx, row in films_df.iterrows():
+    movie_id_title[row.movie_id] = row.title
 
 # Ratings
 ratings = pd.read_csv(
@@ -101,19 +109,15 @@ def query_poster(recos):
 ##################
 # Collaborative
 # Prepare data
-movies = pd.read_csv("../data/processed/movies.csv")
-
-movie_id_title = {}
-for idx, row in movies.iterrows():
-    movie_id_title[row.movie_id] = row.title
 
 
 reader = Reader()
 data = Dataset.load_from_df(ratings[["user_id", "movie_id", "rating"]], reader)
 trainset = data.build_full_trainset()
-knn = KNNBasic()
-knn.fit(trainset)
-predictions = knn.test(trainset.build_testset())
+svd = SVD()
+svd.fit(trainset)
+# We precompute recos for all users
+predictions = svd.test(trainset.build_testset())
 
 
 def recommend_me_collaborative(user_id, n=10):
@@ -127,3 +131,30 @@ def recommend_me_collaborative(user_id, n=10):
         user_ratings.sort(key=lambda x: x[1], reverse=True)
         top_n[uid] = [(movie_id_title[x[0]]) for x in user_ratings[:n]]
     return top_n[user_id]
+
+
+## Hybrid recommendations
+# We use both demographic and hybrid
+
+
+def recommend_me_hybrid(sexo, occ, lower_age, upper_age, user_id, n=10):
+    demographic = recommend_me_demographic(sexo, occ, lower_age, upper_age, 50)
+    collaborative = recommend_me_collaborative(user_id, 50)
+
+    # Join both recomendations in order, take the first demo/collab recommendations until we achieve 5
+    results = []
+    c_demo = 0
+    c_collab = 0
+    for demo, collab in zip(demographic, collaborative):
+        if len(results) < 5:
+            if demo != collab:
+                if c_demo < c_collab:
+                    results.append(demographic[c_demo])
+                    c_demo += 1
+                else:
+                    results.append(collaborative[c_collab])
+                    c_collab += 1
+            else:
+                break
+
+    return results

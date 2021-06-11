@@ -7,13 +7,13 @@
 <!-- The navigation menu -->
 <div class="navbar">
 	<a href="{{ url_for('index') }}">Home</a>
-	<a class="active" href="{{ url_for('demografico') }}">Demografico</a>
-	<a href="{{ url_for('colaborativo') }}">Colaborativo</a>
-	<a href="{{ url_for('demografico') }}">Hibrido</a>
+	<a href="{{ url_for('demografico') }}">Demografico</a>
+	<a class="active" href="{{ url_for('colaborativo') }}">Colaborativo</a>
+	<a href="{{ url_for('hibrido') }}">Hibrido</a>
 </div>
 <form action="/rec_collaborative" method="POST">
 	<label for="cars"></label>
-	I'm
+	I'm a user with user_id
 	<input type="number" id="user_id" name="user_id" step=" 1" pattern="\d+" />
 	<br><br>
 	<input type="submit" value="Submit">
