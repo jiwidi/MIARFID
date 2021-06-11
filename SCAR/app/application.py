@@ -131,4 +131,4 @@ def rec_hybrid():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=True, port=6006)
+    app.run(host="0.0.0.0", debug=True, use_reloader=True, port=6006)
