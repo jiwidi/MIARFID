@@ -1,1 +1,1 @@
-Run the xmpp server (I used prosody) before running agent scripts.
+To run the application cd into app and execute `python application.py`

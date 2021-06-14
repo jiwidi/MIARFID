@@ -34,7 +34,7 @@ new_users = {}
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("registro.html", data=default_reco)
 
 @app.route("/registro_home")
 def registro_home():
