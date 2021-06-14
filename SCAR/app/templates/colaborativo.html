@@ -1,38 +1,52 @@
 {% extends "_base.html" %}
 {% block content %}
 
-<h1> Movie Recommender</h1>
+<h1>Recomendador de peliculas SCAR</h1>
 
-<h2>Select what recommender you would like</h2>
+<h2>Selecciona el sistema de recomendador que prefieras</h2>
 <!-- The navigation menu -->
 <div class="navbar">
-	<a href="{{ url_for('index') }}">Home</a>
-	<a href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('registro_home') }}">Registro</a>
+	<a href="{{ url_for('demografico') }}">Demográfico</a>
 	<a class="active" href="{{ url_for('colaborativo') }}">Colaborativo</a>
-	<a href="{{ url_for('hibrido') }}">Hibrido</a>
+	<a href="{{ url_for('hibrido') }}">Híbrido</a>
 </div>
 <form action="/rec_collaborative" method="POST">
-	<label for="cars"></label>
-	I'm a user with user_id
-	<input type="number" id="user_id" name="user_id" step=" 1" pattern="\d+" />
+	Usuario existente con user_id
+	<input type="number" id="user_id" name="user_id" step="1"  pattern="\d+" />
 	<br><br>
-	<input type="submit" value="Submit">
+	<input type="submit" value="Recomienda!">
 	<div id='info_section' style="text-align:center">
-		<img src="{{ data.rec_one }}" alt="{{ data.title_one }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_one }}" alt="{{ data.title_one }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_one }}</p>
+		</div>
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_two }}" alt="{{ data.title_two }}" width="500"
+			height="600">
+			<p>Ratio {{ data.rating_two }}</p>
+		</div>
 
-		<img src="{{ data.rec_two }}" alt="{{ data.title_two }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_three }}" alt="{{ data.title_three }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_three }}</p>
+		</div>
 
-		<img src="{{ data.rec_three }}" alt="{{ data.title_three }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_four }}" alt="{{ data.title_four }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_four }}</p>
+		</div>
 
-		<img src="{{ data.rec_four }}" alt="{{ data.title_four }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_five }}" alt="{{ data.title_five }}" width="500"
 			height="600">
-
-		<img src="{{ data.rec_five }}" alt="{{ data.title_five }}" width="500"
-			height="600">
+			<p>Ratio {{ data.rating_five }}</p>
+		</div>
 	</div>
+
 </form>
 
 </form>

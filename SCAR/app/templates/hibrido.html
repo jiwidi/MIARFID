@@ -1,77 +1,51 @@
 {% extends "_base.html" %}
 {% block content %}
 
-<h1> Movie Recommender</h1>
+<h1>Recomendador de peliculas SCAR</h1>
 
-<h2>Select what recommender you would like</h2>
+<h2>Selecciona el sistema de recomendador que prefieras</h2>
 <!-- The navigation menu -->
 <div class="navbar">
-	<a href="{{ url_for('index') }}">Home</a>
-	<a href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('registro_home') }}">Registro</a>
+	<a href="{{ url_for('demografico') }}">Demográfico</a>
 	<a href="{{ url_for('colaborativo') }}">Colaborativo</a>
-	<a class="active" href="{{ url_for('hibrido') }}">Hibrido</a>
+	<a class="active" href="{{ url_for('hibrido') }}">Híbrido</a>
 </div>
 <form action="/rec_hybrid" method="POST">
-	<label for="cars"></label>
-	I'm
-	<select name="sexo" id="sexo" multiple>
-		<option value="F">Female</option>
-		<option value="M">Male</option>
-	</select>
-	I work at
-	<select name="work" id="work" multiple>
-		<option value="technician">technician</option>
-		<option value="other">other</option>
-		<option value="writer">writer</option>
-		<option value="executive">executive</option>
-		<option value="administrator">administrator</option>
-		<option value="student">student</option>
-		<option value="lawyer">lawyer</option>
-		<option value="educator">educator</option>
-		<option value="scientist">scientist</option>
-		<option value="entertainment">entertainment</option>
-		<option value="programmer">programmer</option>
-		<option value="librarian">librarian</option>
-		<option value="homemaker">homemaker</option>
-		<option value="artist">artist</option>
-		<option value="engineer">engineer</option>
-		<option value="marketing">marketing</option>
-		<option value="none">none</option>
-		<option value="healthcare">healthcare</option>
-		<option value="retired">retired</option>
-		<option value="salesman">salesman</option>
-		<option value="doctor">doctor</option>
-	</select>
-	My age is between
-	<select name="age" id="age" multiple>
-		<option value="10-20">10-20</option>
-		<option value="21-30">21-30</option>
-		<option value="31-40">31-40</option>
-		<option value="41-50">41-50</option>
-		<option value="51-60">51-60</option>
-		<option value="61-70">61-70</option>
-		<option value="71-80">71-80</option>
-		<option value="81-100">81-100</option>
-	</select>
-	I'm a user with user_id
+
+	Usuario existente con user_id:
 	<input type="number" id="user_id" name="user_id" step=" 1" pattern="\d+" />
 	<br><br>
-	<input type="submit" value="Submit">
+	<input type="submit" value="Recomienda!">
 	<div id='info_section' style="text-align:center">
-		<img src="{{ data.rec_one }}" alt="{{ data.title_one }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_one }}" alt="{{ data.title_one }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_one }}</p>
+		</div>
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_two }}" alt="{{ data.title_two }}" width="500"
+			height="600">
+			<p>Ratio {{ data.rating_two }}</p>
+		</div>
 
-		<img src="{{ data.rec_two }}" alt="{{ data.title_two }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_three }}" alt="{{ data.title_three }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_three }}</p>
+		</div>
 
-		<img src="{{ data.rec_three }}" alt="{{ data.title_three }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_four }}" alt="{{ data.title_four }}" width="500"
 			height="600">
+			<p>Ratio {{ data.rating_four }}</p>
+		</div>
 
-		<img src="{{ data.rec_four }}" alt="{{ data.title_four }}" width="500"
+		<div class="img-with-text" style="display: inline-block;">
+			<img src="{{ data.rec_five }}" alt="{{ data.title_five }}" width="500"
 			height="600">
-
-		<img src="{{ data.rec_five }}" alt="{{ data.title_five }}" width="500"
-			height="600">
+			<p>Ratio {{ data.rating_five }}</p>
+		</div>
 	</div>
 </form>
 

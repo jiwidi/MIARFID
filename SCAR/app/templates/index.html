@@ -1,17 +1,17 @@
 {% extends "_base.html" %}
 {% block content %}
 
-<h1> Movie Recommender</h1>
+<h1>Recomendador de peliculas SCAR</h1>
 
-<h2>Select what recommender you would like</h2>
+<h2>Selecciona el sistema de recomendador que prefieras</h2>
 <!-- The navigation menu -->
 <div class="navbar">
 	<a class="active" href="#">Home</a>
-	<a href="{{ url_for('demografico') }}">Demografico</a>
+	<a href="{{ url_for('demografico') }}">Demográfico</a>
 	<a href="{{ url_for('colaborativo') }}">Colaborativo</a>
-	<a href="{{ url_for('demografico') }}">Hibrido</a>
+	<a href="{{ url_for('demografico') }}">Híbrido</a>
 </div>
 
-<h2> Select a recommender type to start receiving recommendations</h2>
+<h2> Selecciona un sistema para empezar.</h2>
 
 {% endblock %}

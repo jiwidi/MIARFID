@@ -1,0 +1,65 @@
+{% extends "_base.html" %}
+{% block content %}
+
+<h1>Recomendador de peliculas SCAR</h1>
+
+<h2>Selecciona el sistema de recomendador que prefieras</h2>
+<!-- The navigation menu -->
+<div class="navbar">
+	<a class="active"  href="{{ url_for('registro_home') }}">Registro</a>
+	<a href="{{ url_for('demografico') }}">Demográfico</a>
+	<a href="{{ url_for('colaborativo') }}">Colaborativo</a>
+	<a href="{{ url_for('hibrido') }}">Híbrido</a>
+</div>
+<form action="/registro" method="POST">
+	Nuevo usuario:
+	Soy
+	<select name="sexo" id="sexo" multiple>
+		<option selected="selected" value="F">Female</option>
+		<option value="M">Male</option>
+	</select>
+	trabajo en
+	<select name="work" id="work" multiple>
+		<option value="technician">technician</option>
+		<option selected="selected"  value="other">other</option>
+		<option value="writer">writer</option>
+		<option value="executive">executive</option>
+		<option value="administrator">administrator</option>
+		<option value="student">student</option>
+		<option value="lawyer">lawyer</option>
+		<option value="educator">educator</option>
+		<option value="scientist">scientist</option>
+		<option value="entertainment">entertainment</option>
+		<option value="programmer">programmer</option>
+		<option value="librarian">librarian</option>
+		<option value="homemaker">homemaker</option>
+		<option value="artist">artist</option>
+		<option value="engineer">engineer</option>
+		<option value="marketing">marketing</option>
+		<option value="none">none</option>
+		<option value="healthcare">healthcare</option>
+		<option value="retired">retired</option>
+		<option value="salesman">salesman</option>
+		<option value="doctor">doctor</option>
+	</select>
+	y mi edad esta entre
+	<select name="age" id="age" multiple>
+		<option value="10-20">10-20</option>
+		<option value="21-30">21-30</option>
+		<option value="31-40">31-40</option>
+		<option selected="selected" value="41-50">41-50</option>
+		<option value="51-60">51-60</option>
+		<option value="61-70">61-70</option>
+		<option value="71-80">71-80</option>
+		<option value="81-100">81-100</option>
+	</select>
+	<br><br>
+
+    <br><br>
+
+    <input type="submit" value="Registrar usuario">
+    <div id='info_section' style="text-align:center">
+    <p>Usuario registrado con id {{ data.new_user_id}}</p>
+    </div>
+
+{% endblock %}

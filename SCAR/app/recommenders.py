@@ -24,7 +24,7 @@ generos = pd.read_csv("../data/genre.txt", names=["genre_id", "genre_name"], sep
 users_df = pd.read_csv(
     "../data/users.txt", names=["user_id", "age", "gender", "occupation"], sep="\t"
 )
-
+print("max_user",users_df.user_id.max())
 # Read movies
 all_genre = generos.genre_name.values.tolist()
 all_genre = ["movie_id"] + all_genre + ["title"]
@@ -75,7 +75,10 @@ def recommend_me_demographic(sex, occupation, lower_age, upper_age, n):
     aux_ratings["score"] = aux_ratings.apply(weighted_rating, axis=1)
     aux_ratings = aux_ratings.merge(films_df, on="movie_id")
     # print(aux_ratings.sort_values("score", ascending=False))
-    return aux_ratings.sort_values("score")["title"].values[:n]
+    result = aux_ratings.sort_values("score",ascending=False)[["title","score"]].values[:n]
+    titles, ratios = zip(*result)
+    ratios = [ round(elem, 2) for elem in ratios ]
+    return titles, ratios
 
 
 def query_poster(recos):
@@ -114,10 +117,10 @@ def query_poster(recos):
 reader = Reader()
 data = Dataset.load_from_df(ratings[["user_id", "movie_id", "rating"]], reader)
 trainset = data.build_full_trainset()
-svd = SVD()
-svd.fit(trainset)
+knn = KNNBasic()
+knn.fit(trainset)
 # We precompute recos for all users
-predictions = svd.test(trainset.build_testset())
+predictions = knn.test(trainset.build_testset())
 
 
 def recommend_me_collaborative(user_id, n=10):
@@ -129,8 +132,10 @@ def recommend_me_collaborative(user_id, n=10):
     # Then sort the predictions for each user and retrieve the k highest ones.
     for uid, user_ratings in top_n.items():
         user_ratings.sort(key=lambda x: x[1], reverse=True)
-        top_n[uid] = [(movie_id_title[x[0]]) for x in user_ratings[:n]]
-    return top_n[user_id]
+        top_n[uid] = [(movie_id_title[x[0]],x[1]) for x in user_ratings[:n]]
+    titles, ratios = zip(*top_n[user_id])
+    ratios = [ round(elem, 2) for elem in ratios ]
+    return titles, ratios
 
 
 ## Hybrid recommendations
@@ -138,23 +143,39 @@ def recommend_me_collaborative(user_id, n=10):
 
 
 def recommend_me_hybrid(sexo, occ, lower_age, upper_age, user_id, n=10):
-    demographic = recommend_me_demographic(sexo, occ, lower_age, upper_age, 50)
-    collaborative = recommend_me_collaborative(user_id, 50)
+    demographic_titles, demo_ratios = recommend_me_demographic(sexo, occ, lower_age, upper_age, 50)
+    collaborative_titles, colab_ratios = recommend_me_collaborative(user_id, 50)
 
     # Join both recomendations in order, take the first demo/collab recommendations until we achieve 5
     results = []
+    ratios = []
     c_demo = 0
     c_collab = 0
-    for demo, collab in zip(demographic, collaborative):
+    for demo, collab in zip(demographic_titles, collaborative_titles):
         if len(results) < 5:
             if demo != collab:
                 if c_demo < c_collab:
-                    results.append(demographic[c_demo])
+                    results.append(demographic_titles[c_demo])
+                    ratios.append(demo_ratios[c_demo])
                     c_demo += 1
                 else:
-                    results.append(collaborative[c_collab])
+                    results.append(collaborative_titles[c_collab])
+                    ratios.append(colab_ratios[c_collab])
                     c_collab += 1
             else:
                 break
 
-    return results
+    return results, ratios
+
+
+##Utils functions
+
+def get_demo_data_from_user(user_id):
+    user = users_df[users_df["user_id"]==user_id]
+    sexo = user.gender.values[0]
+    occ = user.occupation.values[0]
+    age = user.age.values[0]
+    low_age = age-5
+    upper_age = age+5
+
+    return sexo, occ, low_age, upper_age
